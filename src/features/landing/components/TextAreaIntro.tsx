@@ -12,7 +12,7 @@ export function TextAreaIntro() {
     // Container Utama
     <div
       className="
-        flex w-full items-center justify-center 
+        flex w-full items-start  
         lg:w-[1031.739px] lg:justify-between 
         h-auto 
         px-4 lg:px-[67.474px]
