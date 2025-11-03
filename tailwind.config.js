@@ -2,158 +2,159 @@ import defaultTheme from 'tailwindcss/defaultTheme';
 
 /** @type {import('tailwindcss').Config} */
 export default {
-  darkMode: ["class"],
-  content: [
-    "./pages/**/*.{ts,tsx}",
-    "./components/**/*.{ts,tsx}",
-    "./app/**/*.{ts,tsx}",
-    "./src/**/*.{ts,tsx}",
-    "*.{js,ts,jsx,tsx,mdx}",
-  ],
-  prefix: "",
-  theme: {
-    container: {
-      center: true,
-      padding: '2rem',
-      screens: {
-        '2xl': '1400px'
-      }
-    },
-    extend: {
-      colors: {
-        // shadcn/ui default colors
-        border: 'hsl(var(--border))',
-        input: 'hsl(var(--input))',
-        ring: 'hsl(var(--ring))',
-        background: 'hsl(var(--background))',
-        foreground: 'hsl(var(--foreground))',
-        primary: {
-          DEFAULT: 'hsl(var(--primary))',
-          foreground: 'hsl(var(--primary-foreground))'
-        },
-        secondary: {
-          DEFAULT: 'hsl(var(--secondary))',
-          foreground: 'hsl(var(--secondary-foreground))'
-        },
-        destructive: {
-          DEFAULT: 'hsl(var(--destructive))',
-          foreground: 'hsl(var(--destructive-foreground))'
-        },
-        muted: {
-          DEFAULT: 'hsl(var(--muted))',
-          foreground: 'hsl(var(--muted-foreground))'
-        },
-        accent: {
-          DEFAULT: 'hsl(var(--accent))',
-          foreground: 'hsl(var(--accent-foreground))'
-        },
-        popover: {
-          DEFAULT: 'hsl(var(--popover))',
-          foreground: 'hsl(var(--popover-foreground))'
-        },
-        card: {
-          DEFAULT: 'hsl(var(--card))',
-          foreground: 'hsl(var(--card-foreground))'
-        },
-        chart: {
-          '1': 'hsl(var(--chart-1))',
-          '2': 'hsl(var(--chart-2))',
-          '3': 'hsl(var(--chart-3))',
-          '4': 'hsl(var(--chart-4))',
-          '5': 'hsl(var(--chart-5))'
-        },
-        
-        // Custom colors for landing page
-        customBorder: {
-          gray: '#666666',
-          'white-muted': '#ffffff33',
-          secondary: '#e0e7f5',
-          background: '#f5f6f9',
-          primary: '#d8d8db',
-          'primary-muted-fade': '#ffffff33',
-          light: '#e6e6e6',
-          dark: '#060b13',
-          neutral: '#d8d8db',
-          violet: '#573dc1',
-        },
-        'royal-violet': {
-          base: '#7050f0',
-          muted: '#b7aaee',
-        },
-        customFont: {
-          base: '#909090',
-          'dark-base': '#060b13',
-        },
-      },
-      
-      // Custom gradient backgrounds
-      backgroundImage: {
-        'gradient-primary-violet': 'linear-gradient(360deg, #7050f0 0%, #b7aaee 100%)',
-        'gradient-secondary': 'linear-gradient(0deg, #7050f0 0%, #9e8ce8 100%)',
-        'gradient-purple': 'linear-gradient(360deg, #7050f0 0%, #ffffff 100%)',
-        'gradient-pink': 'linear-gradient(360deg, #ff649a 0%, #ffffff 100%)',
-      },
-      
-      // Custom typography
-      fontFamily: {
-        sans: ['Nacelle', ...defaultTheme.fontFamily.sans],
-      },
-      fontSize: {
-        // Display
-        'display-h1': ['61px', { lineHeight: '85.4px' }],
-        'display-h2': ['49px', { lineHeight: '68.6px' }],
-        'display-h3': ['39px', { lineHeight: '54.6px' }],
-        'display-h4': ['31px', { lineHeight: '43.4px' }],
-        'display-h5': ['25px', { lineHeight: '35px' }],
-        
-        // Body
-        'body-1': ['20px', { lineHeight: '28px' }],
-        'body-base': ['16px', { lineHeight: '22.4px' }],
-        'body-3': ['13px', { lineHeight: '18.2px' }],
-        'body-4': ['10px', { lineHeight: '14px' }],
+	darkMode: ["class"],
+	content: [
+		"./pages/**/*.{ts,tsx}",
+		"./components/**/*.{ts,tsx}",
+		"./app/**/*.{ts,tsx}",
+		"./src/**/*.{ts,tsx}",
+		"*.{js,ts,jsx,tsx,mdx}",
+	],
+	prefix: "",
+	theme: {
+		container: {
+			center: true,
+			padding: '2rem',
+			screens: {
+				'2xl': '1400px'
+			}
+		},
+		extend: {
+			colors: {
+				// shadcn/ui default colors
+				border: 'hsl(var(--border))',
+				input: 'hsl(var(--input))',
+				ring: 'hsl(var(--ring))',
+				background: 'hsl(var(--background))',
+				foreground: 'hsl(var(--foreground))',
+				primary: {
+					DEFAULT: 'hsl(var(--primary))',
+					foreground: 'hsl(var(--primary-foreground))'
+				},
+				secondary: {
+					DEFAULT: 'hsl(var(--secondary))',
+					foreground: 'hsl(var(--secondary-foreground))'
+				},
+				destructive: {
+					DEFAULT: 'hsl(var(--destructive))',
+					foreground: 'hsl(var(--destructive-foreground))'
+				},
+				muted: {
+					DEFAULT: 'hsl(var(--muted))',
+					foreground: 'hsl(var(--muted-foreground))'
+				},
+				accent: {
+					DEFAULT: 'hsl(var(--accent))',
+					foreground: 'hsl(var(--accent-foreground))'
+				},
+				popover: {
+					DEFAULT: 'hsl(var(--popover))',
+					foreground: 'hsl(var(--popover-foreground))'
+				},
+				card: {
+					DEFAULT: 'hsl(var(--card))',
+					foreground: 'hsl(var(--card-foreground))'
+				},
+				chart: {
+					'1': 'hsl(var(--chart-1))',
+					'2': 'hsl(var(--chart-2))',
+					'3': 'hsl(var(--chart-3))',
+					'4': 'hsl(var(--chart-4))',
+					'5': 'hsl(var(--chart-5))'
+				},
 
-        // Caption
-        'caption-1': ['8px', { lineHeight: '11.2px' }],
-        'caption-2': ['7px', { lineHeight: '9.8px' }],
-        'caption-raise': ['15.17px', { lineHeight: '21.23px' }],
-        
-        // Button
-        'button-text': ['14px', { lineHeight: '19.6px' }],
-        
-        // Overline
-        'overline-text': ['12px', { lineHeight: '16.8px' }],
-      },
-      
-      borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)'
-      },
-      
-      keyframes: {
-        'accordion-down': {
-          from: {
-            height: '0'
-          },
-          to: {
-            height: 'var(--radix-accordion-content-height)'
-          }
-        },
-        'accordion-up': {
-          from: {
-            height: 'var(--radix-accordion-content-height)'
-          },
-          to: {
-            height: '0'
-          }
-        }
-      },
-      
-      animation: {
-        'accordion-down': 'accordion-down 0.2s ease-out',
-        'accordion-up': 'accordion-up 0.2s ease-out'
-      }
-    }
-  },
-  plugins: [require("tailwindcss-animate")],
+				// Custom colors for landing page
+				customBorder: {
+					gray: '#666666',
+					'white-muted': '#ffffff33',
+					secondary: '#e0e7f5',
+					background: '#f5f6f9',
+					primary: '#d8d8db',
+					'primary-muted-fade': '#ffffff33',
+					light: '#e6e6e6',
+					dark: '#060b13',
+					neutral: '#d8d8db',
+					violet: '#573dc1',
+				},
+				'royal-violet': {
+					base: '#7050f0',
+					muted: '#b7aaee',
+				},
+				customFont: {
+					base: '#909090',
+					'dark-base': '#060b13',
+				},
+			},
+
+			// Custom gradient backgrounds
+			backgroundImage: {
+				'gradient-primary-violet': 'linear-gradient(360deg, #7050f0 0%, #b7aaee 100%)',
+				'gradient-secondary': 'linear-gradient(0deg, #7050f0 0%, #9e8ce8 100%)',
+				'gradient-purple': 'linear-gradient(360deg, #7050f0 0%, #ffffff 100%)',
+				'gradient-pink': 'linear-gradient(360deg, #ff649a 0%, #ffffff 100%)',
+			},
+
+			// Custom typography
+			fontFamily: {
+				sans: ['Nacelle', ...defaultTheme.fontFamily.sans],
+			},
+			fontSize: {
+				// Display
+				'display-h1': ['61px', { lineHeight: '85.4px' }],
+				'display-h2': ['49px', { lineHeight: '68.6px' }],
+				'display-h3': ['39px', { lineHeight: '54.6px' }],
+				'display-h4': ['31px', { lineHeight: '43.4px' }],
+				'display-h5': ['25px', { lineHeight: '35px' }],
+
+				// Body
+				'body-1': ['20px', { lineHeight: '28px' }],
+				'body-base': ['16px', { lineHeight: '22.4px' }],
+				'body-3': ['13px', { lineHeight: '18.2px' }],
+				'body-4': ['11px', { lineHeight: '14px' }],
+				'body-5': ['10.5px', { lineHeight: '14px' }],
+
+				// Caption
+				'caption-1': ['8px', { lineHeight: '11.2px' }],
+				'caption-2': ['7px', { lineHeight: '9.8px' }],
+				'caption-raise': ['15.17px', { lineHeight: '21.23px' }],
+
+				// Button
+				'button-text': ['14px', { lineHeight: '19.6px' }],
+
+				// Overline
+				'overline-text': ['12px', { lineHeight: '16.8px' }],
+			},
+
+			borderRadius: {
+				lg: 'var(--radius)',
+				md: 'calc(var(--radius) - 2px)',
+				sm: 'calc(var(--radius) - 4px)'
+			},
+
+			keyframes: {
+				'accordion-down': {
+					from: {
+						height: '0'
+					},
+					to: {
+						height: 'var(--radix-accordion-content-height)'
+					}
+				},
+				'accordion-up': {
+					from: {
+						height: 'var(--radix-accordion-content-height)'
+					},
+					to: {
+						height: '0'
+					}
+				}
+			},
+
+			animation: {
+				'accordion-down': 'accordion-down 0.2s ease-out',
+				'accordion-up': 'accordion-up 0.2s ease-out'
+			}
+		}
+	},
+	plugins: [require("tailwindcss-animate")],
 }
