@@ -1,12 +1,11 @@
 import { SectionHeader } from "@/components/shadui/SectionHeader";
 import { BlogCarousel } from "@/components/shadui/BlogCarousel";
+import { Button } from "../../../components/shadui/button.tsx";
 
 /**
  * Ini adalah "Konten Murni" untuk Section 7.
- * (Sesuai dengan 'WrapperMainContent7' di diagram Anda)
- *
- * Specs: flex-col, items-center, gap-[93.206px]
- * Dibuat responsif.
+ * (File ini sudah benar, 'items-center' akan
+ * memusatkan carousel kita yang baru)
  */
 export function MainContentSection7() {
   const description =
@@ -32,6 +31,9 @@ export function MainContentSection7() {
 
         {/* 2. Blog Carousel (Trailer) */}
         <BlogCarousel />
+        <Button variant="default" size="default">
+          Learn more
+        </Button>
       </div>
     </>
   );

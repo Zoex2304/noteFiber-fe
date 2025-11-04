@@ -1,5 +1,3 @@
-import * as React from "react";
-
 interface HeaderRegularProps {
   subject: string;
   description: string;
@@ -7,12 +5,9 @@ interface HeaderRegularProps {
 
 /**
  * Komponen Reusable "Header Regular"
- * Digunakan di dalam card (seperti BlogCard)
  *
- * Specs:
- * - Container: flex-col, gap-[14.547px]
- * - Subject: 28.367px (text-display-h5)
- * - Description: 18.184px (text-body-1)
+ * DIPERBARUI: Font size (rasio) dikecilkan
+ * agar muat lebih baik di dalam BlogCard.
  */
 export function HeaderRegular({ subject, description }: HeaderRegularProps) {
   return (
@@ -22,23 +17,25 @@ export function HeaderRegular({ subject, description }: HeaderRegularProps) {
         gap-3 lg:gap-[14.547px]
       "
     >
-      {/* 1. Subject (Judul) */}
+      {/* 1. Subject (Dikecilkan ke 20px) */}
       <h3
         className="
           font-normal text-customFont-dark-base
-          text-display-h5
+          text-body-1 
           leading-[1.4]
+          line-clamp-2
         "
       >
         {subject}
       </h3>
 
-      {/* 2. Description (Deskripsi) */}
+      {/* 2. Description (Dikecilkan ke 16px) */}
       <p
         className="
           font-normal text-customFont-base
-          text-body-1
+          text-body-base 
           leading-[1.4]
+          line-clamp-3
           self-stretch
         "
       >

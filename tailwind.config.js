@@ -84,6 +84,12 @@ export default {
 					base: '#909090',
 					'dark-base': '#060b13',
 				},
+
+				// --- TAMBAHAN ANDA DI SINI ---
+				// Sesuai permintaan Anda untuk Section 8
+				'cool-grey-1': '#E0EAFC', // Untuk border
+				'cool-grey-2': '#FAFAFA', // Untuk background
+				// --- AKHIR TAMBAHAN ---
 			},
 
 			// Custom gradient backgrounds
@@ -103,7 +109,7 @@ export default {
 				},
 				'scroll-y': {
 					from: { transform: 'translateY(0)' },
-					to: { transform: 'translateY(-50%)' }, // ✅ DIPERBAIKI: -100% → -50%
+					to: { transform: 'translateY(-50%)' }, 
 				},
 				// shadcn/ui accordion animations
 				'accordion-down': {
@@ -166,3 +172,4 @@ export default {
 	},
 	plugins: [require("tailwindcss-animate")],
 }
+

@@ -34,7 +34,7 @@ const buttonVariants = cva(
 
         // Glass/Glassmorphism effect
         glass:
-          "bg-white/30 backdrop-blur-sm border border-white/20 text-customFont-dark-base hover:bg-white/50",
+          "bg-white/30 backdrop-blur-sm border border-white/20 text-customFont-dark-base hover:bg-white/50 rounded-full",
       },
       size: {
         // Size default
@@ -58,6 +58,10 @@ const buttonVariants = cva(
         // Size untuk tombol di dalam pricing card
         "card-outline":
           "px-[21.943px] py-[8.777px] rounded-[81.189px] gap-[21.943px] text-[14px] leading-[19.6px] w-full",
+
+        // Size untuk subscribe button
+        subscribe:
+          "px-[22.075px] py-[9.811px] rounded-full gap-[12.264px] text-[14px] leading-[19.6px]",
       },
     },
     defaultVariants: {
@@ -78,7 +82,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, children, ...props }, ref) => {
     return (
       <button
-        className={cn(buttonVariants({ variant, size }), className)}
+        className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
         {...props}
       >

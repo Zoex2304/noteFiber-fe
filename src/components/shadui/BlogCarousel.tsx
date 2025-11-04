@@ -7,7 +7,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 const DUMMY_BLOG_DATA: BlogCardData[] = [
   {
     id: "1",
-    imageUrl: "https://placehold.co/400x225/e0e7f5/573dc1?text=Blog+Post+1",
+    imageUrl: "/src/assets/images/landing/illustrations/plc1.svg",
     labels: ["Financial", "Technology"],
     subject:
       "How real-time analytics can revolutionize your financial strategy",
@@ -16,7 +16,7 @@ const DUMMY_BLOG_DATA: BlogCardData[] = [
   },
   {
     id: "2",
-    imageUrl: "https://placehold.co/400x225/e0e7f5/573dc1?text=Blog+Post+2",
+    imageUrl: "/src/assets/images/landing/illustrations/plc2.svg",
     labels: ["Investment", "SaaS"],
     subject: "The 5 SaaS metrics every investor needs to track in 2026",
     description:
@@ -24,7 +24,7 @@ const DUMMY_BLOG_DATA: BlogCardData[] = [
   },
   {
     id: "3",
-    imageUrl: "https://placehold.co/400x225/e0e7f5/573dc1?text=Blog+Post+3",
+    imageUrl: "/src/assets/images/landing/illustrations/plc3.svg",
     labels: ["Productivity"],
     subject: "Streamlining Your Workflow: A Guide to NoteFiber Features",
     description:
@@ -32,21 +32,22 @@ const DUMMY_BLOG_DATA: BlogCardData[] = [
   },
   {
     id: "4",
-    imageUrl: "https://placehold.co/400x225/e0e7f5/573dc1?text=Blog+Post+4",
+    imageUrl: "/src/assets/images/landing/illustrations/plc1.svg",
     labels: ["Financial", "Startups"],
     subject: "Another amazing blog post about financial management",
     description:
       "Our expert support team is available 24/7 to assist with any questions you might have.",
   },
-  // ... (bisa ditambahkan 6 lagi, tapi 4 cukup untuk demo scroll)
 ];
 // --------------------
 
 /**
  * Komponen Reusable "Blog Carousel"
  *
- * Ini adalah "trailer" yang berisi 3+ card
- * dengan scroll horizontal dan tombol glass.
+ * DIPERBARUI:
+ * 1. Viewport (scrollContainer) diberi 'lg:max-w-[1232.128px]'
+ * agar pas 3 card dan bisa di-center.
+ * 2. Logic scroll diubah untuk menggeser 1 card penuh.
  */
 export function BlogCarousel() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -54,7 +55,8 @@ export function BlogCarousel() {
   // Fungsi untuk menggeser carousel
   const scroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
-      const scrollAmount = scrollContainerRef.current.clientWidth * 0.8; // Geser 80%
+      // Card width (400) + gap (16.064)
+      const scrollAmount = 416.064;
       scrollContainerRef.current.scrollBy({
         left: direction === "left" ? -scrollAmount : scrollAmount,
         behavior: "smooth",
@@ -63,9 +65,7 @@ export function BlogCarousel() {
   };
 
   return (
-    // Container Carousel (relative untuk menampung tombol absolute)
     <div className="relative w-full">
-      {/* Tombol Kiri (Glass) */}
       <Button
         variant="glass"
         size="icon"
@@ -75,7 +75,6 @@ export function BlogCarousel() {
         <ChevronLeft />
       </Button>
 
-      {/* Viewport (Trailer) */}
       <div
         ref={scrollContainerRef}
         className="
@@ -84,7 +83,9 @@ export function BlogCarousel() {
           overflow-x-auto 
           scroll-smooth 
           snap-x snap-mandatory
-          pb-4 
+          pb-4
+          lg:max-w-[1232.128px] 
+          mx-auto 
         "
         style={{ scrollbarWidth: "none" }} // Sembunyikan scrollbar
       >
