@@ -1,8 +1,8 @@
-import { Tag } from '@/components/shadui/Tag';
+import { Tag } from "@/components/shadui/Tag";
 // 1. Import SectionHeader (reusable baru)
-import { SectionHeader } from '@/components/shadui/SectionHeader';
-import { FeatureInfoCardPot } from './FeatureInfoCardPot';
-import { BarChart, DollarSign, PieChart, Settings2 } from 'lucide-react';
+import { SectionHeader } from "@/components/shadui/SectionHeader";
+import { FeatureInfoCardPot } from "./FeatureInfoCardPot";
+import { BarChart, DollarSign, PieChart, Settings2 } from "lucide-react";
 
 /**
  * Panel Konten Kiri untuk Section 3
@@ -22,14 +22,10 @@ export function LeftPanelContent3() {
     >
       {/* === Frame 18 === */}
       <div className="flex w-full flex-col items-start gap-4 lg:gap-[15.948px]">
-        <Tag iconSrc="/src/assets/images/landing/logo/logo_symbol.svg">
-          Best Productivity Management
-        </Tag>
-
-        {/* 2. Panggil SectionHeader (versi "pintar" baru) */}
         <SectionHeader
           align="left"
-          text="Boost your productivity with NoteFiber"
+          tagText="Best Productivity Management" // (Anda tidak menyebutkan tag, jadi saya biarkan)
+          headerText="Boost your productivity with NoteFiber"
           highlightLastWord={true}
         />
       </div>
@@ -72,4 +68,3 @@ export function LeftPanelContent3() {
     </div>
   );
 }
-

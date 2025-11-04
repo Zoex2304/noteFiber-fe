@@ -1,5 +1,6 @@
-import { Button } from '@/components/shadui/button';
-import { PriceAdvantageItem } from './PriceAdvantageItem';
+import * as React from "react";
+import { Button } from "./button";
+import { PriceAdvantageItem } from "./PriceAdvantageItem";
 
 // Definisikan tipe untuk data yang akan ditampilkan
 export interface PricingCardData {
@@ -17,7 +18,11 @@ interface PricingCardProps {
 /**
  * Komponen Reusable "Pricing Card"
  *
- * Specs: w-[427.887px], p-[28.526px], flex-col, gap-[21.943px], rounded, border
+ * LOKASI: src/components/shadui/PricingCard.tsx
+ *
+ * Fitur:
+ * 1. Deskripsi <p> diberi 'min-h-[8rem]' untuk meratakan tombol.
+ * 2. Auto-wrap menggunakan max-width CSS (lebih natural dan responsive).
  */
 export function PricingCard({ data }: PricingCardProps) {
   const { title, price, period, description, features } = data;
@@ -28,11 +33,11 @@ export function PricingCard({ data }: PricingCardProps) {
       className="
         flex w-full flex-col items-start
         rounded-[26.332px] border-[0.439px] border-customFont-base
-        p-5 lg:w-[427.887px] lg:p-[28.526px] 
+        p-5 lg:w-auto lg:p-[28.526px] 
         gap-4 lg:gap-[21.943px]
       "
     >
-      {/* 1. Judul Plan (Specs: 26.311px) */}
+      {/* 1. Judul Plan */}
       <h3
         className="
           self-stretch font-normal text-customFont-dark-base
@@ -42,9 +47,9 @@ export function PricingCard({ data }: PricingCardProps) {
         {title}
       </h3>
 
-      {/* 2. Frame Harga (Specs: flex, items-center, gap-[10.971px]) */}
+      {/* 2. Frame Harga */}
       <div className="flex items-center gap-2 lg:gap-[10.971px]">
-        {/* Harga (Specs: 36.867px) */}
+        {/* Harga */}
         <span
           className="
             font-normal text-customFont-dark-base
@@ -53,7 +58,7 @@ export function PricingCard({ data }: PricingCardProps) {
         >
           {price}
         </span>
-        {/* Periode (Specs: 17.554px) */}
+        {/* Periode */}
         <span
           className="
             font-normal text-customFont-base
@@ -64,22 +69,24 @@ export function PricingCard({ data }: PricingCardProps) {
         </span>
       </div>
 
-      {/* 3. Deskripsi (Specs: 21.943px) */}
+      {/* 3. Deskripsi dengan auto-wrap natural */}
       <p
         className="
           self-stretch font-normal text-customFont-base
           text-body-1
+          min-h-[8rem]
+          max-w-[50ch]
         "
       >
         {description}
       </p>
 
-      {/* 4. Tombol (menggunakan size 'card-outline' baru) */}
-      <Button variant="outline" size="card-outline">
+      {/* 4. Tombol */}
+      <Button variant="custom-outline" size="card-outline">
         Get Started
       </Button>
 
-      {/* 5. Frame List Fitur (Specs: flex-col, gap-[8.762px]) */}
+      {/* 5. Frame List Fitur */}
       <div className="flex flex-col items-start gap-2 lg:gap-[8.762px]">
         {features.map((feature) => (
           <PriceAdvantageItem key={feature} text={feature} />

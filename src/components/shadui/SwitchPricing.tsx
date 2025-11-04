@@ -35,6 +35,7 @@ export function SwitchPricing({ activePeriod, onToggle }: SwitchPricingProps) {
         variant={activePeriod === "monthly" ? "default" : "ghost"}
         size="toggle"
         onClick={() => onToggle("monthly")}
+        className={activePeriod === "monthly" ? "" : "text-gray-400"}
       >
         Monthly
       </Button>
@@ -44,6 +45,7 @@ export function SwitchPricing({ activePeriod, onToggle }: SwitchPricingProps) {
         variant={activePeriod === "yearly" ? "default" : "ghost"}
         size="toggle"
         onClick={() => onToggle("yearly")}
+        className={activePeriod === "yearly" ? "" : "text-gray-400"}
       >
         Yearly
       </Button>

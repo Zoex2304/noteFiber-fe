@@ -1,4 +1,5 @@
-import { PotIcon } from "@/components/shadui/PotIcon";
+// 1. Path diubah dari '@/components/shadui/PotIcon' menjadi './PotIcon' (relatif)
+import { PotIcon } from "./PotIcon";
 import { Check } from "lucide-react"; // Menggunakan ikon Check
 
 interface PriceAdvantageItemProps {
@@ -8,7 +9,7 @@ interface PriceAdvantageItemProps {
 /**
  * Komponen Reusable "Price Advantage Item"
  *
- * Specs: flex, items-center, gap-[6.583px]
+ * LOKASI BARU: src/components/shadui/PriceAdvantageItem.tsx
  */
 export function PriceAdvantageItem({ text }: PriceAdvantageItemProps) {
   return (

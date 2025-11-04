@@ -1,6 +1,5 @@
 // 1. Import komponen yang kita perlukan
 import { SectionHeader } from "@/components/shadui/SectionHeader";
-import { Tag } from "@/components/shadui/Tag";
 import { Button } from "@/components/shadui/button"; // Import Button
 
 /**
@@ -26,17 +25,12 @@ export function MainContentSection4() {
         "
       >
         {/* 1. Instance Header (Varian Tengah) */}
-        <div className="flex w-full flex-col items-center gap-4">
-          <Tag iconSrc="/src/assets/images/landing/logo/logo_symbol.svg">
-            Our Workflow
-          </Tag>
-          <SectionHeader
-            align="center"
-            // Teks header baru
-            text="Ready to transform your productivity management?"
-            highlightLastWord={true}
-          />
-        </div>
+        <SectionHeader
+          align="center"
+          tagText="Our workflow" // (Anda tidak menyebutkan tag, jadi saya biarkan)
+          headerText="Ready to transform your productivity management?"
+          highlightLastWord={true}
+        />
 
         {/* 2. Tombol "Free trial" (Baru) */}
         <Button variant="default" size="default" className="relative z-10">
