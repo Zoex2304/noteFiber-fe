@@ -96,10 +96,14 @@ export default {
 
 			// HANYA SATU BLOK KEYFRAMES - Menggabungkan semua animasi
 			keyframes: {
-				// Custom scroll animation
+				// Custom scroll animations
 				scroll: {
 					from: { transform: 'translateX(0)' },
 					to: { transform: 'translateX(-100%)' },
+				},
+				'scroll-y': {
+					from: { transform: 'translateY(0)' },
+					to: { transform: 'translateY(-50%)' }, // ✅ DIPERBAIKI: -100% → -50%
 				},
 				// shadcn/ui accordion animations
 				'accordion-down': {
@@ -114,8 +118,9 @@ export default {
 
 			// HANYA SATU BLOK ANIMATION - Menggabungkan semua animasi
 			animation: {
-				// Custom scroll animation
+				// Custom scroll animations
 				scroll: 'scroll 40s linear infinite',
+				'scroll-y': 'scroll-y 60s linear infinite',
 				// shadcn/ui accordion animations
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out'

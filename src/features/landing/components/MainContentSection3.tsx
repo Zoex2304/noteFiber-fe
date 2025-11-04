@@ -15,11 +15,12 @@ export function MainContentSection3() {
       {/* Container 'WrapperMainContent3' */}
       <div
         className="
+         p-6 lg:p-[100px]
           flex w-full 
           flex-col lg:flex-row 
           items-center lg:items-stretch 
-          gap-12 lg:gap-[88.33px]
-          pl-0 lg:p-[39.258px]
+          gap-12 lg:gap-[50px]
+          pl-0 
         "
       >
         {/* 1. Panel Kiri (Akan muncul pertama di mobile) */}

@@ -16,7 +16,7 @@ export function LeftPanelContent3() {
     <div
       className="
         flex w-full flex-col items-start
-        gap-8 lg:w-[663.699px] lg:gap-[30.742px]
+        gap-8 lg:w-auto lg:gap-[30.742px]
         lg:flex-shrink-0 
       "
     >
@@ -24,9 +24,10 @@ export function LeftPanelContent3() {
       <div className="flex w-full flex-col items-start gap-4 lg:gap-[15.948px]">
         <SectionHeader
           align="left"
-          tagText="Best Productivity Management" // (Anda tidak menyebutkan tag, jadi saya biarkan)
+          tagText="Best Productivity Management"
           headerText="Boost your productivity with NoteFiber"
           highlightLastWord={true}
+          wrapAt={3}
         />
       </div>
 
@@ -38,7 +39,7 @@ export function LeftPanelContent3() {
         "
       >
         {/* Frame 14 */}
-        <div className="flex w-full flex-col items-start gap-8 lg:gap-[33.124px]">
+        <div className="flex flex-col items-start gap-8 lg:gap-[33.124px]">
           <FeatureInfoCardPot
             icon={BarChart}
             title="Flexible Data Transfer"
@@ -52,7 +53,7 @@ export function LeftPanelContent3() {
         </div>
 
         {/* Frame 15 */}
-        <div className="flex w-full flex-col items-start gap-8 lg:gap-[33.124px]">
+        <div className="flex flex-col items-start gap-8 lg:gap-[33.124px]">
           <FeatureInfoCardPot
             icon={PieChart}
             title="Personalized Reports"
