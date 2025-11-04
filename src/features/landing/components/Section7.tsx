@@ -1,27 +1,21 @@
-import { SectionContainer } from "@/components/shadui/SectionContainer.tsx";
+// 1. Import komponen reusable
+import { SectionContainer } from '@/components/shadui/SectionContainer';
+// 2. Import komponen konten murni yang baru
+import { MainContentSection7 } from './MainContentSection7';
 
 /**
  * Section 7 (Frame 7)
  *
- * Specs:
- * - flex, flex-col, items-center
- * - w-full (Mobile)
- * - gap-4 (Mobile)
- * - lg:gap-[18.451px] (Desktop)
- * - px-4 (Mobile padding)
- * - lg:px-0 (Desktop no padding)
+ * DIPERBARUI: Sekarang mengikuti pola arsitektur baru.
  */
 export function Section7() {
   return (
+    // 3. Memanggil SectionContainer
+    // (Section 7 menggunakan style panel default)
     <SectionContainer>
-      <section className="flex w-full flex-col items-center gap-4 px-4 lg:gap-[18.451px] lg:px-0">
-        {/* Placeholder Content */}
-        <div className="h-64 w-full rounded-lg bg-pink-100 opacity-80 lg:h-96">
-          <p className="p-4 text-body-base font-semibold text-pink-800">
-            Section 7 Placeholder
-          </p>
-        </div>
-      </section>
+      {/* 4. Meneruskan konten murni sebagai children */}
+      <MainContentSection7 />
     </SectionContainer>
   );
 }
+
