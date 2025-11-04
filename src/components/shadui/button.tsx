@@ -25,13 +25,17 @@ const buttonVariants = cva(
           "border border-customBorder-primary bg-transparent text-customFont-dark-base hover:bg-gray-100",
       },
       size: {
-        // Size 'default' - TAMBAHKAN text-[14px] atau gunakan leading jika perlu
+        // Size 'default'
         default: "px-[22.082px] py-[9.814px] rounded-[61.34px] gap-[12.268px] text-[14px] leading-[19.6px]",
         sm: "h-9 rounded-md px-3 text-sm",
         lg: "h-11 rounded-md px-8 text-base",
         icon: "h-10 w-10",
         "custom-sm": "px-4 py-2 rounded-full text-[13px] leading-[18.2px]",
         "custom-lg": "px-8 py-4 rounded-full text-[20px] leading-[28px]",
+        // Size baru untuk toggle pricing
+        toggle: "px-[23.904px] py-[12.871px] rounded-[7px] gap-[9.194px] text-[14px] leading-[19.6px]",
+        // Size baru untuk tombol di dalam pricing card
+        "card-outline": "px-[21.943px] py-[8.777px] rounded-[81.189px] gap-[21.943px] text-[14px] leading-[19.6px] w-full",
       },
     },
     defaultVariants: {

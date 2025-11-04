@@ -1,60 +1,42 @@
-import * as React from "react";
-import { PotIcon } from "@/components/shadui/PotIcon";
-import type { LucideIcon } from "lucide-react";
+import * as React from 'react';
+import { PotIcon } from '@/components/shadui/PotIcon';
+import type { LucideIcon } from 'lucide-react';
 
 interface WorkflowPotProps {
-  /**
-   * Ikon yang akan ditampilkan di dalam PotIcon.
-   */
   icon: LucideIcon;
-  /**
-   * ClassName kustom untuk PotIcon (cth: bg-blue-100).
-   */
-  iconClassName: string;
-  /**
-   * Teks judul (cth: "Sign up and customize").
-   */
   title: string;
-  /**
-   * Teks deskripsi.
-   */
   description: string;
-  /**
-   * Path ke gambar ilustrasi.
-   */
   imageSrc: string;
 }
 
 /**
  * Komponen Reusable "Workflow Pot"
  * Merender 1 dari 4 pot workflow.
+ *
+ * DIPERBARUI: Menambahkan efek vignette gradasi putih pada bagian bawah gambar.
  */
 export function WorkflowPot({
   icon,
-  iconClassName,
   title,
   description,
   imageSrc,
 }: WorkflowPotProps) {
   return (
-    // Container Pot (Specs: w-[694.369px], h-[656.338px], p-[36.804px] pb-0)
+    // Container Pot
     <div
       className="
         flex flex-shrink-0 flex-col items-start
         rounded-2xl border border-customBorder-primary
-        w-full lg:w-[650.369px] 
+        w-full lg:w-[594.369px] 
         h-auto lg:h-[656.338px]
         p-6 pb-0 lg:p-[36.804px] lg:pb-0
       "
     >
-      {/* Bagian "top" (Specs: flex-col, gap-[33.124px], self-stretch) */}
+      {/* Bagian "top" */}
       <div className="flex flex-col items-start self-stretch gap-6 lg:gap-[33.124px]">
-        {/* pot icon (reusable) */}
-        <PotIcon icon={icon} className={iconClassName} />
+        <PotIcon icon={icon} />
 
-        {/* frame (text) (Specs: flex-col, gap-[9.814px], self-stretch) */}
         <div className="flex flex-col items-start self-stretch gap-2 lg:gap-[9.814px]">
-          {/* Teks Judul (Specs: 47.845px) */}
           <h3
             className="
               font-normal text-customFont-dark-base
@@ -64,7 +46,6 @@ export function WorkflowPot({
           >
             {title}
           </h3>
-          {/* Teks Deskripsi (Specs: 19.629px) */}
           <p
             className="
               font-normal text-customFont-base
@@ -77,13 +58,18 @@ export function WorkflowPot({
         </div>
       </div>
 
-      {/* Bagian "group" (Specs: w-full, h-[375.401px]) */}
+      {/* Bagian "group" (Image) */}
+      {/* DIPERBARUI: Menambahkan wrapper div dengan 'mask-image' untuk vignette */}
       <div
         className="
-          flex w-full items-end justify-center 
+          relative flex w-full items-end justify-center 
           h-64 lg:h-[375.401px]
           mt-4 lg:mt-auto
         "
+        style={{
+          maskImage: 'linear-gradient(to top, transparent, black 40%, black 100%)',
+          WebkitMaskImage: 'linear-gradient(to top, transparent, black 10%, black 100%)', // Untuk kompatibilitas
+        }}
       >
         <img
           src={imageSrc}
@@ -94,3 +80,4 @@ export function WorkflowPot({
     </div>
   );
 }
+

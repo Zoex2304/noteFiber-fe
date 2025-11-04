@@ -1,28 +1,21 @@
-import { SectionContainer } from "@/components/shadui/SectionContainer.tsx";
+// 1. Import komponen reusable
+import { SectionContainer } from '@/components/shadui/SectionContainer';
+// 2. Import komponen konten murni yang baru
+import { MainContentSection5 } from './MainContentSection5';
 
 /**
  * Section 5 (Frame 5)
  *
- * Specs:
- * - flex, flex-col, items-center
- * - w-full (Mobile)
- * - lg:max-w-[1766.593px] (Desktop)
- * - gap-3 (Mobile)
- * - lg:gap-[12.268px] (Desktop)
- * - px-4 (Mobile padding)
- * - lg:px-0 (Desktop no padding)
+ * DIPERBARUI: Sekarang mengikuti pola arsitektur baru.
  */
 export function Section5() {
   return (
+    // 3. Memanggil SectionContainer
+    // (Section 5 menggunakan style panel default)
     <SectionContainer>
-      <section className="flex w-full flex-col items-center gap-3 px-4 lg:max-w-[1766.593px] lg:gap-[12.268px] lg:px-0">
-        {/* Placeholder Content */}
-        <div className="h-64 w-full rounded-lg bg-indigo-100 opacity-80 lg:h-96">
-          <p className="p-4 text-body-base font-semibold text-indigo-800">
-            Section 5 Placeholder
-          </p>
-        </div>
-      </section>
+      {/* 4. Meneruskan konten murni sebagai children */}
+      <MainContentSection5 />
     </SectionContainer>
   );
 }
+

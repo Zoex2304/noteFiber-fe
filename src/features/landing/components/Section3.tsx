@@ -1,28 +1,23 @@
-import { SectionContainer } from '@/components/shadui/SectionContainer.tsx';
+// 1. Import komponen reusable
+import { SectionContainer } from '@/components/shadui/SectionContainer';
+// 2. Import komponen konten murni yang baru
+import { MainContentSection3 } from './MainContentSection3';
 
 /**
  * Section 3 (Frame 3)
  *
- * Specs:
- * - flex, flex-col, items-center
- * - w-full (Mobile)
- * - lg:max-w-[1766.593px] (Desktop)
- * - gap-3 (Mobile)
- * - lg:gap-[12.268px] (Desktop)
- * - px-4 (Mobile padding)
- * - lg:px-0 (Desktop no padding)
+ * DIPERBARUI: Sekarang mengikuti pola arsitektur baru.
+ * Memanggil SectionContainer dan meneruskan MainContentSection3 sebagai children.
  */
 export function Section3() {
   return (
+    // 3. Memanggil SectionContainer
+    // Kita tidak perlu meneruskan style panel apa pun
+    // karena Section 3 menggunakan style default dari SectionContainer.
     <SectionContainer>
-      <section className="flex w-full flex-col items-center gap-3 px-4 lg:max-w-[1766.593px] lg:gap-[12.268px] lg:px-0">
-      {/* Placeholder Content */}
-      <div className="h-64 w-full rounded-lg bg-green-100 opacity-80 lg:h-96">
-        <p className="p-4 text-body-base font-semibold text-green-800">
-          Section 3 Placeholder
-        </p>
-      </div>
-    </section>
+      {/* 4. Meneruskan konten murni sebagai children */}
+      <MainContentSection3 />
     </SectionContainer>
   );
 }
+

@@ -1,4 +1,5 @@
 import { Tag } from '@/components/shadui/Tag';
+import * as React from 'react'; // Import React
 
 interface BridgingHeaderProps {
   /**
@@ -7,10 +8,10 @@ interface BridgingHeaderProps {
    */
   tagText: string;
   /**
-   * Teks untuk header utama.
-   * Cth: "How our platform makes your workflow easier"
+   * DIPERBARUI: Diubah dari 'string' ke 'React.ReactNode'
+   * agar kita bisa meneruskan JSX (seperti <span> berwarna).
    */
-  headerText: string;
+  headerText: React.ReactNode;
 }
 
 /**
@@ -37,8 +38,10 @@ export function BridgingHeader({ tagText, headerText }: BridgingHeaderProps) {
           max-w-xl
         "
       >
+        {/* Sekarang bisa merender JSX, bukan hanya string */}
         {headerText}
       </h2>
     </div>
   );
 }
+
