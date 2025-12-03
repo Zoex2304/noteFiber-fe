@@ -62,7 +62,7 @@ export function ContactFormSection() {
                 />
 
                 {/* Form Card Container */}
-                <div className="relative w-full rounded-[32px] overflow-hidden shadow-2xl">
+                <div className="relative w-full max-w-[1410.397px] rounded-[32px] overflow-hidden shadow-2xl">
                     {/* Background Texture */}
                     <div className="absolute inset-0 z-0">
                         <img
