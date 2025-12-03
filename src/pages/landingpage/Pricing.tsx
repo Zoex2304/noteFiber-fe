@@ -1,4 +1,6 @@
 import { HeroSection } from "./components/organisms/HeroSection";
+import { PricingContent } from "./components/organisms/PricingContent";
+import { FAQSection } from "./components/organisms/FAQSection";
 
 export default function Pricing() {
   return (
@@ -7,11 +9,9 @@ export default function Pricing() {
         tagText="Pricing"
         title="Simple, Transparent Pricing"
         description="Choose the plan that fits your needs. No hidden fees, just straightforward pricing for powerful productivity tools."
+        customHeroContent={<PricingContent />}
       />
-      {/* Placeholders for other sections */}
-      <div className="w-full h-96 bg-gray-100 flex items-center justify-center">
-        <p className="text-gray-500">Pricing Content Placeholder</p>
-      </div>
+      <FAQSection />
     </div>
   );
 }

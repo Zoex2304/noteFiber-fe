@@ -1,12 +1,14 @@
 // src/pages/landingpage/components/organisms/HeroSection.tsx
 import { WrapperHeroSection } from './WrapperHeroSection';
 import { MainContentHeroSection } from './MainContentHeroSection';
+import type { ReactNode } from 'react';
 
 interface HeroSectionProps {
   tagText?: string;
   title?: string;
   description?: string;
   imageSrc?: string;
+  customHeroContent?: ReactNode;
 }
 
 /**
@@ -26,6 +28,7 @@ export function HeroSection({
   title,
   description,
   imageSrc,
+  customHeroContent,
 }: HeroSectionProps) {
   return (
     <section
@@ -37,6 +40,7 @@ export function HeroSection({
           title={title}
           description={description}
           imageSrc={imageSrc}
+          customHeroContent={customHeroContent}
         />
       </WrapperHeroSection>
     </section>

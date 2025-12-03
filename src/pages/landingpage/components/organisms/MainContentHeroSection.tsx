@@ -1,12 +1,14 @@
 // src/pages/landingpage/components/organisms/MainContentHeroSection.tsx
 import { MainContentHeroSectionNavbar } from "./MainContentHeroSectionNavbar";
 import { BodyContentHeroSection } from "./BodyContentHeroSection";
+import type { ReactNode } from "react";
 
 interface MainContentHeroSectionProps {
   tagText?: string;
   title?: string;
   description?: string;
   imageSrc?: string;
+  customHeroContent?: ReactNode;
 }
 
 /**
@@ -18,6 +20,7 @@ export function MainContentHeroSection({
   title,
   description,
   imageSrc = "/src/assets/images/landing/illustrations/interface.svg",
+  customHeroContent,
 }: MainContentHeroSectionProps) {
   return (
     // Menggunakan React Fragment karena tidak perlu div wrapper lagi
@@ -32,12 +35,16 @@ export function MainContentHeroSection({
         description={description}
       />
 
-      {/* Gambar "interface.svg" (dipindahkan ke sini) */}
-      <img
-        src={imageSrc}
-        alt="Interface Illustration"
-        className="w-full max-w-6xl rounded-lg" // Diberi max-width agar responsif
-      />
+      {/* Render Custom Content jika ada, jika tidak render Gambar Default */}
+      {customHeroContent ? (
+        customHeroContent
+      ) : (
+        <img
+          src={imageSrc}
+          alt="Interface Illustration"
+          className="w-full max-w-6xl rounded-lg" // Diberi max-width agar responsif
+        />
+      )}
     </>
   );
 }
