@@ -94,6 +94,7 @@ export default function SignUp() {
                                             <PasswordInput
                                                 placeholder="********"
                                                 {...field}
+                                                showToggle={false}
                                                 onChange={(e) => {
                                                     field.onChange(e);
                                                     setPassword(e.target.value);

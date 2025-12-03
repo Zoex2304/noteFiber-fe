@@ -1,4 +1,6 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
+import { Link } from "react-router-dom";
+import { Logo } from "@/components/shadui/Logo";
 
 interface AuthLayoutProps {
     children: ReactNode;
@@ -7,7 +9,14 @@ interface AuthLayoutProps {
 
 export function AuthLayout({ children, title }: AuthLayoutProps) {
     return (
-        <div className="flex min-h-screen w-full bg-white">
+        <div className="flex min-h-screen w-full bg-white relative">
+            {/* Logo - Absolute Top Left */}
+            <div className="absolute top-8 left-8 z-50">
+                <Link to="/">
+                    <Logo variant="horizontal" size="lg" />
+                </Link>
+            </div>
+
             {/* Left Side: Illustration */}
             <div className="hidden lg:flex w-1/2 bg-royal-violet-light/10 relative overflow-hidden">
                 <img
@@ -18,7 +27,7 @@ export function AuthLayout({ children, title }: AuthLayoutProps) {
             </div>
 
             {/* Right Side: Form */}
-            <div className="flex w-full lg:w-1/2 items-center justify-center p-8 lg:p-16">
+            <div className="flex w-full lg:w-1/2 items-center justify-center p-8 lg:p-16 relative">
                 <div className="w-full max-w-md flex flex-col gap-8">
                     <h1 className="text-3xl font-bold text-gray-900">{title}</h1>
                     {children}
