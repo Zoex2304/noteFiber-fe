@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { MainContentHeroSectionNavbarLogo } from "../atoms/MainContentHeroSectionNavbarLogo";
 import { MainContentHeroSectionNavbarNavlink } from "../atoms/MainContentHeroSectionNavbarNavlink";
@@ -49,9 +50,11 @@ export function MainContentHeroSectionNavbarNav() {
           <div>
             {/* Tombol Sign Up (Hanya Desktop) */}
             <div className="hidden lg:block">
-              <Button variant="default" size="default">
-                Sign Up
-              </Button>
+              <Link to="/signup">
+                <Button variant="default" size="default">
+                  Sign Up
+                </Button>
+              </Link>
             </div>
 
             {/* Tombol Hamburger (Hanya Mobile) */}
