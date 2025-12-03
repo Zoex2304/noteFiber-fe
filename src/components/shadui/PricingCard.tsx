@@ -1,4 +1,4 @@
-import * as React from "react";
+
 import { Button } from "./button";
 import { PriceAdvantageItem } from "./PriceAdvantageItem";
 
@@ -35,6 +35,7 @@ export function PricingCard({ data }: PricingCardProps) {
         rounded-[26.332px] border-[0.439px] border-customFont-base
         p-5 lg:w-auto lg:p-[28.526px] 
         gap-4 lg:gap-[21.943px]
+        bg-white
       "
     >
       {/* 1. Judul Plan */}

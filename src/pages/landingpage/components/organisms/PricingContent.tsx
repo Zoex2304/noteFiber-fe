@@ -72,7 +72,7 @@ export function PricingContent() {
     };
 
     return (
-        <div className="flex flex-col items-center gap-6 lg:gap-[26.99px] w-full">
+        <div className="flex flex-col items-center gap-6 lg:gap-[26.99px] w-full p-4 lg:p-8">
             {/* Switcher Pricing */}
             <SwitchPricing activePeriod={period} onToggle={handleToggle} />
 
