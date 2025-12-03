@@ -1,4 +1,6 @@
 import { HeroSection } from "./components/organisms/HeroSection";
+import { AboutUsSection2 } from "./components/organisms/AboutUsSection2";
+import { Section8 } from "./components/organisms/Section8";
 
 export default function AboutUs() {
   return (
@@ -7,11 +9,10 @@ export default function AboutUs() {
         tagText="About Us"
         title="We Help You Work Smarter"
         description="Our mission is to empower teams with tools that simplify complexity and drive productivity."
+        imageSrc="/src/assets/images/landing/illustrations/podium.svg"
       />
-      {/* Placeholders for other sections */}
-      <div className="w-full h-96 bg-gray-100 flex items-center justify-center">
-        <p className="text-gray-500">About Us Content Placeholder</p>
-      </div>
+      <AboutUsSection2 />
+      <Section8 />
     </div>
   );
 }

@@ -9,10 +9,11 @@ import { useState, useEffect, useRef } from 'react';
 export function useCountUp(
   end: number,
   duration: number = 2000,
-  startDelay: number = 300
+  startDelay: number = 300,
+  decimals: number = 0 // Tambahkan parameter decimals
 ) {
-  const [count, setCount] = useState(0);
-  const ref = useRef<HTMLSpanElement>(null);
+  const [count, setCount] = useState<string | number>(0); // Ubah tipe state
+  const ref = useRef<HTMLElement>(null);
   const animationFrameRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -25,16 +26,28 @@ export function useCountUp(
       }
       const progress = timestamp - startTime;
       const progressRatio = Math.min(progress / duration, 1);
-      
+
       // Easing function (ease-out cubic)
       const easeOutValue = 1 - Math.pow(1 - progressRatio, 3);
-      
-      setCount(Math.floor(easeOutValue * end));
+
+      const currentCount = easeOutValue * end;
+
+      // Format angka dengan desimal
+      if (decimals > 0) {
+        setCount(currentCount.toFixed(decimals));
+      } else {
+        setCount(Math.floor(currentCount));
+      }
 
       if (progress < duration) {
         animationFrameRef.current = requestAnimationFrame(animate);
       } else {
-        setCount(end); // Pastikan nilai akhir tepat
+        // Pastikan nilai akhir tepat
+        if (decimals > 0) {
+          setCount(end.toFixed(decimals));
+        } else {
+          setCount(end);
+        }
       }
     };
 
@@ -68,7 +81,7 @@ export function useCountUp(
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [end, duration, startDelay]);
+  }, [end, duration, startDelay, decimals]);
 
   return { count, ref };
 }

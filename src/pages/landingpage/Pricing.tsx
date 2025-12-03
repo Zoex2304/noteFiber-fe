@@ -1,6 +1,8 @@
 import { HeroSection } from "./components/organisms/HeroSection";
 import { PricingContent } from "./components/organisms/PricingContent";
 import { FAQSection } from "./components/organisms/FAQSection";
+import { PricingCallToAction } from "./components/organisms/PricingCallToAction";
+import { Section8 } from "./components/organisms/Section8";
 
 export default function Pricing() {
   return (
@@ -12,6 +14,8 @@ export default function Pricing() {
         customHeroContent={<PricingContent />}
       />
       <FAQSection />
+      <PricingCallToAction />
+      <Section8 />
     </div>
   );
 }

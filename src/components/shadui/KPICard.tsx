@@ -13,14 +13,18 @@ interface KPICardProps {
    * Teks deskripsi di bawah angka.
    */
   description: string;
+  /**
+   * Jumlah desimal (opsional). Default: 0
+   */
+  decimals?: number;
 }
 
 /**
  * Komponen Reusable "KPI Card" dengan animasi counter.
  */
-export function KPICard({ endValue, suffix, description }: KPICardProps) {
+export function KPICard({ endValue, suffix, description, decimals = 0 }: KPICardProps) {
   // Gunakan hook counter
-  const { count, ref } = useCountUp(endValue);
+  const { count, ref } = useCountUp(endValue, 2000, 300, decimals);
 
   return (
     <div className="flex flex-col items-start">
@@ -32,12 +36,12 @@ export function KPICard({ endValue, suffix, description }: KPICardProps) {
           lg:text-[47.829px] lg:leading-[1.4]
         "
         // 'ref' ini akan memicu animasi saat terlihat
-        ref={ref}
+        ref={ref as any}
       >
         {count}
         {suffix}
       </div>
-      
+
       {/* Teks Deskripsi (Specs: 15.943px) */}
       <p
         className="
