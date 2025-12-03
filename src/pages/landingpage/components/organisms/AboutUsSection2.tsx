@@ -5,10 +5,16 @@ export function AboutUsSection2() {
     return (
         <section className="flex w-full flex-col items-center gap-16 lg:gap-24 py-16 lg:py-24 bg-white">
             {/* 1. Stats Row */}
-            <div className="flex w-full max-w-screen-xl flex-wrap justify-center gap-12 lg:gap-32 px-4">
+            <div className="flex w-full max-w-screen-xl flex-wrap justify-between gap-12 px-4">
                 <KPICard endValue={20} suffix="k+" description="Users" />
                 <KPICard endValue={10} suffix="y+" description="Experience" />
-                <KPICard endValue={4.9} suffix="" description="Rating for best app" decimals={1} />
+                <KPICard
+                    endValue={4.9}
+                    suffix=""
+                    description="Rating for best app"
+                    decimals={1}
+                    className="transform scale-125 origin-center lg:origin-left"
+                />
             </div>
 
             {/* 2. Content Row */}
