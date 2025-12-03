@@ -11,6 +11,7 @@ import SignUp from '@/pages/auth/SignUp';
 import SignIn from '@/pages/auth/SignIn';
 import ForgotPassword from '@/pages/auth/ForgotPassword';
 import ValidateCode from '@/pages/auth/ValidateCode';
+import Checkout from '@/pages/checkout/Checkout';
 
 // Default development start page
 const DEV_START_PAGE = '/landing';
@@ -44,6 +45,10 @@ const router = createBrowserRouter([
       {
         path: 'validate-code',
         element: <ValidateCode />,
+      },
+      {
+        path: 'checkout',
+        element: <Checkout />,
       },
       {
         path: 'app',
