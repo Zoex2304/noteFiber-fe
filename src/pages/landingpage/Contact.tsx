@@ -1,4 +1,8 @@
 import { HeroSection } from "./components/organisms/HeroSection";
+import { ContactFormSection } from "./components/organisms/ContactFormSection";
+import { FAQSection } from "./components/organisms/FAQSection";
+import { PricingCallToAction } from "./components/organisms/PricingCallToAction";
+import { Section8 } from "./components/organisms/Section8";
 
 export default function Contact() {
   return (
@@ -7,11 +11,12 @@ export default function Contact() {
         tagText="Contact Us"
         title="Get in Touch"
         description="Have questions? We're here to help. Reach out to our team for support or inquiries."
+        imageSrc="/src/assets/images/landing/illustrations/ilustration of hero contact page.svg"
       />
-      {/* Placeholders for other sections */}
-      <div className="w-full h-96 bg-gray-100 flex items-center justify-center">
-        <p className="text-gray-500">Contact Content Placeholder</p>
-      </div>
+      <ContactFormSection />
+      <FAQSection />
+      <PricingCallToAction />
+      <Section8 />
     </div>
   );
 }
