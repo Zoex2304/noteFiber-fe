@@ -72,12 +72,14 @@ export function PricingContent() {
     };
 
     return (
-        <div className="flex flex-col items-center gap-6 lg:gap-[26.99px] w-full p-4 lg:p-8">
+        <div className="flex flex-col items-center gap-6 lg:gap-[26.99px] w-full p-8 lg:p-16">
             {/* Switcher Pricing */}
             <SwitchPricing activePeriod={period} onToggle={handleToggle} />
 
-            {/* Card Container */}
-            <PricingCardTrailer cardsData={dataToDisplay} isPulsing={isPulsing} />
+            {/* Card Container - Scaled Down */}
+            <div className="w-full flex justify-center transform scale-90 origin-top">
+                <PricingCardTrailer cardsData={dataToDisplay} isPulsing={isPulsing} />
+            </div>
         </div>
     );
 }
