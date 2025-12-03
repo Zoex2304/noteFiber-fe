@@ -1,3 +1,23 @@
+# NoteFiber Chatbot Feature Documentation
+
+This document contains a complete set of files that compose the chatbot feature in NoteFiber frontend application.
+
+## Overview
+
+The chatbot feature is built with React and TypeScript, using a modular architecture. It consists of several key components:
+
+Total Files: 8
+Parent Folders: 
+- /src/components (main and UI components)
+- /src/types (type definitions)
+- /src/dto (data transfer objects)
+- /src/config (configuration)
+
+## File Contents
+
+### 1. Main Component
+File: `/src/components/ai-chat-dialog.tsx`
+```tsx
 "use client";
 
 import type React from "react";
@@ -37,29 +57,11 @@ export function AIChatDialog({ open, onOpenChange }: AIChatDialogProps) {
   const activeSession = sessions.find((s) => s.id === activeSessionId);
   const messages = activeSession?.messages || [];
 
-  // const fetchData = async (): Promise<ChatSession[]> => {
-  //     const res = await axios.get<BaseResponse<GetAllSessionsResponse[]>>(
-  //         `${AppConfig.baseUrl}/api/chatbot/v1/sessions`
-  //     )
-
-  //     const newSessions = res.data.data.map(d => ({
-  //         id: d.id,
-  //         messages: [],
-  //         name: d.title,
-  //         createdAt: new Date(d.created_at),
-  //         updatedAt: new Date(d.updated_at ?? d.created_at),
-  //     }));
-  //     setSessions(newSessions)
-  //     return newSessions
-  // }
-
   const fetchData = async (): Promise<ChatSession[]> => {
     const res = await axios.get<BaseResponse<GetAllSessionsResponse[]>>(
       `${AppConfig.baseUrl}/api/chatbot/v1/sessions`
     );
 
-    // SOLUSI: Pastikan res.data.data adalah array atau array kosong ([]),
-    // sebelum memanggil .map().
     const apiData = res.data.data ?? [];
 
     const newSessions = apiData.map((d) => ({
@@ -105,7 +107,6 @@ export function AIChatDialog({ open, onOpenChange }: AIChatDialogProps) {
     );
 
     await fetchData();
-
     sessionClickHandler(res.data.data.id);
   };
 
@@ -141,7 +142,7 @@ export function AIChatDialog({ open, onOpenChange }: AIChatDialogProps) {
             messages: [
               ...s.messages,
               {
-                id: "test",
+                id: "temp",
                 content: input,
                 role: "user",
                 timestamp: new Date(),
@@ -153,125 +154,110 @@ export function AIChatDialog({ open, onOpenChange }: AIChatDialogProps) {
       })
     );
 
-    const request: SendChatRequest = {
-      chat: input,
-      chat_session_id: activeSessionId,
-    };
-    const res = await axios.post<BaseResponse<SendChatResponse>>(
-      `${AppConfig.baseUrl}/api/chatbot/v1/send-chat`,
-      request
-    );
+    try {
+      const request: SendChatRequest = {
+        chat: input,
+        chat_session_id: activeSessionId,
+      };
+      const res = await axios.post<BaseResponse<SendChatResponse>>(
+        `${AppConfig.baseUrl}/api/chatbot/v1/send-chat`,
+        request
+      );
 
-    setSessions((prev) =>
-      prev.map((s) => {
-        if (s.id === activeSessionId) {
-          return {
-            ...s,
-            name: res.data.data.title,
-            messages: [
-              ...s.messages.slice(0, -1),
-              {
-                id: res.data.data.sent.id,
-                content: res.data.data.sent.chat,
-                role:
-                  res.data.data.sent.role === "model" ? "assistant" : "user",
-                timestamp: new Date(res.data.data.sent.created_at),
-              },
-              {
-                id: res.data.data.reply.id,
-                content: res.data.data.reply.chat,
-                role:
-                  res.data.data.reply.role === "model" ? "assistant" : "user",
-                timestamp: new Date(res.data.data.reply.created_at),
-              },
-            ],
-          };
-        }
-        return { ...s };
-      })
-    );
-
-    setIsLoading(false);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
+      setSessions((prev) =>
+        prev.map((s) => {
+          if (s.id === activeSessionId) {
+            return {
+              ...s,
+              name: res.data.data.title,
+              messages: [
+                ...s.messages.slice(0, -1),
+                {
+                  id: res.data.data.sent.id,
+                  content: res.data.data.sent.chat,
+                  role:
+                    res.data.data.sent.role === "model" ? "assistant" : "user",
+                  timestamp: new Date(res.data.data.sent.created_at),
+                },
+                {
+                  id: res.data.data.reply.id,
+                  content: res.data.data.reply.chat,
+                  role:
+                    res.data.data.reply.role === "model" ? "assistant" : "user",
+                  timestamp: new Date(res.data.data.reply.created_at),
+                },
+              ],
+            };
+          }
+          return { ...s };
+        })
+      );
+    } catch (error) {
+      console.error("Error sending message:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    const fetchList = async () => {
-      const newSessions = await fetchData();
-      if (newSessions.length > 0) {
-        sessionClickHandler(newSessions[0].id);
+    const init = async () => {
+      const sessions = await fetchData();
+      if (sessions.length > 0) {
+        await sessionClickHandler(sessions[0].id);
+      } else {
+        await createNewSession();
       }
     };
+
     if (open) {
-      fetchList();
+      init();
     }
   }, [open]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl h-[700px] flex flex-col bg-gradient-to-br from-white to-gray-50">
-        <DialogHeader className="bg-gradient-to-r from-white to-gray-50 border-b border-gray-200 pb-4">
-          <div className="flex items-center justify-between pr-8">
-            <DialogTitle className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Ask AI
-            </DialogTitle>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={createNewSession}
-              className="bg-transparent hover:bg-blue-50"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              New Chat
-            </Button>
-          </div>
+      <DialogContent className="max-w-4xl h-[80vh] flex flex-col">
+        <DialogHeader>
+          <DialogTitle>AI Chat Assistant</DialogTitle>
         </DialogHeader>
 
-        <div className="flex flex-1 gap-4 min-h-0">
-          {/* Session Sidebar */}
-          <div className="w-48 border-r border-gray-200 pr-4 bg-gradient-to-b from-gray-50 to-white flex flex-col">
-            <h4 className="text-sm font-semibold text-gray-800 mb-3 px-2 py-1 bg-gray-100 rounded-md flex-shrink-0">
-              Chat Sessions
-            </h4>
+        <div className="flex gap-4 flex-1 overflow-hidden">
+          {/* Sessions sidebar */}
+          <div className="w-64 flex flex-col gap-2 p-2 border rounded-lg">
+            <Button
+              onClick={createNewSession}
+              className="w-full flex items-center gap-2"
+              variant="outline"
+            >
+              <Plus className="h-4 w-4" /> New Chat
+            </Button>
+
             <ScrollArea className="flex-1">
-              <div className="space-y-1 pr-2">
+              <div className="space-y-2 pr-4">
                 {sessions.map((session) => (
-                  <div key={session.id} className="flex items-center gap-1">
-                    <Button
-                      variant={
-                        activeSessionId === session.id ? "secondary" : "ghost"
-                      }
-                      size="sm"
-                      className={`flex-1 justify-start h-auto py-2 px-2 text-left flex-col items-start transition-all duration-200 ${
-                        activeSessionId === session.id
-                          ? "bg-gradient-to-r from-blue-50 to-blue-100 text-blue-800 shadow-sm border-l-2 border-blue-500"
-                          : "hover:bg-gray-50 hover:shadow-sm"
-                      }`}
-                      onClick={() => sessionClickHandler(session.id)}
-                    >
-                      <span className="truncate w-full text-xs font-medium">
-                        {session.name.length > 18
-                          ? `${session.name.slice(0, 18)}...`
-                          : session.name}
-                      </span>
-                      <span className="text-[10px] text-gray-500 w-full mt-0.5">
-                        {session.createdAt.toLocaleDateString()}
-                      </span>
-                    </Button>
+                  <div
+                    key={session.id}
+                    className={`group flex items-center gap-2 rounded-lg border p-2 text-sm cursor-pointer transition-colors ${
+                      session.id === activeSessionId
+                        ? "bg-secondary"
+                        : "hover:bg-secondary/50"
+                    }`}
+                    onClick={() => sessionClickHandler(session.id)}
+                  >
+                    <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+                      {session.name || "New Chat"}
+                    </span>
                     {sessions.length > 1 && (
                       <Button
                         variant="ghost"
-                        size="sm"
-                        className="h-8 w-8 p-0 opacity-50 hover:opacity-100 hover:bg-red-50 flex-shrink-0"
-                        onClick={() => deleteSession(session.id)}
+                        size="icon"
+                        className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteSession(session.id);
+                        }}
                       >
-                        <Trash2 className="h-3 w-3" />
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     )}
                   </div>
@@ -280,23 +266,14 @@ export function AIChatDialog({ open, onOpenChange }: AIChatDialogProps) {
             </ScrollArea>
           </div>
 
-          <div className="flex-1 flex flex-col min-w-0 bg-gradient-to-b from-white to-gray-50">
+          {/* Chat area */}
+          <div className="flex-1 flex flex-col gap-4">
+            {/* Messages */}
             <ScrollArea className="flex-1 pr-4">
-              <div className="space-y-4 p-4">
+              <div className="space-y-4">
                 {messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex gap-3 ${
-                      message.role === "user" ? "justify-end" : "justify-start"
-                    }`}
-                  >
-                    <div
-                      className={`flex gap-3 max-w-[80%] ${
-                        message.role === "user"
-                          ? "flex-row-reverse"
-                          : "flex-row"
-                      }`}
-                    >
+                  <div key={message.id}>
+                    <div className="flex gap-3">
                       <div className="flex-shrink-0">
                         {message.role === "user" ? (
                           <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-sm">
@@ -346,10 +323,9 @@ export function AIChatDialog({ open, onOpenChange }: AIChatDialogProps) {
                     </div>
                     <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg p-3 border border-gray-200 shadow-sm">
                       <div className="flex items-center gap-2">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                        <span className="text-sm text-gray-600">
-                          AI is thinking...
-                        </span>
+                        <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                        <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                        <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce"></div>
                       </div>
                     </div>
                   </div>
@@ -357,19 +333,24 @@ export function AIChatDialog({ open, onOpenChange }: AIChatDialogProps) {
               </div>
             </ScrollArea>
 
-            <div className="flex gap-2 pt-4 border-t border-gray-200 bg-gradient-to-r from-white to-gray-50 px-4 pb-4">
+            {/* Input */}
+            <div className="flex gap-2">
               <Textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Ask me anything about your notes..."
-                className="flex-1 min-h-[40px] max-h-[120px] bg-white border-gray-200 focus:border-blue-300 focus:ring-blue-200"
-                disabled={isLoading}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSend();
+                  }
+                }}
+                placeholder="Type your message..."
+                className="resize-none"
               />
               <Button
                 onClick={handleSend}
                 disabled={!input.trim() || isLoading}
-                className="self-end bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-sm"
+                className="shrink-0"
               >
                 <Send className="h-4 w-4" />
               </Button>
@@ -380,3 +361,109 @@ export function AIChatDialog({ open, onOpenChange }: AIChatDialogProps) {
     </Dialog>
   );
 }
+```
+
+### 2. Types
+File: `/src/types/ai-chat.ts`
+```typescript
+export interface Message {
+    id: string
+    role: "user" | "assistant"
+    content: string
+    timestamp: Date
+}
+
+export interface ChatSession {
+    id: string
+    name: string
+    messages: Message[]
+    createdAt: Date
+    updatedAt: Date
+}
+```
+
+### 3. Data Transfer Objects
+File: `/src/dto/chatbot.ts`
+```typescript
+export interface GetAllSessionsResponse {
+    id: string;
+    title: string;
+    created_at: Date;
+    updated_at: Date | null;
+}
+
+export interface GetChatHistoryResponse {
+    id: string;
+    role: string;
+    chat: string;
+    created_at: Date;
+}
+
+export interface CreateSessionResponse {
+    id: string;
+}
+
+export interface DeleteSessionRequest {
+    chat_session_id: string;
+}
+
+export interface SendChatRequest {
+    chat_session_id: string;
+    chat: string;
+}
+
+export interface SendChatResponseChat {
+    id: string;
+    chat: string;
+    role: string;
+    created_at: Date;
+}
+
+export interface SendChatResponse {
+    chat_session_id: string;
+    title: string;
+    sent: SendChatResponseChat;
+    reply: SendChatResponseChat;
+}
+```
+
+### 4. Configuration
+File: `/src/config/config.ts`
+```typescript
+interface Config {
+    baseUrl: string;
+}
+
+export const AppConfig: Config = {
+    baseUrl: import.meta.env.VITE_API_BASE_URL
+}
+```
+
+## API Endpoints
+
+The chatbot feature interacts with the following API endpoints:
+
+1. GET `/api/chatbot/v1/sessions` - Get all chat sessions
+2. GET `/api/chatbot/v1/chat-history` - Get chat history for a specific session
+3. POST `/api/chatbot/v1/create-session` - Create a new chat session
+4. DELETE `/api/chatbot/v1/delete-session` - Delete a chat session
+5. POST `/api/chatbot/v1/send-chat` - Send a message and get AI response
+
+## Component Dependencies
+
+1. UI Components from shadcn/ui:
+   - Dialog
+   - Button
+   - Textarea
+   - ScrollArea
+
+2. Icons from Lucide React:
+   - Send
+   - Bot
+   - User
+   - Plus
+   - Trash2
+
+3. Other Dependencies:
+   - ReactMarkdown for message rendering
+   - Axios for API requests
