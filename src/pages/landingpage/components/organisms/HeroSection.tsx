@@ -1,5 +1,13 @@
 // src/pages/landingpage/components/organisms/HeroSection.tsx
 import { WrapperHeroSection } from './WrapperHeroSection';
+import { MainContentHeroSection } from './MainContentHeroSection';
+
+interface HeroSectionProps {
+  tagText?: string;
+  title?: string;
+  description?: string;
+  imageSrc?: string;
+}
 
 /**
  * Section 1 (Frame 1 - Hero)
@@ -13,12 +21,24 @@ import { WrapperHeroSection } from './WrapperHeroSection';
  * - px-4 (Mobile padding)
  * - lg:px-0 (Desktop no padding)
  */
-export function HeroSection() {
+export function HeroSection({
+  tagText,
+  title,
+  description,
+  imageSrc,
+}: HeroSectionProps) {
   return (
     <section
       className="flex w-full flex-col items-start gap-3 px-4 lg:max-w-[1766.593px] lg:gap-[12.268px] lg:px-0"
     >
-      <WrapperHeroSection />
+      <WrapperHeroSection>
+        <MainContentHeroSection
+          tagText={tagText}
+          title={title}
+          description={description}
+          imageSrc={imageSrc}
+        />
+      </WrapperHeroSection>
     </section>
   );
 }

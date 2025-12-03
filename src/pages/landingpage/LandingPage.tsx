@@ -12,10 +12,10 @@ import { Section7 } from "./components/organisms/Section7";
 import { Section8 } from "./components/organisms/Section8";
 
 // DIPERBARUI: Impor halaman-halaman baru dari direktori yang sama
-import { Features } from "./Features";
-import { Pricing } from "./Pricing";
-import { AboutUs } from "./AboutUs";
-import { Contact } from "./Contact";
+import Features from "./Features";
+import Pricing from "./Pricing";
+import AboutUs from "./AboutUs";
+import Contact from "./Contact";
 
 /**
  * Halaman Landing Page Utama (Controller)

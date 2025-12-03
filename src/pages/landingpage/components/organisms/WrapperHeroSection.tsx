@@ -1,12 +1,17 @@
+// src/pages/landingpage/components/organisms/WrapperHeroSection.tsx
 import { SectionContainer } from "@/components/shadui/SectionContainer";
-import { MainContentHeroSection } from "./MainContentHeroSection";
+import type { ReactNode } from "react";
+
+interface WrapperHeroSectionProps {
+  children: ReactNode;
+}
 
 /**
  * Wrapper spesifik untuk Hero Section.
  * Menggunakan komponen SectionContainer reusable untuk layout.
  * Meneruskan 'panelStyle' untuk background image.
  */
-export function WrapperHeroSection() {
+export function WrapperHeroSection({ children }: WrapperHeroSectionProps) {
   return (
     <SectionContainer
       // Prop 'panelStyle' akan diteruskan ke ContentPanel di dalam
@@ -18,7 +23,7 @@ export function WrapperHeroSection() {
       }}
     >
       {/* MainContentHeroSection sekarang hanya berisi konten murni */}
-      <MainContentHeroSection />
+      {children}
     </SectionContainer>
   );
 }
