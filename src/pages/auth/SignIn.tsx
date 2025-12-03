@@ -101,7 +101,7 @@ export default function SignIn() {
                                 )}
                             />
                             <Link
-                                to="#"
+                                to="/forgot-password"
                                 className="text-sm font-medium text-royal-violet-base hover:underline"
                             >
                                 Forgot password?

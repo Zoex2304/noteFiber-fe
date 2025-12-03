@@ -37,7 +37,7 @@ const signUpSchema = z
     });
 
 export default function SignUp() {
-    const [passwordScore, setPasswordScore] = useState(0);
+    const [password, setPassword] = useState("");
 
     const form = useForm<z.infer<typeof signUpSchema>>({
         resolver: zodResolver(signUpSchema),
@@ -48,17 +48,6 @@ export default function SignUp() {
             agreeTerms: false,
         },
     });
-
-    const calculateStrength = (password: string) => {
-        let score = 0;
-        if (!password) return 0;
-        if (password.length > 6) score += 1;
-        if (password.length > 10) score += 1;
-        if (/[A-Z]/.test(password)) score += 1;
-        if (/[0-9]/.test(password)) score += 1;
-        if (/[^A-Za-z0-9]/.test(password)) score += 1;
-        return Math.min(score, 4); // Cap at 4
-    };
 
     function onSubmit(values: z.infer<typeof signUpSchema>) {
         console.log(values);
@@ -107,10 +96,10 @@ export default function SignUp() {
                                                 {...field}
                                                 onChange={(e) => {
                                                     field.onChange(e);
-                                                    setPasswordScore(calculateStrength(e.target.value));
+                                                    setPassword(e.target.value);
                                                 }}
                                             />
-                                            <PasswordStrengthMeter score={passwordScore} />
+                                            <PasswordStrengthMeter password={password} />
                                         </div>
                                     </FormControl>
                                     <FormMessage />
