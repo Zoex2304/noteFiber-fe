@@ -1,4 +1,5 @@
 import { Outlet } from 'react-router-dom';
+import { TopLoader } from '@/components/shadui/TopLoader';
 
 /**
  * Ini adalah root layout.
@@ -8,6 +9,7 @@ import { Outlet } from 'react-router-dom';
 export default function App() {
   return (
     <div className="h-screen w-screen">
+      <TopLoader />
       <Outlet />
     </div>
   );
