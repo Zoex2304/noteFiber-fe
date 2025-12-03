@@ -1,4 +1,4 @@
-import { CompanyLogoRow } from './CompanyLogoRow';
+import { CompanyLogoRow } from '../molecules/CompanyLogoRow';
 
 /**
  * Komponen Molekul "Marquee"

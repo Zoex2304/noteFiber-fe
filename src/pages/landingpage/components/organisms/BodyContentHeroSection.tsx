@@ -1,4 +1,4 @@
-import { BodyContentHeroSectionWrapper } from "./BodyContentHeroSectionWrapper";
+import { BodyContentHeroSectionWrapper } from "../molecules/BodyContentHeroSectionWrapper";
 
 /**
  * Body Content Hero Section (Container)

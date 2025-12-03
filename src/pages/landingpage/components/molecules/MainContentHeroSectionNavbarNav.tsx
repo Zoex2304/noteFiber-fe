@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
-import { MainContentHeroSectionNavbarLogo } from "./MainContentHeroSectionNavbarLogo";
-import { MainContentHeroSectionNavbarNavlink } from "./MainContentHeroSectionNavbarNavlink";
+import { MainContentHeroSectionNavbarLogo } from "../atoms/MainContentHeroSectionNavbarLogo";
+import { MainContentHeroSectionNavbarNavlink } from "../atoms/MainContentHeroSectionNavbarNavlink";
 import { Button } from "@/components/shadui/button";
 import { cn } from "@/lib/utils";
 
@@ -70,9 +70,9 @@ export function MainContentHeroSectionNavbarNav() {
         {isOpen && (
           <div className="absolute left-0 right-0 top-full z-50 flex w-full flex-col gap-4 rounded-b-lg border-t border-customBorder-primary bg-white p-4 shadow-lg lg:hidden">
             <MainContentHeroSectionNavbarNavlink />
-            <Button 
-              variant="default" 
-              size="default" 
+            <Button
+              variant="default"
+              size="default"
               className="w-full"
               onClick={() => setIsOpen(false)}
             >

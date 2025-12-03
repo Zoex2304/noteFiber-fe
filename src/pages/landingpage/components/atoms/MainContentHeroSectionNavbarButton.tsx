@@ -1,3 +1,4 @@
+// src/pages/landingpage/components/atoms/MainContentHeroSectionNavbarButton.tsx
 // Pastikan path ini benar: @/components/shadui/button
 // Sesuai dengan setup shadcn kita sebelumnya
 import { Button } from '@/components/shadui/button';

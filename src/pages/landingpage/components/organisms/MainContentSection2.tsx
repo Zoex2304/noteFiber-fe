@@ -1,3 +1,4 @@
+// src/pages/landingpage/components/organisms/MainContentSection2.tsx
 import { Section2Head } from "./Section2Head";
 // 1. Import komponen Footer yang baru
 import { Section2Footer } from "./Section2Footer";

@@ -1,6 +1,6 @@
 import { FooterIntro } from "./FooterIntro";
 import { FooterLinkGroup } from "@/components/shadui/FooterLinkGroup";
-import { InputSecFooter } from "./InputSecFooter";
+import { InputSecFooter } from "../molecules/InputSecFooter";
 
 // --- Data Link (Dinamis) ---
 const usefulLinks = {

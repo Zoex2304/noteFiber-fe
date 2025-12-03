@@ -1,3 +1,4 @@
+// src/pages/landingpage/components/organisms/Section2Head.tsx
 import { BridgingHeader } from "@/components/shadui/BridgingHeader";
 import { CompanyLogoMarquee } from "./CompanyLogoMarquee";
 

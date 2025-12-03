@@ -1,4 +1,4 @@
-import { LogoCompanyPot } from './LogoCompanyPot';
+import { LogoCompanyPot } from '../atoms/LogoCompanyPot';
 
 // Data placeholder untuk 7 perusahaan
 const DUMMY_COMPANIES = [

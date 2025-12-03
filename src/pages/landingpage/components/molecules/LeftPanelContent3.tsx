@@ -1,3 +1,4 @@
+// src/pages/landingpage/components/molecules/LeftPanelContent3.tsx
 import { Tag } from "@/components/shadui/Tag";
 // 1. Import SectionHeader (reusable baru)
 import { SectionHeader } from "@/components/shadui/SectionHeader";

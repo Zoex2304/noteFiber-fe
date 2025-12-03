@@ -1,6 +1,6 @@
 import { SectionHeader } from "@/components/shadui/SectionHeader";
 import { BlogCarousel } from "@/components/shadui/BlogCarousel";
-import { Button } from "../../../components/shadui/button.tsx";
+import { Button } from "@/components/shadui/button";
 
 /**
  * Ini adalah "Konten Murni" untuk Section 7.

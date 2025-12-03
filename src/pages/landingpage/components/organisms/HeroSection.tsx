@@ -1,3 +1,4 @@
+// src/pages/landingpage/components/organisms/HeroSection.tsx
 import { WrapperHeroSection } from './WrapperHeroSection';
 
 /**

@@ -1,5 +1,6 @@
-import { LeftPanelContent3 } from "./LeftPanelContent3";
-import { ImagePanelContent3 } from "./ImagePanelContent3";
+// src/pages/landingpage/components/organisms/MainContentSection3.tsx
+import { LeftPanelContent3 } from "../molecules/LeftPanelContent3";
+import { ImagePanelContent3 } from "../molecules/ImagePanelContent3";
 
 /**
  * Ini adalah "Konten Murni" untuk Section 3.

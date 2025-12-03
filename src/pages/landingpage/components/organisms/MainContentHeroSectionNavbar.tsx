@@ -1,4 +1,4 @@
-import { MainContentHeroSectionNavbarNav } from './MainContentHeroSectionNavbarNav';
+import { MainContentHeroSectionNavbarNav } from '../molecules/MainContentHeroSectionNavbarNav';
 
 /**
  * Main Content Hero Section - Navbar (Padded Container)

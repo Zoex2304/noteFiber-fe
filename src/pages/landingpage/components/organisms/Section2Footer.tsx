@@ -1,4 +1,5 @@
-import { WorkflowPot } from "./WorkflowPot";
+// src/pages/landingpage/components/organisms/Section2Footer.tsx
+import { WorkflowPot } from "../molecules/WorkflowPot";
 // Import ikon placeholder dari lucide-react
 import { UserPlus, Settings, Database, ClipboardList } from "lucide-react";
 

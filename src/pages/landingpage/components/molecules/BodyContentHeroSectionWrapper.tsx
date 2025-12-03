@@ -1,6 +1,8 @@
+// src/pages/landingpage/components/molecules/BodyContentHeroSectionWrapper.tsx
 // 1. Import komponen baru
 import { BodyContentHeroSectionWrapperBodyTop } from './BodyContentHeroSectionWrapperBodyTop';
 
+// src/pages/landingpage/components/molecules/ImagePanelContent3.tsx
 /**
  * Wrapper untuk Body Content
  * Memanggil 'Body-content-hero-section-wrapper-body-top'

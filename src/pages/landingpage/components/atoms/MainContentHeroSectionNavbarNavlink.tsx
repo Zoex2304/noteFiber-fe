@@ -1,3 +1,4 @@
+// src/pages/landingpage/components/atoms/MainContentHeroSectionNavbarNavlink.tsx
 import { Link, useSearchParams } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 

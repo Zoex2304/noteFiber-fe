@@ -1,4 +1,4 @@
-import { TestimonialColumn } from "@/features/landing/components/TestimonialColumn";
+import { TestimonialColumn } from "@/pages/landingpage/components/molecules/TestimonialColumn";
 import { cn } from "@/lib/utils";
 
 interface TestimonialMarqueeProps {

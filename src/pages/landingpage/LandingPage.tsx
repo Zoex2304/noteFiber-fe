@@ -1,14 +1,15 @@
+// src/pages/landingpage/LandingPage.tsx
 import { useSearchParams } from "react-router-dom";
 
 // Impor 8 section untuk halaman utama
-import { HeroSection } from "@/features/landing/components/HeroSection";
-import { Section2 } from "@/features/landing/components/Section2";
-import { Section3 } from "@/features/landing/components/Section3";
-import { Section4 } from "@/features/landing/components/Section4";
-import { Section5 } from "@/features/landing/components/Section5";
-import { Section6 } from "@/features/landing/components/Section6";
-import { Section7 } from "@/features/landing/components/Section7";
-import { Section8 } from "@/features/landing/components/Section8";
+import { HeroSection } from "./components/organisms/HeroSection";
+import { Section2 } from "./components/organisms/Section2";
+import { Section3 } from "./components/organisms/Section3";
+import { Section4 } from "./components/organisms/Section4";
+import { Section5 } from "./components/organisms/Section5";
+import { Section6 } from "./components/organisms/Section6";
+import { Section7 } from "./components/organisms/Section7";
+import { Section8 } from "./components/organisms/Section8";
 
 // DIPERBARUI: Impor halaman-halaman baru dari direktori yang sama
 import { Features } from "./Features";

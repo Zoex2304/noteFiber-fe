@@ -1,3 +1,4 @@
+// src/pages/landingpage/components/atoms/LogoCompanyPot.tsx
 interface LogoCompanyPotProps {
   iconSrc: string;
   companyName: string;

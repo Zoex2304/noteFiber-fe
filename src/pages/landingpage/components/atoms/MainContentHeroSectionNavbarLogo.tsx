@@ -1,3 +1,4 @@
+// src/pages/landingpage/components/atoms/MainContentHeroSectionNavbarLogo.tsx
 import Logo from '@/assets/images/landing/logo/logo-horizontal.svg';
 
 /**
