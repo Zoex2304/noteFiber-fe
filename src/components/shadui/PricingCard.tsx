@@ -83,8 +83,13 @@ export function PricingCard({ data }: PricingCardProps) {
       </p>
 
       {/* 4. Tombol */}
-      <Button variant="custom-outline" size="card-outline">
-        Get Started
+      <Button
+        variant="custom-outline"
+        size="card-outline"
+        className="relative overflow-hidden group transition-all duration-300 hover:border-royal-violet-base hover:shadow-[0_0_20px_rgba(112,80,240,0.3)]"
+      >
+        <span className="relative z-10">Get Started</span>
+        <div className="absolute inset-0 -translate-x-full group-hover:animate-shimmer bg-gradient-to-r from-transparent via-royal-violet-base/20 to-transparent z-0" />
       </Button>
 
       {/* 5. Frame List Fitur */}

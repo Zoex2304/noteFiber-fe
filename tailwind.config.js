@@ -109,7 +109,7 @@ export default {
 				},
 				'scroll-y': {
 					from: { transform: 'translateY(0)' },
-					to: { transform: 'translateY(-50%)' }, 
+					to: { transform: 'translateY(-50%)' },
 				},
 				// shadcn/ui accordion animations
 				'accordion-down': {
@@ -119,6 +119,11 @@ export default {
 				'accordion-up': {
 					from: { height: 'var(--radix-accordion-content-height)' },
 					to: { height: '0' }
+				},
+				// Shimmer animation
+				shimmer: {
+					"0%": { transform: "translateX(-100%)" },
+					"100%": { transform: "translateX(100%)" },
 				}
 			},
 
@@ -129,7 +134,9 @@ export default {
 				'scroll-y': 'scroll-y 60s linear infinite',
 				// shadcn/ui accordion animations
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				// Shimmer animation
+				shimmer: "shimmer 2s infinite",
 			},
 
 			// Custom typography
