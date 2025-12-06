@@ -6,6 +6,7 @@ import { passwordSchema } from '../../../utils/validators/password.validator';
 export const loginRequestSchema = z.object({
     email: emailSchema,
     password: z.string().min(1, 'Password is required'), // Login just needs presence
+    remember_me: z.boolean().optional(),
 });
 
 export const registerRequestSchema = z.object({
@@ -45,6 +46,7 @@ export const userSchema = z.object({
 
 export const loginResponseSchema = z.object({
     access_token: z.string(),
+    refresh_token: z.string().optional(),
     user: userSchema,
 });
 

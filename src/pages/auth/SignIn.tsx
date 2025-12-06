@@ -48,6 +48,7 @@ export default function SignIn() {
             {
                 email: values.email,
                 password: values.password,
+                remember_me: values.rememberMe,
             },
             {
                 onSuccess: () => {

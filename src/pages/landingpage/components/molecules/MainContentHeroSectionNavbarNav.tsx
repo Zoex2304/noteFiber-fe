@@ -48,11 +48,11 @@ export function MainContentHeroSectionNavbarNav() {
 
           {/* [KANAN] Tombol (Desktop) & Hamburger (Mobile) */}
           <div>
-            {/* Tombol Sign Up (Hanya Desktop) */}
+            {/* Tombol Sign In (Hanya Desktop) - User Request: Show Sign In first */}
             <div className="hidden lg:block">
-              <Link to="/signup">
+              <Link to="/signin">
                 <Button variant="default" size="default">
-                  Sign Up
+                  Sign In
                 </Button>
               </Link>
             </div>
@@ -73,14 +73,16 @@ export function MainContentHeroSectionNavbarNav() {
         {isOpen && (
           <div className="absolute left-0 right-0 top-full z-50 flex w-full flex-col gap-4 rounded-b-lg border-t border-customBorder-primary bg-white p-4 shadow-lg lg:hidden">
             <MainContentHeroSectionNavbarNavlink />
-            <Button
-              variant="default"
-              size="default"
-              className="w-full"
-              onClick={() => setIsOpen(false)}
-            >
-              Sign Up
-            </Button>
+            <Link to="/signin" className="w-full">
+              <Button
+                variant="default"
+                size="default"
+                className="w-full"
+                onClick={() => setIsOpen(false)}
+              >
+                Sign In
+              </Button>
+            </Link>
           </div>
         )}
       </div>

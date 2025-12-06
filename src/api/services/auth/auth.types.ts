@@ -7,6 +7,12 @@ export type RegisterRequest = z.infer<typeof schemas.registerRequestSchema>;
 export type VerifyEmailRequest = z.infer<typeof schemas.verifyEmailRequestSchema>;
 export type ForgotPasswordRequest = z.infer<typeof schemas.forgotPasswordRequestSchema>;
 export type ResetPasswordRequest = z.infer<typeof schemas.resetPasswordRequestSchema>;
+export interface LogoutRequest {
+    refresh_token: string;
+}
+export interface RefreshTokenRequest {
+    refresh_token: string;
+}
 
 // Response DTOs
 export type User = z.infer<typeof schemas.userSchema>;

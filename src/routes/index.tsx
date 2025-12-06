@@ -16,6 +16,7 @@ import ValidateCode from '@/pages/auth/ValidateCode';
 import Checkout from '@/pages/checkout/Checkout';
 import AccountSettings from '@/pages/user/AccountSettings';
 import { AuthGuard } from '@/components/auth/AuthGuard';
+import { GuestGuard } from '@/components/auth/GuestGuard';
 
 // Default development start page
 const DEV_START_PAGE = '/landing';
@@ -35,24 +36,29 @@ const router = createBrowserRouter([
         element: <LandingPage />,
       },
       {
-        path: 'signup',
-        element: <SignUp />,
-      },
-      {
-        path: 'signin',
-        element: <SignIn />,
-      },
-      {
-        path: 'forgot-password',
-        element: <ForgotPassword />,
-      },
-      {
-        path: 'validate-code',
-        element: <ValidateCode />,
-      },
-      {
-        path: 'reset-password',
-        element: <ResetPassword />,
+        element: <GuestGuard />,
+        children: [
+          {
+            path: 'signup',
+            element: <SignUp />,
+          },
+          {
+            path: 'signin',
+            element: <SignIn />,
+          },
+          {
+            path: 'forgot-password',
+            element: <ForgotPassword />,
+          },
+          {
+            path: 'validate-code',
+            element: <ValidateCode />,
+          },
+          {
+            path: 'reset-password',
+            element: <ResetPassword />,
+          },
+        ],
       },
       {
         element: <AuthGuard />,

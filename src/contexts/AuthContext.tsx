@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import { type User } from '../api/services/auth/auth.types';
 import { tokenStorage } from '../utils/storage/token.storage';
 import { userService } from '../api/services/user/user.service';
+import { authService } from '../api/services/auth/auth.service';
 import { debugLog } from '../utils/debug/LogOverlay';
 import { queryClient } from './QueryClientProvider';
 
@@ -47,16 +48,67 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     if (response.success && response.data) {
                         setUser(response.data as unknown as User);
                     } else {
-                        debugLog.error("AuthContext: Profile fetch failed (success=false)", response);
+                        throw new Error("Profile fetch failed");
                     }
                 } catch (error) {
                     debugLog.error("AuthContext: Profile fetch error", error);
-                    // Token invalid
+
+                    // Try to refresh token
+                    const refreshToken = tokenStorage.getRefreshToken();
+                    if (refreshToken) {
+                        try {
+                            debugLog.info("AuthContext: Attempting to refresh token...");
+                            const refreshResponse = await authService.refreshToken({ refresh_token: refreshToken });
+
+                            if (refreshResponse.success && refreshResponse.data) {
+                                debugLog.info("AuthContext: Refresh successful");
+                                tokenStorage.setToken(refreshResponse.data.access_token);
+                                if (refreshResponse.data.refresh_token) {
+                                    tokenStorage.setRefreshToken(refreshResponse.data.refresh_token);
+                                }
+                                setUser(refreshResponse.data.user);
+                            } else {
+                                throw new Error("Refresh failed - invalid response");
+                            }
+                        } catch (refreshError) {
+                            debugLog.error("AuthContext: Refresh token failed", refreshError);
+                            tokenStorage.clearAll();
+                            setUser(null);
+                        }
+                    } else {
+                        // No refresh token, clear everything
+                        tokenStorage.clearAll();
+                        setUser(null);
+                    }
+                }
+            } else {
+                // Check if we have a refresh token even if no access token
+                const refreshToken = tokenStorage.getRefreshToken();
+                if (refreshToken) {
+                    try {
+                        debugLog.info("AuthContext: No access token, but found refresh token. Attempting refresh...");
+                        const refreshResponse = await authService.refreshToken({ refresh_token: refreshToken });
+
+                        if (refreshResponse.success && refreshResponse.data) {
+                            debugLog.info("AuthContext: Refresh successful");
+                            tokenStorage.setToken(refreshResponse.data.access_token);
+                            if (refreshResponse.data.refresh_token) {
+                                tokenStorage.setRefreshToken(refreshResponse.data.refresh_token);
+                            }
+                            setUser(refreshResponse.data.user);
+                        } else {
+                            throw new Error("Refresh failed - invalid response");
+                        }
+                    } catch (refreshError) {
+                        debugLog.error("AuthContext: Refresh token failed", refreshError);
+                        tokenStorage.clearAll();
+                        setUser(null);
+                    }
+                } else {
+                    debugLog.info("AuthContext: No tokens found");
                     tokenStorage.clearAll();
                     setUser(null);
                 }
-            } else {
-                debugLog.info("AuthContext: No token found");
             }
             setIsLoading(false);
         };
@@ -70,7 +122,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(userData);
     };
 
-    const logout = () => {
+    const logout = async () => {
+        const refreshToken = tokenStorage.getRefreshToken();
+        if (refreshToken) {
+            try {
+                debugLog.info("AuthContext: Logging out from backend...");
+                await authService.logout({ refresh_token: refreshToken });
+            } catch (error) {
+                debugLog.error("AuthContext: Logout backend call failed", error);
+            }
+        } else {
+            debugLog.info("AuthContext: No refresh token found, skipping backend logout");
+        }
+
         tokenStorage.clearAll();
         setUser(null);
         queryClient.removeQueries(); // Clear all data

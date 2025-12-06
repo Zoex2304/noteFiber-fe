@@ -29,6 +29,16 @@ export const authService = {
         return response.data;
     },
 
+    logout: async (data: Types.LogoutRequest): Promise<ApiResponse<null>> => {
+        const response = await apiClient.post<ApiResponse<null>>(ENDPOINTS.AUTH.LOGOUT, data);
+        return response.data;
+    },
+
+    refreshToken: async (data: Types.RefreshTokenRequest): Promise<ApiResponse<Types.LoginData>> => {
+        const response = await apiClient.post<ApiResponse<Types.LoginData>>(ENDPOINTS.AUTH.REFRESH_TOKEN, data);
+        return response.data;
+    },
+
     // Helper for Google Auth - usually this is a redirect, but if we need an API call:
     // getGoogleUrl: ...
 };

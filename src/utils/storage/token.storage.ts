@@ -5,6 +5,7 @@
 
 const STORAGE_KEYS = {
     ACCESS_TOKEN: 'access_token',
+    REFRESH_TOKEN: 'refresh_token',
     USER_DATA: 'user_data',
 };
 
@@ -19,6 +20,18 @@ export const tokenStorage = {
 
     clearToken: (): void => {
         localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
+    },
+
+    getRefreshToken: (): string | null => {
+        return localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
+    },
+
+    setRefreshToken: (token: string): void => {
+        localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, token);
+    },
+
+    clearRefreshToken: (): void => {
+        localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
     },
 
     getUserData: <T>(): T | null => {
@@ -36,6 +49,7 @@ export const tokenStorage = {
 
     clearAll: (): void => {
         localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
+        localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
         localStorage.removeItem(STORAGE_KEYS.USER_DATA);
     }
 };
