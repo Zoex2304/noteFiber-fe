@@ -66,10 +66,13 @@ const editorConfig = {
 interface EditorProps {
     initialContent?: string;
     onChange?: (jsonString: string) => void;
+    readOnly?: boolean;
 }
 
-export function Editor({ initialContent = "", onChange }: EditorProps) {
+export function Editor({ initialContent = "", onChange, readOnly = false }: EditorProps) {
     const onChangeHandler = (editorState: any) => {
+        if (readOnly) return;
+
         editorState.read(() => {
             // Serialize to JSON to preserve full Lexical state (tables, checklists, etc.)
             const jsonState = editorState.toJSON();
@@ -79,14 +82,19 @@ export function Editor({ initialContent = "", onChange }: EditorProps) {
         });
     };
 
+    const initialConfig = {
+        ...editorConfig,
+        editable: !readOnly,
+    };
+
     return (
-        <LexicalComposer initialConfig={editorConfig}>
-            <div className="editor-container border rounded-lg shadow-sm bg-white overflow-hidden flex flex-col w-full h-full min-h-[500px]">
-                <ToolbarPlugin />
+        <LexicalComposer initialConfig={initialConfig}>
+            <div className={`editor-container border rounded-lg shadow-sm bg-white overflow-hidden flex flex-col w-full h-full ${readOnly ? 'border-none shadow-none' : 'min-h-[500px]'}`}>
+                {!readOnly && <ToolbarPlugin />}
                 <div className="editor-inner relative flex-1 overflow-auto">
                     <RichTextPlugin
-                        contentEditable={<ContentEditable className="editor-input h-full" />}
-                        placeholder={<Placeholder />}
+                        contentEditable={<ContentEditable className={`editor-input h-full ${readOnly ? 'resize-none' : ''}`} />}
+                        placeholder={!readOnly ? <Placeholder /> : null}
                         ErrorBoundary={LexicalErrorBoundary}
                     />
                     <HistoryPlugin />

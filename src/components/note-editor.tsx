@@ -2,7 +2,6 @@
 
 import type React from "react"
 import { useState, useEffect } from "react"
-import ReactMarkdown from "react-markdown"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import { Eye, Edit, Save } from "lucide-react"
@@ -79,10 +78,11 @@ export function NoteEditor({ note, onUpdate }: NoteEditorProps) {
             {/* Content */}
             <div className="flex-1 overflow-hidden flex flex-col">
                 {isPreview ? (
-                    <div className="h-full overflow-auto p-6 bg-white">
-                        <div className="max-w-4xl mx-auto prose prose-gray">
-                            <ReactMarkdown>{content}</ReactMarkdown>
-                        </div>
+                    <div className="h-full overflow-hidden flex flex-col bg-white">
+                        <Editor
+                            initialContent={content}
+                            readOnly={true}
+                        />
                     </div>
                 ) : (
                     <div className="h-full flex flex-col p-6 bg-white">
