@@ -10,8 +10,10 @@ import NotFoundPage from '@/pages/NotFoundPage.tsx';
 import SignUp from '@/pages/auth/SignUp';
 import SignIn from '@/pages/auth/SignIn';
 import ForgotPassword from '@/pages/auth/ForgotPassword';
+import ResetPassword from '@/pages/auth/ResetPassword';
 import ValidateCode from '@/pages/auth/ValidateCode';
 import Checkout from '@/pages/checkout/Checkout';
+import { AuthGuard } from '@/components/auth/AuthGuard';
 
 // Default development start page
 const DEV_START_PAGE = '/landing';
@@ -47,12 +49,21 @@ const router = createBrowserRouter([
         element: <ValidateCode />,
       },
       {
-        path: 'checkout',
-        element: <Checkout />,
+        path: 'reset-password',
+        element: <ResetPassword />,
       },
       {
-        path: 'app',
-        element: <MainApp />,
+        element: <AuthGuard />,
+        children: [
+          {
+            path: 'checkout',
+            element: <Checkout />,
+          },
+          {
+            path: 'app',
+            element: <MainApp />,
+          },
+        ],
       },
       {
         path: '*',

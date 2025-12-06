@@ -1,7 +1,8 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { AlertTriangle } from "lucide-react";
 
 import { Button } from "@/components/shadui/button";
 import {
@@ -17,15 +18,22 @@ import { Checkbox } from "@/components/shadui/checkbox";
 import { AuthLayout } from "./components/AuthLayout";
 import { GoogleSignInButton } from "./components/GoogleSignInButton";
 import { PasswordInput } from "./components/PasswordInput";
+import { useLogin } from "@/hooks/auth/useLogin";
 
+// Extended schema for UI (includes rememberMe)
 const signInSchema = z.object({
     email: z.string().email({ message: "Please enter a valid email address." }),
     password: z.string().min(1, { message: "Password is required." }),
     rememberMe: z.boolean().default(false),
 });
 
+type SignInFormValues = z.infer<typeof signInSchema>;
+
 export default function SignIn() {
-    const form = useForm<z.infer<typeof signInSchema>>({
+    const navigate = useNavigate();
+    const { mutate: login, isPending, error } = useLogin();
+
+    const form = useForm<SignInFormValues>({
         resolver: zodResolver(signInSchema),
         defaultValues: {
             email: "",
@@ -34,9 +42,18 @@ export default function SignIn() {
         },
     });
 
-    function onSubmit(values: z.infer<typeof signInSchema>) {
-        console.log(values);
-        // Handle sign in logic
+    function onSubmit(values: SignInFormValues) {
+        login(
+            {
+                email: values.email,
+                password: values.password,
+            },
+            {
+                onSuccess: () => {
+                    navigate("/");
+                },
+            }
+        );
     }
 
     return (
@@ -53,29 +70,44 @@ export default function SignIn() {
                     </div>
                 </div>
 
+                {error && (
+                    <div className="flex items-center gap-3 rounded-md bg-red-50 p-3 text-sm text-red-600 border border-red-200">
+                        <AlertTriangle className="h-4 w-4 shrink-0" />
+                        <span>{error.message || "Failed to sign in. Please check your credentials."}</span>
+                    </div>
+                )}
+
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                         <FormField
-                            control={form.control}
+                            control={form.control as any}
                             name="email"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Email</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="name@example.com" {...field} />
+                                        <Input
+                                            placeholder="name@example.com"
+                                            {...field}
+                                            disabled={isPending}
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
                         <FormField
-                            control={form.control}
+                            control={form.control as any}
                             name="password"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Password</FormLabel>
                                     <FormControl>
-                                        <PasswordInput placeholder="Password" {...field} />
+                                        <PasswordInput
+                                            placeholder="Password"
+                                            {...field}
+                                            disabled={isPending}
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -84,7 +116,7 @@ export default function SignIn() {
 
                         <div className="flex items-center justify-between">
                             <FormField
-                                control={form.control}
+                                control={form.control as any}
                                 name="rememberMe"
                                 render={({ field }) => (
                                     <FormItem className="flex flex-row items-center space-x-2 space-y-0">
@@ -92,6 +124,7 @@ export default function SignIn() {
                                             <Checkbox
                                                 checked={field.value}
                                                 onCheckedChange={field.onChange}
+                                                disabled={isPending}
                                             />
                                         </FormControl>
                                         <FormLabel className="text-sm font-normal text-gray-600">
@@ -111,8 +144,9 @@ export default function SignIn() {
                         <Button
                             type="submit"
                             className="w-full bg-royal-violet-base hover:bg-royal-violet-dark text-white h-12"
+                            disabled={isPending}
                         >
-                            Sign in
+                            {isPending ? "Signing in..." : "Sign in"}
                         </Button>
                     </form>
                 </Form>

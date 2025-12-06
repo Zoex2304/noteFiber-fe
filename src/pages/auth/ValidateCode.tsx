@@ -1,18 +1,33 @@
 import { useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
+import { AlertTriangle } from "lucide-react";
 
 import { Button } from "@/components/shadui/button";
 import { AuthLayout } from "./components/AuthLayout";
 import { OtpInput } from "./components/OtpInput";
+import { useVerifyEmail } from "@/hooks/auth/useVerifyEmail";
 
 export default function ValidateCode() {
+    const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const email = searchParams.get("email") || "your email";
     const [otp, setOtp] = useState("");
 
+    const { mutate: verifyEmail, isPending, error } = useVerifyEmail();
+
     const handleValidate = () => {
-        console.log("Validating OTP:", otp);
-        // Handle OTP validation logic
+        verifyEmail(
+            {
+                email: email === "your email" ? "" : email,
+                token: otp
+            },
+            {
+                onSuccess: () => {
+                    // Redirect to login on success
+                    navigate("/signin");
+                }
+            }
+        );
     };
 
     return (
@@ -23,6 +38,13 @@ export default function ValidateCode() {
                     <span className="font-medium text-gray-900">{email}</span>
                 </p>
 
+                {error && (
+                    <div className="flex items-center gap-3 rounded-md bg-red-50 p-3 text-sm text-red-600 border border-red-200">
+                        <AlertTriangle className="h-4 w-4 shrink-0" />
+                        <span>{error.message || "Invalid verification code."}</span>
+                    </div>
+                )}
+
                 <div className="space-y-6">
                     <OtpInput value={otp} onChange={setOtp} length={6} />
 
@@ -30,9 +52,9 @@ export default function ValidateCode() {
                         type="button"
                         className="w-full bg-royal-violet-base hover:bg-royal-violet-dark text-white h-12"
                         onClick={handleValidate}
-                        disabled={otp.length !== 6}
+                        disabled={otp.length !== 6 || isPending}
                     >
-                        Validate code
+                        {isPending ? "Validating..." : "Validate code"}
                     </Button>
                 </div>
 

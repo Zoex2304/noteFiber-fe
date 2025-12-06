@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { AlertTriangle } from "lucide-react";
 
 import { Button } from "@/components/shadui/button";
 import {
@@ -19,9 +20,11 @@ import { AuthLayout } from "./components/AuthLayout";
 import { GoogleSignInButton } from "./components/GoogleSignInButton";
 import { PasswordInput } from "./components/PasswordInput";
 import { PasswordStrengthMeter } from "./components/PasswordStrengthMeter";
+import { useRegister } from "@/hooks/auth/useRegister";
 
 const signUpSchema = z
     .object({
+        fullName: z.string().min(2, { message: "Full name must be at least 2 characters." }),
         email: z.string().email({ message: "Please enter a valid email address." }),
         password: z
             .string()
@@ -36,12 +39,17 @@ const signUpSchema = z
         path: ["confirmPassword"],
     });
 
-export default function SignUp() {
-    const [password, setPassword] = useState("");
+type SignUpFormValues = z.infer<typeof signUpSchema>;
 
-    const form = useForm<z.infer<typeof signUpSchema>>({
+export default function SignUp() {
+    const navigate = useNavigate();
+    const [password, setPassword] = useState("");
+    const { mutate: register, isPending, error } = useRegister();
+
+    const form = useForm<SignUpFormValues>({
         resolver: zodResolver(signUpSchema),
         defaultValues: {
+            fullName: "",
             email: "",
             password: "",
             confirmPassword: "",
@@ -49,9 +57,20 @@ export default function SignUp() {
         },
     });
 
-    function onSubmit(values: z.infer<typeof signUpSchema>) {
-        console.log(values);
-        // Handle sign up logic
+    function onSubmit(values: SignUpFormValues) {
+        register(
+            {
+                full_name: values.fullName,
+                email: values.email,
+                password: values.password,
+            },
+            {
+                onSuccess: () => {
+                    // Redirect to verification page with email
+                    navigate("/validate-code", { state: { email: values.email } });
+                },
+            }
+        );
     }
 
     return (
@@ -68,23 +87,51 @@ export default function SignUp() {
                     </div>
                 </div>
 
+                {error && (
+                    <div className="flex items-center gap-3 rounded-md bg-red-50 p-3 text-sm text-red-600 border border-red-200">
+                        <AlertTriangle className="h-4 w-4 shrink-0" />
+                        <span>{error.message || "Failed to create account."}</span>
+                    </div>
+                )}
+
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                         <FormField
-                            control={form.control}
-                            name="email"
+                            control={form.control as any}
+                            name="fullName"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Email</FormLabel>
+                                    <FormLabel>Full Name</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="name@example.com" {...field} />
+                                        <Input
+                                            placeholder="John Doe"
+                                            {...field}
+                                            disabled={isPending}
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
                         <FormField
-                            control={form.control}
+                            control={form.control as any}
+                            name="email"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Email</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            placeholder="name@example.com"
+                                            {...field}
+                                            disabled={isPending}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control as any}
                             name="password"
                             render={({ field }) => (
                                 <FormItem>
@@ -99,6 +146,7 @@ export default function SignUp() {
                                                     field.onChange(e);
                                                     setPassword(e.target.value);
                                                 }}
+                                                disabled={isPending}
                                             />
                                             <PasswordStrengthMeter password={password} />
                                         </div>
@@ -108,20 +156,24 @@ export default function SignUp() {
                             )}
                         />
                         <FormField
-                            control={form.control}
+                            control={form.control as any}
                             name="confirmPassword"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Confirm password</FormLabel>
                                     <FormControl>
-                                        <PasswordInput placeholder="********" {...field} />
+                                        <PasswordInput
+                                            placeholder="********"
+                                            {...field}
+                                            disabled={isPending}
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
                         <FormField
-                            control={form.control}
+                            control={form.control as any}
                             name="agreeTerms"
                             render={({ field }) => (
                                 <FormItem className="flex flex-row items-start space-x-3 space-y-0">
@@ -129,6 +181,7 @@ export default function SignUp() {
                                         <Checkbox
                                             checked={field.value}
                                             onCheckedChange={field.onChange}
+                                            disabled={isPending}
                                         />
                                     </FormControl>
                                     <div className="space-y-1 leading-none">
@@ -150,8 +203,9 @@ export default function SignUp() {
                         <Button
                             type="submit"
                             className="w-full bg-royal-violet-base hover:bg-royal-violet-dark text-white h-12"
+                            disabled={isPending}
                         >
-                            Create account
+                            {isPending ? "Creating account..." : "Create account"}
                         </Button>
                     </form>
                 </Form>
