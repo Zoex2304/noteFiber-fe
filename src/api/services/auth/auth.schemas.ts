@@ -38,6 +38,9 @@ export const userSchema = z.object({
     email: z.string().email(),
     full_name: z.string(),
     role: z.string(),
+    avatar_url: z.string().optional().nullable(),
+    status: z.string().optional(),
+    ai_daily_usage: z.number().optional(),
 });
 
 export const loginResponseSchema = z.object({

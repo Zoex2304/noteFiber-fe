@@ -3,6 +3,7 @@ import { type User } from '../api/services/auth/auth.types';
 import { tokenStorage } from '../utils/storage/token.storage';
 import { userService } from '../api/services/user/user.service';
 import { debugLog } from '../utils/debug/LogOverlay';
+import { queryClient } from './QueryClientProvider';
 
 interface AuthContextType {
     user: User | null;
@@ -72,7 +73,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const logout = () => {
         tokenStorage.clearAll();
         setUser(null);
-        // Optional: QueryClient.clear()
+        queryClient.removeQueries(); // Clear all data
+        queryClient.clear(); // Clear all cache
     };
 
     const updateUser = (userData: User) => {
