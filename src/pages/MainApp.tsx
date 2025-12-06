@@ -6,10 +6,10 @@ import { NoteEditor } from "@/components/note-editor"; // Updated path
 import { SearchDialog } from "@/components/search-dialog"; // Updated path
 import { AIChatDialog } from "@/components/ai-chat-dialog"; // Updated path
 import { Button } from "@/components/ui/button"; // Updated path
-import { Search, MessageSquare, Plus, FolderPlus, XCircle } from "lucide-react"; // Import XCircle for clear button
+import { Plus, FolderPlus, XCircle } from "lucide-react"; // Import XCircle for clear button
 import type { Note } from "@/types/note"; // Updated path
 import type { Notebook } from "@/types/notebook"; // Updated path
-import { UserProfileMenu } from "@/components/common/UserProfileMenu";
+import { TopBar } from "@/components/common/TopBar";
 import "@/App.css"; // Updated path
 import axios from "axios";
 import type { BaseResponse } from "@/dto/base-response"; // Updated path
@@ -257,132 +257,117 @@ export default function MainApp() { // Renamed from App to MainApp
     setIsCreatingNotebook(false);
   };
 
+
+
   const handleClearSelection = () => {
     setSelectedNotebook(null);
     setSelectedNote(null);
   };
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Sidebar */}
-      <div className="w-80 bg-white border-r border-gray-200 flex flex-col shadow-sm">
-        <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-white to-gray-50">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-xl font-bold text-gray-900 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Asisten slebew
-            </h1>
-            <div className="flex gap-2 items-center">
+    <div className="flex flex-col h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      {/* Global Top Bar */}
+      <TopBar
+        onSearchClick={() => setSearchOpen(true)}
+        onChatClick={() => setChatOpen(true)}
+      />
+
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar */}
+        <div className="w-80 bg-white border-r border-gray-200 flex flex-col shadow-sm">
+          <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-white to-gray-50">
+            {/* New Note/Notebook Buttons moved here directly */}
+            <div className="flex gap-2 mb-2">
               <Button
-                variant="ghost"
+                variant="outline"
                 size="sm"
-                onClick={() => setSearchOpen(true)}
-                className="h-8 w-8 p-0 hover:bg-blue-50"
+                onClick={handleCreateNotebook}
+                disabled={isCreatingNotebook}
+                className="flex-1 bg-transparent"
               >
-                <Search className="h-4 w-4" />
+                {isCreatingNotebook ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                    Creating...
+                  </>
+                ) : (
+                  <>
+                    <FolderPlus className="h-4 w-4 mr-2" />
+                    New Notebook
+                  </>
+                )}
               </Button>
               <Button
-                variant="ghost"
+                variant="outline"
                 size="sm"
-                onClick={() => setChatOpen(true)}
-                className="h-8 w-8 p-0 hover:bg-blue-50"
+                onClick={handleCreateNote}
+                disabled={!selectedNotebook || isCreatingNote}
+                className="flex-1 bg-transparent"
               >
-                <MessageSquare className="h-4 w-4" />
+                {isCreatingNote ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                    Creating...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="h-4 w-4 mr-2" />
+                    New Note
+                  </>
+                )}
               </Button>
-              <div className="ml-1">
-                <UserProfileMenu />
-              </div>
             </div>
+            {(selectedNotebook || selectedNote) && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleClearSelection}
+                className="w-full justify-center text-gray-600 hover:bg-gray-100"
+              >
+                <XCircle className="h-4 w-4 mr-2" />
+                Clear Selection
+              </Button>
+            )}
           </div>
-          <div className="flex gap-2 mb-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleCreateNotebook}
-              disabled={isCreatingNotebook}
-              className="flex-1 bg-transparent"
-            >
-              {isCreatingNotebook ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
-                  Creating...
-                </>
-              ) : (
-                <>
-                  <FolderPlus className="h-4 w-4 mr-2" />
-                  New Notebook
-                </>
-              )}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleCreateNote}
-              disabled={!selectedNotebook || isCreatingNote}
-              className="flex-1 bg-transparent"
-            >
-              {isCreatingNote ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
-                  Creating...
-                </>
-              ) : (
-                <>
-                  <Plus className="h-4 w-4 mr-2" />
-                  New Note
-                </>
-              )}
-            </Button>
-          </div>
-          {(selectedNotebook || selectedNote) && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleClearSelection}
-              className="w-full justify-center text-gray-600 hover:bg-gray-100"
-            >
-              <XCircle className="h-4 w-4 mr-2" />
-              Clear Selection
-            </Button>
-          )}
+
+          <Sidebar
+            notebooks={notebooks}
+            notes={notes}
+            selectedNotebook={selectedNotebook}
+            selectedNote={selectedNote}
+            onNotebookSelect={setSelectedNotebook}
+            onNoteSelect={setSelectedNote}
+            onNotebookUpdate={handleNotebookUpdate}
+            onDeleteNotebook={handleDeleteNotebook}
+            onDeleteNote={handleDeleteNote}
+            onMoveNote={handleMoveNote}
+            onMoveNotebook={handleMoveNotebook}
+            expandedNotebooks={expandedNotebooks}
+            setExpandedNotebooks={setExpandedNotebooks}
+            isProcessingMove={isProcessingMove}
+            isDeletingNotebook={isDeletingNotebook}
+            isDeletingNote={isDeletingNote}
+          />
         </div>
 
-        <Sidebar
-          notebooks={notebooks}
-          notes={notes}
-          selectedNotebook={selectedNotebook}
-          selectedNote={selectedNote}
-          onNotebookSelect={setSelectedNotebook}
-          onNoteSelect={setSelectedNote}
-          onNotebookUpdate={handleNotebookUpdate}
-          onDeleteNotebook={handleDeleteNotebook}
-          onDeleteNote={handleDeleteNote}
-          onMoveNote={handleMoveNote}
-          onMoveNotebook={handleMoveNotebook}
-          expandedNotebooks={expandedNotebooks}
-          setExpandedNotebooks={setExpandedNotebooks}
-          isProcessingMove={isProcessingMove}
-          isDeletingNotebook={isDeletingNotebook}
-          isDeletingNote={isDeletingNote}
-        />
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col bg-white overflow-x-hidden">
-        {currentNote ? (
-          <NoteEditor note={currentNote} onUpdate={handleNoteUpdate} />
-        ) : (
-          <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-gray-50 to-white">
-            <div className="text-center">
-              <div className="text-6xl mb-4">📝</div>
-              <h2 className="text-xl font-medium mb-2">
-                Select a note to start editing
-              </h2>
-              <p className="text-sm">
-                Choose a note from the sidebar or create a new one
-              </p>
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col bg-white overflow-x-hidden">
+          {currentNote ? (
+            <NoteEditor note={currentNote} onUpdate={handleNoteUpdate} />
+          ) : (
+            <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-gray-50 to-white">
+              <div className="text-center">
+                <div className="text-6xl mb-4">📝</div>
+                <h2 className="text-xl font-medium mb-2">
+                  Select a note to start editing
+                </h2>
+                <p className="text-sm">
+                  Choose a note from the sidebar or create a new one
+                </p>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Dialogs */}
