@@ -5,10 +5,6 @@ import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { AutoFocusPlugin } from "@lexical/react/LexicalAutoFocusPlugin";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
-import { HeadingNode, QuoteNode } from "@lexical/rich-text";
-import { ListItemNode, ListNode } from "@lexical/list";
-import { CodeHighlightNode, CodeNode } from "@lexical/code";
-import { AutoLinkNode, LinkNode } from "@lexical/link";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
 import { MarkdownShortcutPlugin } from "@lexical/react/LexicalMarkdownShortcutPlugin";
@@ -16,8 +12,15 @@ import { TRANSFORMERS, $convertFromMarkdownString, $convertToMarkdownString } fr
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 
+import { EditorNodes } from "./nodes";
 import { editorTheme } from "./theme";
 import ToolbarPlugin from "./plugins/ToolbarPlugin";
+import TablePlugin from "./plugins/TablePlugin";
+import CheckListPlugin from "./plugins/CheckListPlugin";
+import HashtagPlugin from "./plugins/HashtagPlugin";
+import VideoPlugin from "./plugins/VideoPlugin";
+import CodeHighlightPlugin from "./plugins/CodeHighlightPlugin";
+import MentionsPlugin from "./plugins/MentionsPlugin";
 import "./Editor.css";
 
 function Placeholder() {
@@ -43,16 +46,7 @@ const editorConfig = {
     onError(error: Error) {
         throw error;
     },
-    nodes: [
-        HeadingNode,
-        QuoteNode,
-        ListNode,
-        ListItemNode,
-        CodeNode,
-        CodeHighlightNode,
-        AutoLinkNode,
-        LinkNode
-    ]
+    nodes: EditorNodes
 };
 
 interface EditorProps {
@@ -87,6 +81,13 @@ export function Editor({ initialContent = "", onChange }: EditorProps) {
                     <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
                     <OnChangePlugin onChange={onChangeHandler} />
                     <MarkdownLoaderPlugin content={initialContent} />
+                    {/* Extended Plugins */}
+                    <TablePlugin />
+                    <CheckListPlugin />
+                    <HashtagPlugin />
+                    <VideoPlugin />
+                    <CodeHighlightPlugin />
+                    <MentionsPlugin />
                 </div>
             </div>
         </LexicalComposer>
