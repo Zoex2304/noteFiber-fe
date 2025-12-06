@@ -1,0 +1,34 @@
+import { z } from 'zod';
+
+export const planSchema = z.object({
+    id: z.string(),
+    name: z.string(),
+    slug: z.string(),
+    price: z.number(),
+    currency: z.string(),
+    billing_period: z.string(),
+    description: z.string(),
+    features: z.array(z.string()),
+    ai_daily_credit_limit: z.number(),
+    is_active: z.boolean(),
+});
+
+export const checkoutRequestSchema = z.object({
+    plan_id: z.string(),
+    first_name: z.string().min(1),
+    last_name: z.string().min(1),
+    email: z.string().email(),
+    phone: z.string(),
+    address_line1: z.string(),
+    address_line2: z.string().optional(),
+    city: z.string(),
+    state: z.string(),
+    postal_code: z.string(),
+    country: z.string(),
+});
+
+export const checkoutResponseSchema = z.object({
+    subscription_id: z.string(),
+    payment_url: z.string(),
+    status: z.string(),
+});
