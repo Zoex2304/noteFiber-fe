@@ -1,5 +1,6 @@
 import { Logo } from "@/components/shadui/Logo";
 import { UserProfileMenu } from "@/components/common/UserProfileMenu";
+import { ActionTooltip } from "@/components/common/ActionTooltip";
 import { Button } from "@/components/ui/button";
 import { MessageSquare, Search } from "lucide-react";
 
@@ -18,22 +19,27 @@ export const TopBar = ({ onSearchClick, onChatClick }: TopBarProps) => {
 
             {/* Right: Actions & Profile */}
             <div className="flex items-center gap-2">
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={onSearchClick}
-                    className="h-9 w-9 p-0 hover:bg-gray-100 rounded-full text-gray-600"
-                >
-                    <Search className="h-5 w-5" />
-                </Button>
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={onChatClick}
-                    className="h-9 w-9 p-0 hover:bg-gray-100 rounded-full text-gray-600"
-                >
-                    <MessageSquare className="h-5 w-5" />
-                </Button>
+                <ActionTooltip label="Search">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={onSearchClick}
+                        className="h-9 w-9 p-0 hover:bg-gray-100 rounded-full text-gray-600"
+                    >
+                        <Search className="h-5 w-5" />
+                    </Button>
+                </ActionTooltip>
+
+                <ActionTooltip label="Chat with AI">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={onChatClick}
+                        className="h-9 w-9 p-0 hover:bg-gray-100 rounded-full text-gray-600"
+                    >
+                        <MessageSquare className="h-5 w-5" />
+                    </Button>
+                </ActionTooltip>
 
                 <div className="h-6 w-px bg-gray-200 mx-2" />
 

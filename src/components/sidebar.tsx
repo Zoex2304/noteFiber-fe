@@ -14,6 +14,7 @@ import axios from "axios"
 import { AppConfig } from "../config/config"
 import type { BaseResponse } from "../dto/base-response"
 import type { UpdateNotebookResponse, UpdateNotebookRequest } from "../dto/notebook"
+import { ActionTooltip } from "@/components/common/ActionTooltip"
 
 interface SidebarProps {
     notebooks: Notebook[]
@@ -258,17 +259,19 @@ export function Sidebar({
 
                     {!isEditing && (
                         <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                                    onClick={(e) => e.stopPropagation()} // Prevent button click from firing
-                                    disabled={isProcessingMove || isSavingNotebookName || isThisNotebookDeleting} // Disable dropdown if any operation is processing
-                                >
-                                    <MoreHorizontal className="h-3 w-3" />
-                                </Button>
-                            </DropdownMenuTrigger>
+                            <ActionTooltip label="More Options">
+                                <DropdownMenuTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        onClick={(e) => e.stopPropagation()} // Prevent button click from firing
+                                        disabled={isProcessingMove || isSavingNotebookName || isThisNotebookDeleting} // Disable dropdown if any operation is processing
+                                    >
+                                        <MoreHorizontal className="h-3 w-3" />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                            </ActionTooltip>
                             <DropdownMenuContent align="end">
                                 <DropdownMenuItem
                                     onClick={(e) => {
@@ -348,17 +351,19 @@ export function Sidebar({
                                     </Button>
 
                                     <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                                                onClick={(e) => e.stopPropagation()} // Prevent button click from firing
-                                                disabled={isProcessingMove || isThisNoteDeleting} // Disable dropdown if any operation is processing
-                                            >
-                                                <MoreHorizontal className="h-3 w-3" />
-                                            </Button>
-                                        </DropdownMenuTrigger>
+                                        <ActionTooltip label="More Options">
+                                            <DropdownMenuTrigger asChild>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    onClick={(e) => e.stopPropagation()} // Prevent button click from firing
+                                                    disabled={isProcessingMove || isThisNoteDeleting} // Disable dropdown if any operation is processing
+                                                >
+                                                    <MoreHorizontal className="h-3 w-3" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                        </ActionTooltip>
                                         <DropdownMenuContent align="end">
                                             <DropdownMenuItem
                                                 onClick={(e) => {

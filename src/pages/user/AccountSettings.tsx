@@ -5,6 +5,7 @@ import { useUpdateProfile } from "@/hooks/user/useUpdateProfile";
 import { useDeleteAccount } from "@/hooks/user/useDeleteAccount";
 import { useAuth } from "@/hooks/auth/useAuth";
 import { Button } from "@/components/shadui/button";
+import { ActionTooltip } from "@/components/common/ActionTooltip";
 import {
     Form,
     FormControl,
@@ -67,14 +68,16 @@ export default function AccountSettings() {
         <div className="p-10 pb-16 max-w-5xl mx-auto">
             {/* Header with Back Button outside the main content flow */}
             <div className="flex items-center gap-4 mb-8">
-                <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => navigate(-1)}
-                    className="h-10 w-10 shrink-0 rounded-full border-gray-200"
-                >
-                    <MoveLeft className="h-5 w-5" />
-                </Button>
+                <ActionTooltip label="Go Back">
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => navigate(-1)}
+                        className="h-10 w-10 shrink-0 rounded-full border-gray-200"
+                    >
+                        <MoveLeft className="h-5 w-5" />
+                    </Button>
+                </ActionTooltip>
                 <div>
                     <h2 className="text-2xl font-bold tracking-tight">Settings</h2>
                     <p className="text-muted-foreground">

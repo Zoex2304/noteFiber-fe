@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/shadui/avatar"
 import { useAuth } from "@/hooks/auth/useAuth";
 import { Settings, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { ActionTooltip } from "@/components/common/ActionTooltip";
 
 export function UserProfileMenu() {
     const { user, logout } = useAuth();
@@ -31,16 +32,18 @@ export function UserProfileMenu() {
 
     return (
         <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                    <Avatar className="h-10 w-10 border border-gray-200">
-                        <AvatarImage src={user?.avatar_url || ""} alt={user?.full_name || "User"} referrerPolicy="no-referrer" />
-                        <AvatarFallback className="bg-royal-violet-light text-royal-violet-base font-medium">
-                            {initials}
-                        </AvatarFallback>
-                    </Avatar>
-                </Button>
-            </DropdownMenuTrigger>
+            <ActionTooltip label="Profile & Settings">
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                        <Avatar className="h-10 w-10 border border-gray-200">
+                            <AvatarImage src={user?.avatar_url || ""} alt={user?.full_name || "User"} referrerPolicy="no-referrer" />
+                            <AvatarFallback className="bg-royal-violet-light text-royal-violet-base font-medium">
+                                {initials}
+                            </AvatarFallback>
+                        </Avatar>
+                    </Button>
+                </DropdownMenuTrigger>
+            </ActionTooltip>
             <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">

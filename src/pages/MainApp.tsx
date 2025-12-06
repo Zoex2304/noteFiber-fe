@@ -10,6 +10,7 @@ import { Plus, FolderPlus, XCircle } from "lucide-react"; // Import XCircle for 
 import type { Note } from "@/types/note"; // Updated path
 import type { Notebook } from "@/types/notebook"; // Updated path
 import { TopBar } from "@/components/common/TopBar";
+import { ActionTooltip } from "@/components/common/ActionTooltip";
 import "@/App.css"; // Updated path
 import axios from "axios";
 import type { BaseResponse } from "@/dto/base-response"; // Updated path
@@ -278,55 +279,62 @@ export default function MainApp() { // Renamed from App to MainApp
           <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-white to-gray-50">
             {/* New Note/Notebook Buttons moved here directly */}
             <div className="flex gap-2 mb-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleCreateNotebook}
-                disabled={isCreatingNotebook}
-                className="flex-1 bg-transparent"
-              >
-                {isCreatingNotebook ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
-                    Creating...
-                  </>
-                ) : (
-                  <>
-                    <FolderPlus className="h-4 w-4 mr-2" />
-                    New Notebook
-                  </>
-                )}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleCreateNote}
-                disabled={!selectedNotebook || isCreatingNote}
-                className="flex-1 bg-transparent"
-              >
-                {isCreatingNote ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
-                    Creating...
-                  </>
-                ) : (
-                  <>
-                    <Plus className="h-4 w-4 mr-2" />
-                    New Note
-                  </>
-                )}
-              </Button>
+              <ActionTooltip label="Create Notebook">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCreateNotebook}
+                  disabled={isCreatingNotebook}
+                  className="flex-1 bg-transparent"
+                >
+                  {isCreatingNotebook ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                      Creating...
+                    </>
+                  ) : (
+                    <>
+                      <FolderPlus className="h-4 w-4 mr-2" />
+                      New Notebook
+                    </>
+                  )}
+                </Button>
+              </ActionTooltip>
+
+              <ActionTooltip label={!selectedNotebook ? "Select a notebook first" : "Create Note"}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCreateNote}
+                  disabled={!selectedNotebook || isCreatingNote}
+                  className="flex-1 bg-transparent"
+                >
+                  {isCreatingNote ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                      Creating...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="h-4 w-4 mr-2" />
+                      New Note
+                    </>
+                  )}
+                </Button>
+              </ActionTooltip>
             </div>
             {(selectedNotebook || selectedNote) && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleClearSelection}
-                className="w-full justify-center text-gray-600 hover:bg-gray-100"
-              >
-                <XCircle className="h-4 w-4 mr-2" />
-                Clear Selection
-              </Button>
+              <ActionTooltip label="Clear Selection">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleClearSelection}
+                  className="w-full justify-center text-gray-600 hover:bg-gray-100"
+                >
+                  <XCircle className="h-4 w-4 mr-2" />
+                  Clear Selection
+                </Button>
+              </ActionTooltip>
             )}
           </div>
 
