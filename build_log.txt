@@ -1,0 +1,45 @@
+﻿src/components/shadui/form.tsx(6,5): error TS1484: 'ControllerProps' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/components/shadui/form.tsx(7,5): error TS1484: 'FieldPath' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/components/shadui/form.tsx(8,5): error TS1484: 'FieldValues' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/components/shadui/PriceAdvantageItem.tsx(18,29): error TS2322: Type '"xs"' is not assignable to type '"small" | "default" | null | undefined'.
+src/components/shadui/SwitchPricing.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/components/sidebar.tsx(57,12): error TS6133: 'draggedItem' is declared but its value is never read.
+src/pages/auth/SignIn.tsx(29,9): error TS2322: Type 'Resolver<{ email: string; password: string; rememberMe?: boolean | undefined; }, any, { email: string; password: string; rememberMe: boolean; }>' is not assignable to type 'Resolver<{ email: string; password: string; rememberMe: boolean; }, any, { email: string; password: string; rememberMe: boolean; }>'.
+  Types of parameters 'options' and 'options' are incompatible.
+    Type 'ResolverOptions<{ email: string; password: string; rememberMe: boolean; }>' is not assignable to type 'ResolverOptions<{ email: string; password: string; rememberMe?: boolean | undefined; }>'.
+      Type 'boolean | undefined' is not assignable to type 'boolean'.
+        Type 'undefined' is not assignable to type 'boolean'.
+src/pages/auth/SignIn.tsx(57,55): error TS2345: Argument of type '(values: { email: string; password: string; rememberMe: boolean; }) => void' is not assignable to parameter of type 'SubmitHandler<TFieldValues>'.
+  Types of parameters 'values' and 'data' are incompatible.
+    Type 'TFieldValues' is not assignable to type '{ email: string; password: string; rememberMe: boolean; }'.
+      Type 'FieldValues' is missing the following properties from type '{ email: string; password: string; rememberMe: boolean; }': email, password, rememberMe
+src/pages/auth/SignIn.tsx(59,29): error TS2322: Type 'Control<{ email: string; password: string; rememberMe: boolean; }, any, TFieldValues>' is not assignable to type 'Control<{ email: string; password: string; rememberMe: boolean; }, any, { email: string; password: string; rememberMe: boolean; }>'.
+  The types of '_options.resolver' are incompatible between these types.
+    Type 'Resolver<{ email: string; password: string; rememberMe: boolean; }, any, TFieldValues> | undefined' is not assignable to type 'Resolver<{ email: string; password: string; rememberMe: boolean; }, any, { email: string; password: string; rememberMe: boolean; }> | undefined'.
+      Type 'Resolver<{ email: string; password: string; rememberMe: boolean; }, any, TFieldValues>' is not assignable to type 'Resolver<{ email: string; password: string; rememberMe: boolean; }, any, { email: string; password: string; rememberMe: boolean; }>'.
+        Type 'ResolverResult<{ email: string; password: string; rememberMe: boolean; }, TFieldValues> | Promise<ResolverResult<{ email: string; password: string; rememberMe: boolean; }, TFieldValues>>' is not assignable to type 'ResolverResult<{ email: string; password: string; rememberMe: boolean; }, { email: string; password: string; rememberMe: boolean; }> | Promise<ResolverResult<{ email: string; password: string; rememberMe: boolean; }, { ...; }>>'.
+          Type 'ResolverSuccess<TFieldValues>' is not assignable to type 'ResolverResult<{ email: string; password: string; rememberMe: boolean; }, { email: string; password: string; rememberMe: boolean; }> | Promise<ResolverResult<{ email: string; password: string; rememberMe: boolean; }, { ...; }>>'.
+            Type 'ResolverSuccess<TFieldValues>' is not assignable to type 'ResolverSuccess<{ email: string; password: string; rememberMe: boolean; }>'.
+              Type 'TFieldValues' is not assignable to type '{ email: string; password: string; rememberMe: boolean; }'.
+                Type 'FieldValues' is missing the following properties from type '{ email: string; password: string; rememberMe: boolean; }': email, password, rememberMe
+src/pages/auth/SignIn.tsx(72,29): error TS2322: Type 'Control<{ email: string; password: string; rememberMe: boolean; }, any, TFieldValues>' is not assignable to type 'Control<{ email: string; password: string; rememberMe: boolean; }, any, { email: string; password: string; rememberMe: boolean; }>'.
+  The types of '_options.resolver' are incompatible between these types.
+    Type 'Resolver<{ email: string; password: string; rememberMe: boolean; }, any, TFieldValues> | undefined' is not assignable to type 'Resolver<{ email: string; password: string; rememberMe: boolean; }, any, { email: string; password: string; rememberMe: boolean; }> | undefined'.
+      Type 'Resolver<{ email: string; password: string; rememberMe: boolean; }, any, TFieldValues>' is not assignable to type 'Resolver<{ email: string; password: string; rememberMe: boolean; }, any, { email: string; password: string; rememberMe: boolean; }>'.
+        Type 'ResolverResult<{ email: string; password: string; rememberMe: boolean; }, TFieldValues> | Promise<ResolverResult<{ email: string; password: string; rememberMe: boolean; }, TFieldValues>>' is not assignable to type 'ResolverResult<{ email: string; password: string; rememberMe: boolean; }, { email: string; password: string; rememberMe: boolean; }> | Promise<ResolverResult<{ email: string; password: string; rememberMe: boolean; }, { ...; }>>'.
+          Type 'ResolverSuccess<TFieldValues>' is not assignable to type 'ResolverResult<{ email: string; password: string; rememberMe: boolean; }, { email: string; password: string; rememberMe: boolean; }> | Promise<ResolverResult<{ email: string; password: string; rememberMe: boolean; }, { ...; }>>'.
+            Type 'ResolverSuccess<TFieldValues>' is not assignable to type 'ResolverSuccess<{ email: string; password: string; rememberMe: boolean; }>'.
+              Type 'TFieldValues' is not assignable to type '{ email: string; password: string; rememberMe: boolean; }'.
+                Type 'FieldValues' is missing the following properties from type '{ email: string; password: string; rememberMe: boolean; }': email, password, rememberMe
+src/pages/auth/SignIn.tsx(87,33): error TS2322: Type 'Control<{ email: string; password: string; rememberMe: boolean; }, any, TFieldValues>' is not assignable to type 'Control<{ email: string; password: string; rememberMe: boolean; }, any, { email: string; password: string; rememberMe: boolean; }>'.
+  The types of '_options.resolver' are incompatible between these types.
+    Type 'Resolver<{ email: string; password: string; rememberMe: boolean; }, any, TFieldValues> | undefined' is not assignable to type 'Resolver<{ email: string; password: string; rememberMe: boolean; }, any, { email: string; password: string; rememberMe: boolean; }> | undefined'.
+      Type 'Resolver<{ email: string; password: string; rememberMe: boolean; }, any, TFieldValues>' is not assignable to type 'Resolver<{ email: string; password: string; rememberMe: boolean; }, any, { email: string; password: string; rememberMe: boolean; }>'.
+        Type 'ResolverResult<{ email: string; password: string; rememberMe: boolean; }, TFieldValues> | Promise<ResolverResult<{ email: string; password: string; rememberMe: boolean; }, TFieldValues>>' is not assignable to type 'ResolverResult<{ email: string; password: string; rememberMe: boolean; }, { email: string; password: string; rememberMe: boolean; }> | Promise<ResolverResult<{ email: string; password: string; rememberMe: boolean; }, { ...; }>>'.
+          Type 'ResolverSuccess<TFieldValues>' is not assignable to type 'ResolverResult<{ email: string; password: string; rememberMe: boolean; }, { email: string; password: string; rememberMe: boolean; }> | Promise<ResolverResult<{ email: string; password: string; rememberMe: boolean; }, { ...; }>>'.
+            Type 'ResolverSuccess<TFieldValues>' is not assignable to type 'ResolverSuccess<{ email: string; password: string; rememberMe: boolean; }>'.
+              Type 'TFieldValues' is not assignable to type '{ email: string; password: string; rememberMe: boolean; }'.
+                Type 'FieldValues' is missing the following properties from type '{ email: string; password: string; rememberMe: boolean; }': email, password, rememberMe
+src/pages/landingpage/components/molecules/LeftPanelContent3.tsx(2,1): error TS6133: 'Tag' is declared but its value is never read.
+src/pages/landingpage/components/molecules/WorkflowPot.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/pages/landingpage/components/organisms/ContactFormSection.tsx(14,5): error TS6133: 'FormLabel' is declared but its value is never read.
