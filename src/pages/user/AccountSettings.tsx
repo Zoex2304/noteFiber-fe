@@ -4,6 +4,10 @@ import * as z from "zod";
 import { useUpdateProfile } from "@/hooks/user/useUpdateProfile";
 import { useDeleteAccount } from "@/hooks/user/useDeleteAccount";
 import { useAuth } from "@/hooks/auth/useAuth";
+import axios from "axios";
+import { AppConfig } from "@/config/config";
+import { tokenStorage } from "@/utils/storage/token.storage";
+import { userService } from "@/api/services/user/user.service";
 import { Button } from "@/components/shadui/button";
 import { ActionTooltip } from "@/components/common/ActionTooltip";
 import {
@@ -19,6 +23,7 @@ import { Input } from "@/components/shadui/input";
 import { Separator } from "@/components/shadui/separator";
 import { Loader2, MoveLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { AvatarUploader } from "@/components/common/AvatarUploader";
 import { toast } from "sonner";
 import {
     AlertDialog,
@@ -41,7 +46,7 @@ const profileSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
 export default function AccountSettings() {
-    const { user } = useAuth();
+    const { user, updateUser } = useAuth();
     const navigate = useNavigate();
     const { mutate: updateProfile, isPending: isUpdating } = useUpdateProfile();
     const { mutate: deleteAccount, isPending: isDeleting } = useDeleteAccount();
@@ -63,6 +68,39 @@ export default function AccountSettings() {
             }
         });
     }
+
+    const handleAvatarUpload = async (blob: Blob) => {
+        // Create FormData
+        const formData = new FormData();
+        formData.append('avatar', blob, 'avatar.jpg');
+
+        try {
+            const response = await axios.post(`${AppConfig.baseUrl}/api/user/avatar`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    Authorization: `Bearer ${tokenStorage.getToken()}`
+                }
+            });
+
+            if (response.data && response.data.user) {
+                // Assume backend returns updated user or we fetch it again
+                // For now, let's fetch profile again to be sure or update if response has it
+                updateUser(response.data.user);
+            } else {
+                // Fallback: fetch profile
+                const profileResponse = await userService.getProfile();
+                if (profileResponse.success && profileResponse.data) {
+                    updateUser(profileResponse.data);
+                }
+            }
+
+            toast.success("Avatar updated successfully");
+
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to upload avatar");
+        }
+    };
 
     return (
         <div className="p-10 pb-16 max-w-5xl mx-auto">
@@ -97,6 +135,15 @@ export default function AccountSettings() {
                             Update your personal information.
                         </p>
                     </div>
+
+                    <div className="flex justify-center sm:justify-start mb-6">
+                        <AvatarUploader
+                            currentAvatarUrl={user?.avatar_url}
+                            onUpload={handleAvatarUpload}
+                        // isUploading state could be added here
+                        />
+                    </div>
+
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 max-w-xl">
                             <div className="flex flex-col sm:flex-row gap-4 items-start">
