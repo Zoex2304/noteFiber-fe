@@ -19,7 +19,7 @@ export const editorTheme = {
         ol: "list-decimal list-inside mb-4 pl-4",
         ul: "list-disc list-inside mb-4 pl-4",
         listitem: "mb-1",
-        listitemChecked: "list-none relative pl-8 before:content-[''] before:absolute before:left-0 before:top-1 before:w-4 before:h-4 before:border before:border-gray-300 before:bg-blue-500 before:rounded",
+        listitemChecked: "list-none relative pl-8 line-through text-gray-400 before:content-[''] before:absolute before:left-0 before:top-1 before:w-4 before:h-4 before:border before:border-gray-500 before:rounded",
         listitemUnchecked: "list-none relative pl-8 before:content-[''] before:absolute before:left-0 before:top-1 before:w-4 before:h-4 before:border before:border-gray-500 before:rounded",
     },
     table: "border-collapse border border-gray-300 w-full my-4",

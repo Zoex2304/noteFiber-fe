@@ -1,15 +1,14 @@
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import { FORMAT_TEXT_COMMAND, TextFormatType } from "lexical";
-import { Bold, Italic, Underline, Strikethrough, Code, List, ListOrdered, CheckSquare, Table, Youtube } from "lucide-react";
+import { FORMAT_TEXT_COMMAND } from "lexical";
+import { Bold, Italic, Underline, Strikethrough, Code, List, ListOrdered, CheckSquare, Table } from "lucide-react";
 import { INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND, INSERT_CHECK_LIST_COMMAND } from "@lexical/list";
 import { INSERT_TABLE_COMMAND } from "@lexical/table";
-import { INSERT_VIDEO_COMMAND } from "./VideoPlugin";
 import { Button } from "@/components/shadui/button";
 
 export default function ToolbarPlugin() {
     const [editor] = useLexicalComposerContext();
 
-    const onClick = (format: TextFormatType) => {
+    const onClick = (format: "bold" | "italic" | "underline" | "strikethrough" | "code") => {
         editor.dispatchCommand(FORMAT_TEXT_COMMAND, format);
     };
 
@@ -96,15 +95,6 @@ export default function ToolbarPlugin() {
                 type="button"
             >
                 <Table className="h-4 w-4" />
-            </Button>
-            <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => editor.dispatchCommand(INSERT_VIDEO_COMMAND, "https://www.youtube.com/watch?v=dQw4w9WgXcQ")} // Mock URL for now
-                className="h-8 w-8 p-0"
-                type="button"
-            >
-                <Youtube className="h-4 w-4" />
             </Button>
         </div>
     );

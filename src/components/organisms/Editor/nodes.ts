@@ -8,7 +8,6 @@ import { HashtagNode } from "@lexical/hashtag";
 // Will add VideoNode/YouTubeNode later when we implement the plugin
 
 // Will add VideoNode/YouTubeNode later when we implement the plugin
-import { VideoNode } from "./nodes/VideoNode";
 
 export const EditorNodes = [
     HeadingNode,
@@ -22,6 +21,5 @@ export const EditorNodes = [
     TableRowNode,
     AutoLinkNode,
     LinkNode,
-    HashtagNode,
-    VideoNode
+    HashtagNode
 ];

@@ -8,7 +8,7 @@ import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
 import { MarkdownShortcutPlugin } from "@lexical/react/LexicalMarkdownShortcutPlugin";
-import { TRANSFORMERS, $convertFromMarkdownString, $convertToMarkdownString } from "@lexical/markdown";
+import { TRANSFORMERS, $convertFromMarkdownString } from "@lexical/markdown";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 
@@ -18,7 +18,6 @@ import ToolbarPlugin from "./plugins/ToolbarPlugin";
 import TablePlugin from "./plugins/TablePlugin";
 import CheckListPlugin from "./plugins/CheckListPlugin";
 import HashtagPlugin from "./plugins/HashtagPlugin";
-import VideoPlugin from "./plugins/VideoPlugin";
 import CodeHighlightPlugin from "./plugins/CodeHighlightPlugin";
 import MentionsPlugin from "./plugins/MentionsPlugin";
 import "./Editor.css";
@@ -27,12 +26,27 @@ function Placeholder() {
     return <div className="editor-placeholder">Enter some text...</div>;
 }
 
-// Plugin to handle initial content loading
-function MarkdownLoaderPlugin({ content }: { content: string }) {
+// Plugin to handle initial content loading (JSON first, Markdown fallback)
+function InitialStatePlugin({ content }: { content: string }) {
     const [editor] = useLexicalComposerContext();
 
     useEffect(() => {
+        if (!content) return;
+
         editor.update(() => {
+            try {
+                // Try parsing as JSON first
+                const parsedState = JSON.parse(content);
+                if (parsedState.root) {
+                    const editorState = editor.parseEditorState(parsedState);
+                    editor.setEditorState(editorState);
+                    return;
+                }
+            } catch (e) {
+                // Not valid JSON, fall back to Markdown
+            }
+
+            // Fallback: Convert from Markdown
             $convertFromMarkdownString(content, TRANSFORMERS);
         });
     }, [content, editor]);
@@ -51,15 +65,16 @@ const editorConfig = {
 
 interface EditorProps {
     initialContent?: string;
-    onChange?: (markdown: string) => void;
+    onChange?: (jsonString: string) => void;
 }
 
 export function Editor({ initialContent = "", onChange }: EditorProps) {
     const onChangeHandler = (editorState: any) => {
         editorState.read(() => {
-            const markdown = $convertToMarkdownString(TRANSFORMERS);
+            // Serialize to JSON to preserve full Lexical state (tables, checklists, etc.)
+            const jsonState = editorState.toJSON();
             if (onChange) {
-                onChange(markdown);
+                onChange(JSON.stringify(jsonState));
             }
         });
     };
@@ -80,12 +95,11 @@ export function Editor({ initialContent = "", onChange }: EditorProps) {
                     <LinkPlugin />
                     <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
                     <OnChangePlugin onChange={onChangeHandler} />
-                    <MarkdownLoaderPlugin content={initialContent} />
+                    <InitialStatePlugin content={initialContent} />
                     {/* Extended Plugins */}
                     <TablePlugin />
                     <CheckListPlugin />
                     <HashtagPlugin />
-                    <VideoPlugin />
                     <CodeHighlightPlugin />
                     <MentionsPlugin />
                 </div>
