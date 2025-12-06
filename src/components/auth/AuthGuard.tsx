@@ -9,6 +9,7 @@ export const AuthGuard = () => {
 
     useEffect(() => {
         if (!isLoading && !isAuthenticated) {
+            console.log("AuthGuard: Redirecting to signin", { isLoading, isAuthenticated, path: location.pathname });
             navigate("/signin", { state: { from: location.pathname } });
         }
     }, [isLoading, isAuthenticated, navigate, location]);

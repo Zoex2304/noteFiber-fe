@@ -1,5 +1,7 @@
 import { Outlet } from 'react-router-dom';
-import { TopLoader } from '@/components/shadui/TopLoader';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { QueryProvider } from '@/contexts/QueryClientProvider';
+import { LogOverlay } from '@/utils/debug/LogOverlay';
 
 /**
  * Ini adalah root layout.
@@ -8,9 +10,13 @@ import { TopLoader } from '@/components/shadui/TopLoader';
  */
 export default function App() {
   return (
-    <div className="h-screen w-screen">
-      <TopLoader />
-      <Outlet />
-    </div>
+    <QueryProvider>
+      <AuthProvider>
+        <div className="min-h-screen bg-background font-sans antialiased">
+          <Outlet />
+          <LogOverlay />
+        </div>
+      </AuthProvider>
+    </QueryProvider>
   );
 }

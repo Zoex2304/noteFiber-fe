@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import { type User } from '../api/services/auth/auth.types';
 import { tokenStorage } from '../utils/storage/token.storage';
 import { userService } from '../api/services/user/user.service';
+import { debugLog } from '../utils/debug/LogOverlay';
 
 interface AuthContextType {
     user: User | null;
@@ -21,21 +22,40 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Initialize auth state
     useEffect(() => {
         const initAuth = async () => {
-            const token = tokenStorage.getToken();
+            // Check for token in URL (OAuth redirect)
+            const searchParams = new URLSearchParams(window.location.search);
+            const urlToken = searchParams.get('token') || searchParams.get('access_token');
+            const storedToken = tokenStorage.getToken();
+
+            debugLog.info("AuthContext Init: Checking for token", { urlToken: !!urlToken, storedToken: !!storedToken, rawUrl: window.location.href });
+
+            let token = urlToken || storedToken;
+
+            if (urlToken) {
+                // If token comes from URL, save it and clean URL
+                debugLog.info("AuthContext: Found URL token, saving...", urlToken.substring(0, 10) + "...");
+                tokenStorage.setToken(urlToken);
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
             if (token) {
                 try {
-                    // Verify token by fetching profile? Or just load from storage?
-                    // Rules say: "Server state is source of truth".
-                    // Better to fetch profile if token exists.
+                    debugLog.info("AuthContext: Attempting to fetch profile with token");
                     const response = await userService.getProfile();
-                    if (response.success && response.data) { // Assuming wrapper
-                        setUser(response.data as unknown as User); // Force cast if types slightly differ
+                    debugLog.info("AuthContext: Profile fetch response", response);
+                    if (response.success && response.data) {
+                        setUser(response.data as unknown as User);
+                    } else {
+                        debugLog.error("AuthContext: Profile fetch failed (success=false)", response);
                     }
                 } catch (error) {
+                    debugLog.error("AuthContext: Profile fetch error", error);
                     // Token invalid
                     tokenStorage.clearAll();
                     setUser(null);
                 }
+            } else {
+                debugLog.info("AuthContext: No token found");
             }
             setIsLoading(false);
         };

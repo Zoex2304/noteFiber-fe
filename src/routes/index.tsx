@@ -12,7 +12,9 @@ import SignIn from '@/pages/auth/SignIn';
 import ForgotPassword from '@/pages/auth/ForgotPassword';
 import ResetPassword from '@/pages/auth/ResetPassword';
 import ValidateCode from '@/pages/auth/ValidateCode';
+
 import Checkout from '@/pages/checkout/Checkout';
+import AccountSettings from '@/pages/user/AccountSettings';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 
 // Default development start page
@@ -62,6 +64,11 @@ const router = createBrowserRouter([
           {
             path: 'app',
             element: <MainApp />,
+          },
+
+          {
+            path: 'app/settings',
+            element: <AccountSettings />,
           },
         ],
       },

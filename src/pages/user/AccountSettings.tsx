@@ -1,0 +1,178 @@
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { useUpdateProfile } from "@/hooks/user/useUpdateProfile";
+import { useDeleteAccount } from "@/hooks/user/useDeleteAccount";
+import { useAuth } from "@/hooks/auth/useAuth";
+import { Button } from "@/components/shadui/button";
+import {
+    Form,
+    FormControl,
+    FormDescription,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@/components/shadui/form";
+import { Input } from "@/components/shadui/input";
+import { Separator } from "@/components/shadui/separator";
+import { Loader2 } from "lucide-react";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/shadui/alert-dialog";
+
+const profileSchema = z.object({
+    full_name: z.string().min(2, {
+        message: "Name must be at least 2 characters.",
+    }),
+});
+
+type ProfileFormValues = z.infer<typeof profileSchema>;
+
+export default function AccountSettings() {
+    const { user } = useAuth();
+    const { mutate: updateProfile, isPending: isUpdating } = useUpdateProfile();
+    const { mutate: deleteAccount, isPending: isDeleting } = useDeleteAccount();
+
+    const form = useForm<ProfileFormValues>({
+        resolver: zodResolver(profileSchema),
+        defaultValues: {
+            full_name: user?.full_name || "",
+        },
+    });
+
+    function onSubmit(data: ProfileFormValues) {
+        updateProfile(data);
+    }
+
+    return (
+        <div className="space-y-6 p-10 pb-16 max-w-4xl mx-auto">
+            <div className="space-y-0.5">
+                <h2 className="text-2xl font-bold tracking-tight">Settings</h2>
+                <p className="text-muted-foreground">
+                    Manage your account settings and preferences.
+                </p>
+            </div>
+            <Separator />
+
+            <div className="flex flex-col gap-8">
+                {/* Profile Section */}
+                <div className="grid gap-4">
+                    <div>
+                        <h3 className="text-lg font-medium">Profile</h3>
+                        <p className="text-sm text-muted-foreground">
+                            Update your personal information.
+                        </p>
+                    </div>
+                    <Form {...form}>
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 max-w-xl">
+                            <FormField
+                                control={form.control as any}
+                                name="full_name"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Full Name</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="Your name" {...field} />
+                                        </FormControl>
+                                        <FormDescription>
+                                            This is the name that will be displayed on your profile and in emails.
+                                        </FormDescription>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <div className="flex items-center gap-4">
+                                <Button type="submit" disabled={isUpdating}>
+                                    {isUpdating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                    Update profile
+                                </Button>
+                            </div>
+                        </form>
+                    </Form>
+                </div>
+
+                <Separator />
+
+                {/* Account Details (ReadOnly) */}
+                <div className="grid gap-4">
+                    <div>
+                        <h3 className="text-lg font-medium">Account Details</h3>
+                        <p className="text-sm text-muted-foreground">
+                            Review your account information.
+                        </p>
+                    </div>
+                    <div className="grid gap-4 max-w-xl text-sm">
+                        <div className="grid grid-cols-3 items-center">
+                            <span className="font-medium">Email</span>
+                            <span className="col-span-2 text-muted-foreground">{user?.email}</span>
+                        </div>
+                        <div className="grid grid-cols-3 items-center">
+                            <span className="font-medium">User ID</span>
+                            <span className="col-span-2 text-muted-foreground font-mono text-xs">{user?.id}</span>
+                        </div>
+                        <div className="grid grid-cols-3 items-center">
+                            <span className="font-medium">Role</span>
+                            <span className="col-span-2 text-muted-foreground capitalize">{user?.role}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <Separator />
+
+                {/* Danger Zone */}
+                <div className="grid gap-4">
+                    <div>
+                        <h3 className="text-lg font-medium text-red-600">Danger Zone</h3>
+                        <p className="text-sm text-muted-foreground">
+                            Irreversible actions for your account.
+                        </p>
+                    </div>
+
+                    <div className="rounded-md border border-red-200 p-4 max-w-xl bg-red-50">
+                        <div className="flex items-center justify-between">
+                            <div className="space-y-1">
+                                <h4 className="font-medium text-red-900">Delete Account</h4>
+                                <p className="text-sm text-red-700">
+                                    Permanently delete your account and all contents.
+                                </p>
+                            </div>
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button variant="destructive" size="sm">Delete Account</Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            This action cannot be undone. This will permanently delete your
+                                            account and remove your data from our servers.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction
+                                            onClick={() => deleteAccount()}
+                                            className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+                                            disabled={isDeleting}
+                                        >
+                                            {isDeleting ? "Deleting..." : "Delete Account"}
+                                        </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}

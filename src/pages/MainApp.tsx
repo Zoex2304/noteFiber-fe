@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"; // Updated path
 import { Search, MessageSquare, Plus, FolderPlus, XCircle } from "lucide-react"; // Import XCircle for clear button
 import type { Note } from "@/types/note"; // Updated path
 import type { Notebook } from "@/types/notebook"; // Updated path
+import { UserProfileMenu } from "@/components/common/UserProfileMenu";
 import "@/App.css"; // Updated path
 import axios from "axios";
 import type { BaseResponse } from "@/dto/base-response"; // Updated path
@@ -270,7 +271,7 @@ export default function MainApp() { // Renamed from App to MainApp
             <h1 className="text-xl font-bold text-gray-900 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               Asisten slebew
             </h1>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               <Button
                 variant="ghost"
                 size="sm"
@@ -287,6 +288,9 @@ export default function MainApp() { // Renamed from App to MainApp
               >
                 <MessageSquare className="h-4 w-4" />
               </Button>
+              <div className="ml-1">
+                <UserProfileMenu />
+              </div>
             </div>
           </div>
           <div className="flex gap-2 mb-2">
