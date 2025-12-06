@@ -67,7 +67,7 @@ export default function SignUp() {
             {
                 onSuccess: () => {
                     // Redirect to verification page with email
-                    navigate("/validate-code", { state: { email: values.email } });
+                    navigate(`/validate-code?email=${encodeURIComponent(values.email)}`);
                 },
             }
         );

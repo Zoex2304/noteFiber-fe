@@ -19,6 +19,7 @@ import { AuthLayout } from "./components/AuthLayout";
 import { GoogleSignInButton } from "./components/GoogleSignInButton";
 import { PasswordInput } from "./components/PasswordInput";
 import { useLogin } from "@/hooks/auth/useLogin";
+import { debugLog } from "@/utils/debug/LogOverlay";
 
 // Extended schema for UI (includes rememberMe)
 const signInSchema = z.object({
@@ -50,7 +51,8 @@ export default function SignIn() {
             },
             {
                 onSuccess: () => {
-                    navigate("/");
+                    debugLog.info("SignIn: Redirecting to /app");
+                    navigate("/app");
                 },
             }
         );
