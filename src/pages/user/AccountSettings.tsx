@@ -16,7 +16,9 @@ import {
 } from "@/components/shadui/form";
 import { Input } from "@/components/shadui/input";
 import { Separator } from "@/components/shadui/separator";
-import { Loader2 } from "lucide-react";
+import { Loader2, MoveLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -39,6 +41,7 @@ type ProfileFormValues = z.infer<typeof profileSchema>;
 
 export default function AccountSettings() {
     const { user } = useAuth();
+    const navigate = useNavigate();
     const { mutate: updateProfile, isPending: isUpdating } = useUpdateProfile();
     const { mutate: deleteAccount, isPending: isDeleting } = useDeleteAccount();
 
@@ -50,20 +53,39 @@ export default function AccountSettings() {
     });
 
     function onSubmit(data: ProfileFormValues) {
-        updateProfile(data);
+        updateProfile(data, {
+            onSuccess: () => {
+                toast.success("Profile updated successfully");
+            },
+            onError: () => {
+                toast.error("Failed to update profile");
+            }
+        });
     }
 
     return (
-        <div className="space-y-6 p-10 pb-16 max-w-4xl mx-auto">
-            <div className="space-y-0.5">
-                <h2 className="text-2xl font-bold tracking-tight">Settings</h2>
-                <p className="text-muted-foreground">
-                    Manage your account settings and preferences.
-                </p>
+        <div className="p-10 pb-16 max-w-5xl mx-auto">
+            {/* Header with Back Button outside the main content flow */}
+            <div className="flex items-center gap-4 mb-8">
+                <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => navigate(-1)}
+                    className="h-10 w-10 shrink-0 rounded-full border-gray-200"
+                >
+                    <MoveLeft className="h-5 w-5" />
+                </Button>
+                <div>
+                    <h2 className="text-2xl font-bold tracking-tight">Settings</h2>
+                    <p className="text-muted-foreground">
+                        Manage your account settings and preferences.
+                    </p>
+                </div>
             </div>
-            <Separator />
 
-            <div className="flex flex-col gap-8">
+            <Separator className="mb-8" />
+
+            <div className="space-y-6 max-w-4xl ml-14">
                 {/* Profile Section */}
                 <div className="grid gap-4">
                     <div>
@@ -74,26 +96,26 @@ export default function AccountSettings() {
                     </div>
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 max-w-xl">
-                            <FormField
-                                control={form.control as any}
-                                name="full_name"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Full Name</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="Your name" {...field} />
-                                        </FormControl>
-                                        <FormDescription>
-                                            This is the name that will be displayed on your profile and in emails.
-                                        </FormDescription>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <div className="flex items-center gap-4">
-                                <Button type="submit" disabled={isUpdating}>
+                            <div className="flex flex-col sm:flex-row gap-4 items-start">
+                                <FormField
+                                    control={form.control as any}
+                                    name="full_name"
+                                    render={({ field }) => (
+                                        <FormItem className="flex-1">
+                                            <FormLabel>Full Name</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="Your name" {...field} />
+                                            </FormControl>
+                                            <FormDescription>
+                                                This is the name that will be displayed on your profile and in emails.
+                                            </FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <Button type="submit" disabled={isUpdating} className="mt-8">
                                     {isUpdating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                    Update profile
+                                    Update
                                 </Button>
                             </div>
                         </form>

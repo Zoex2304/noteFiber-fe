@@ -4,9 +4,9 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import ReactMarkdown from "react-markdown"
 import { Button } from "./ui/button"
-import { Textarea } from "./ui/textarea"
 import { Input } from "./ui/input"
 import { Eye, Edit, Save } from "lucide-react"
+import { Editor } from "./organisms/Editor"
 import type { Note } from "../types/note"
 import { formatUpdatedAt } from "../lib/date"
 
@@ -36,12 +36,7 @@ export function NoteEditor({ note, onUpdate }: NoteEditorProps) {
         setHasChanges(false)
     }
 
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.ctrlKey && e.key === "s") {
-            e.preventDefault()
-            handleSave()
-        }
-    }
+
 
     return (
         <div className="flex-1 flex flex-col">
@@ -82,7 +77,7 @@ export function NoteEditor({ note, onUpdate }: NoteEditorProps) {
             </div>
 
             {/* Content */}
-            <div className="flex-1 overflow-hidden">
+            <div className="flex-1 overflow-hidden flex flex-col">
                 {isPreview ? (
                     <div className="h-full overflow-auto p-6 bg-white">
                         <div className="max-w-4xl mx-auto prose prose-gray">
@@ -90,13 +85,13 @@ export function NoteEditor({ note, onUpdate }: NoteEditorProps) {
                         </div>
                     </div>
                 ) : (
-                    <div className="h-full p-6 bg-white">
-                        <Textarea
-                            value={content}
-                            onChange={(e) => setContent(e.target.value)}
-                            onKeyDown={handleKeyDown}
-                            placeholder="Start writing your note..."
-                            className="w-full h-full resize-none border-none p-0 focus-visible:ring-0 font-mono text-sm"
+                    <div className="h-full flex flex-col p-6 bg-white">
+                        <Editor
+                            initialContent={note.content}
+                            onChange={(markdown) => {
+                                setContent(markdown);
+                                setHasChanges(true);
+                            }}
                         />
                     </div>
                 )}
