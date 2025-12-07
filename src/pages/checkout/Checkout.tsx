@@ -48,7 +48,7 @@ export default function Checkout() {
             // Check if it's a free plan (price 0 OR slug 'free')
             if (selectedPlan.price === 0 || selectedPlan.slug === 'free') {
                 toast.info("Free plan selected. Redirecting to dashboard...");
-                navigate("/app/dashboard");
+                navigate("/app");
             }
         }
     }, [selectedPlan, isLoadingPlans, navigate]);
@@ -77,11 +77,11 @@ export default function Checkout() {
                         window.snap.pay(snap_token, {
                             onSuccess: function (_result: unknown) {
                                 toast.success("Payment successful!");
-                                navigate("/app/dashboard");
+                                navigate("/app");
                             },
                             onPending: function (_result: unknown) {
                                 toast.info("Payment pending...");
-                                navigate("/app/dashboard");
+                                navigate("/app");
                             },
                             onError: function (_result: unknown) {
                                 toast.error("Payment failed");

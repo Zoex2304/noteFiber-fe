@@ -39,7 +39,7 @@ export function PricingCard({ data, className }: PricingCardProps) {
   const planSlug = slug || title.toLowerCase().replace(/\s+/g, "-");
 
   const targetUrl = isFree
-    ? "/app/dashboard"
+    ? "/app"
     : `/checkout?plan=${planSlug}&price=${price.replace("$", "").replace("Rp", "").replace(/,/g, "")}&period=${period.includes("month") ? "monthly" : "yearly"}`;
 
   return (
