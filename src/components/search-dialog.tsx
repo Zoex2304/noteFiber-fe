@@ -6,8 +6,7 @@ import { Input } from "./ui/input"
 import { Button } from "./ui/button"
 import { Search, FileText } from "lucide-react"
 import type { Note } from "../types/note"
-import axios from "axios"
-import { AppConfig } from "../config/config"
+import { apiClient } from "@/api/client/axios.client"
 import type { BaseResponse } from "../dto/base-response"
 import type { GetSemanticSearchResponse } from "../dto/note"
 
@@ -33,8 +32,8 @@ function SearchDialog({ open, onOpenChange, notes, onNoteSelect }: SearchDialogP
 
         // Simulate semantic search with a delay
         const searchTimeout = setTimeout(async () => {
-            const res = await axios.get<BaseResponse<GetSemanticSearchResponse[]>>(
-                `${AppConfig.baseUrl}/api/note/v1/semantic-search?q=${query}`
+            const res = await apiClient.get<BaseResponse<GetSemanticSearchResponse[]>>(
+                `/note/v1/semantic-search?q=${query}`
             )
             const data: Note[] = res.data.data.map(note => ({
                 id: note.id,

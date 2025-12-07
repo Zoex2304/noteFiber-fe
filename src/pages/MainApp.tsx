@@ -12,7 +12,6 @@ import type { Notebook } from "@/types/notebook"; // Updated path
 import { TopBar } from "@/components/common/TopBar";
 import { ActionTooltip } from "@/components/common/ActionTooltip";
 import "@/App.css"; // Updated path
-import axios from "axios";
 import type { BaseResponse } from "@/dto/base-response"; // Updated path
 import type {
   MoveNotebookResponse,
@@ -21,7 +20,7 @@ import type {
   GetAllNotebookResponse,
   MoveNotebookRequest,
 } from "@/dto/notebook"; // Updated path
-import { AppConfig } from "@/config/config"; // Updated path
+import { apiClient } from "@/api/client/axios.client";
 import type {
   UpdateNoteResponse,
   CreateNoteRequest,
@@ -56,8 +55,8 @@ export default function MainApp() { // Renamed from App to MainApp
   const currentNote = notes.find((note) => note.id === selectedNote);
 
   const fetchAllNotebooks = async () => {
-    const data = await axios.get<BaseResponse<GetAllNotebookResponse[]>>(
-      `${AppConfig.baseUrl}/api/notebook/v1`
+    const data = await apiClient.get<BaseResponse<GetAllNotebookResponse[]>>(
+      `/notebook/v1`
     );
 
     setNotebooks(
@@ -95,8 +94,8 @@ export default function MainApp() { // Renamed from App to MainApp
       title: updates.title ?? "",
       content: updates.content ?? "",
     };
-    await axios.put<BaseResponse<UpdateNoteResponse>>(
-      `${AppConfig.baseUrl}/api/note/v1/${noteId}`,
+    await apiClient.put<BaseResponse<UpdateNoteResponse>>(
+      `/note/v1/${noteId}`,
       request
     );
 
@@ -112,7 +111,7 @@ export default function MainApp() { // Renamed from App to MainApp
 
     setIsDeletingNotebook(notebookId); // Set loading for this specific notebook
 
-    await axios.delete(`${AppConfig.baseUrl}/api/notebook/v1/${notebookId}`);
+    await apiClient.delete(`/notebook/v1/${notebookId}`);
 
     await fetchAllNotebooks();
 
@@ -130,7 +129,7 @@ export default function MainApp() { // Renamed from App to MainApp
 
     setIsDeletingNote(noteId); // Set loading for this specific note
 
-    await axios.delete(`${AppConfig.baseUrl}/api/note/v1/${noteId}`);
+    await apiClient.delete(`/note/v1/${noteId}`);
 
     await fetchAllNotebooks();
 
@@ -168,8 +167,8 @@ export default function MainApp() { // Renamed from App to MainApp
     const request: MoveNoteRequest = {
       notebook_id: targetNotebookId,
     };
-    await axios.put<BaseResponse<MoveNoteResponse>>(
-      `${AppConfig.baseUrl}/api/note/v1/${noteId}/move`,
+    await apiClient.put<BaseResponse<MoveNoteResponse>>(
+      `/note/v1/${noteId}/move`,
       request
     );
 
@@ -196,8 +195,8 @@ export default function MainApp() { // Renamed from App to MainApp
     const request: MoveNotebookRequest = {
       parent_id: targetParentId,
     };
-    await axios.put<BaseResponse<MoveNotebookResponse>>(
-      `${AppConfig.baseUrl}/api/notebook/v1/${notebookId}/move`,
+    await apiClient.put<BaseResponse<MoveNotebookResponse>>(
+      `/notebook/v1/${notebookId}/move`,
       request
     );
 
@@ -220,8 +219,8 @@ export default function MainApp() { // Renamed from App to MainApp
       content: "# Untitled Note\n\nStart writing...",
       notebook_id: selectedNotebook,
     };
-    const res = await axios.post<BaseResponse<CreateNoteResponse>>(
-      `${AppConfig.baseUrl}/api/note/v1`,
+    const res = await apiClient.post<BaseResponse<CreateNoteResponse>>(
+      `/note/v1`,
       request
     );
 
@@ -244,8 +243,8 @@ export default function MainApp() { // Renamed from App to MainApp
       name: "New Notebook",
       parent_id: selectedNotebook ?? null,
     };
-    await axios.post<BaseResponse<CreateNotebookResponse>>(
-      `${AppConfig.baseUrl}/api/notebook/v1`,
+    await apiClient.post<BaseResponse<CreateNotebookResponse>>(
+      `/notebook/v1`,
       request
     );
 

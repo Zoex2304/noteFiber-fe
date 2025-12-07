@@ -4,9 +4,7 @@ import * as z from "zod";
 import { useUpdateProfile } from "@/hooks/user/useUpdateProfile";
 import { useDeleteAccount } from "@/hooks/user/useDeleteAccount";
 import { useAuth } from "@/hooks/auth/useAuth";
-import axios from "axios";
-import { AppConfig } from "@/config/config";
-import { tokenStorage } from "@/utils/storage/token.storage";
+import { apiClient } from "@/api/client/axios.client";
 import { userService } from "@/api/services/user/user.service";
 import { Button } from "@/components/shadui/button";
 import { ActionTooltip } from "@/components/common/ActionTooltip";
@@ -76,10 +74,9 @@ export default function AccountSettings() {
         formData.append('avatar', blob, 'avatar.jpg');
 
         try {
-            const response = await axios.post(`${AppConfig.baseUrl}/api/user/avatar`, formData, {
+            const response = await apiClient.post(`/user/avatar`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
-                    Authorization: `Bearer ${tokenStorage.getToken()}`
                 }
             });
 

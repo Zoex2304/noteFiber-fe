@@ -10,8 +10,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { cn } from "../lib/utils"
 import type { Note } from "../types/note"
 import type { Notebook } from "../types/notebook"
-import axios from "axios"
-import { AppConfig } from "../config/config"
+import { apiClient } from "@/api/client/axios.client"
 import type { BaseResponse } from "../dto/base-response"
 import type { UpdateNotebookResponse, UpdateNotebookRequest } from "../dto/notebook"
 import { ActionTooltip } from "@/components/common/ActionTooltip"
@@ -90,8 +89,8 @@ export function Sidebar({
             const request: UpdateNotebookRequest = {
                 name: editingName.trim()
             }
-            await axios.put<BaseResponse<UpdateNotebookResponse>>(
-                `${AppConfig.baseUrl}/api/notebook/v1/${editingNotebook}`,
+            await apiClient.put<BaseResponse<UpdateNotebookResponse>>(
+                `/notebook/v1/${editingNotebook}`,
                 request,
             )
 
