@@ -9,7 +9,7 @@ export const planSchema = z.object({
     billing_period: z.string(),
     description: z.string(),
     features: z.array(z.string()),
-    ai_daily_credit_limit: z.number(),
+    ai_daily_credit_limit: z.number().optional(), // Make optional if sometimes missing
     is_active: z.boolean(),
 });
 
@@ -43,4 +43,17 @@ export const orderSummaryResponseSchema = z.object({
     tax: z.number(),
     total: z.number(),
     currency: z.string(),
+});
+
+export const subscriptionFeaturesSchema = z.object({
+    ai_chat: z.boolean(),
+    semantic_search: z.boolean(),
+    max_notes: z.number(),
+});
+
+export const subscriptionStatusSchema = z.object({
+    plan_name: z.string(),
+    status: z.string(),
+    is_active: z.boolean(),
+    features: subscriptionFeaturesSchema,
 });

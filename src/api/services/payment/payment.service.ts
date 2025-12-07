@@ -19,5 +19,10 @@ export const paymentService = {
             params: { plan_id: planId }
         });
         return response.data;
+    },
+
+    getSubscriptionStatus: async (): Promise<ApiResponse<Types.SubscriptionStatusResponse>> => {
+        const response = await apiClient.get<ApiResponse<Types.SubscriptionStatusResponse>>(ENDPOINTS.PAYMENT.STATUS);
+        return response.data;
     }
 };

@@ -31,10 +31,11 @@ import type {
   MoveNoteRequest,
 } from "@/dto/note"; // Updated path
 
-// Sisa konten file App.tsx lama Anda...
-// ... (Saya salin lengkap dari yang Anda berikan)
+import { UPGRADE_EVENT } from "@/api/client/axios.client";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 
 export default function MainApp() { // Renamed from App to MainApp
+  const { checkPermission } = useSubscription();
   const [notebooks, setNotebooks] = useState<Notebook[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
   const [selectedNotebook, setSelectedNotebook] = useState<string | null>(null);
@@ -265,12 +266,28 @@ export default function MainApp() { // Renamed from App to MainApp
     setSelectedNote(null);
   };
 
+  const handleSearchClick = () => {
+    if (checkPermission('semantic_search')) {
+      setSearchOpen(true);
+    } else {
+      window.dispatchEvent(new Event(UPGRADE_EVENT));
+    }
+  };
+
+  const handleChatClick = () => {
+    if (checkPermission('ai_chat')) {
+      setChatOpen(true);
+    } else {
+      window.dispatchEvent(new Event(UPGRADE_EVENT));
+    }
+  };
+
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Global Top Bar */}
       <TopBar
-        onSearchClick={() => setSearchOpen(true)}
-        onChatClick={() => setChatOpen(true)}
+        onSearchClick={handleSearchClick}
+        onChatClick={handleChatClick}
       />
 
       <div className="flex flex-1 overflow-hidden">
