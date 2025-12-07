@@ -28,5 +28,6 @@ export const ENDPOINTS = {
     PAYMENT: {
         PLANS: '/payment/plans',
         CHECKOUT: '/payment/checkout',
+        SUMMARY: '/payment/summary',
     },
 } as const;

@@ -26,7 +26,8 @@ export const zipcodeSchema = z.object({
 // Search params
 export const searchCitiesParamsSchema = z.object({
     country: z.string(),
-    query: z.string().min(2),
+    query: z.string().optional(),
+    state: z.union([z.string(), z.number()]).optional(),
 });
 
 export const getStatesParamsSchema = z.object({

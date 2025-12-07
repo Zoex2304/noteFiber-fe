@@ -34,3 +34,13 @@ export const checkoutResponseSchema = z.object({
     snap_token: z.string(),
     snap_redirect_url: z.string(),
 });
+
+export const orderSummaryResponseSchema = z.object({
+    plan_name: z.string(),
+    billing_period: z.string(),
+    price_per_unit: z.string(),
+    subtotal: z.number(),
+    tax: z.number(),
+    total: z.number(),
+    currency: z.string(),
+});

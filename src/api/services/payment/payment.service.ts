@@ -12,5 +12,12 @@ export const paymentService = {
     checkout: async (data: Types.CheckoutRequest): Promise<ApiResponse<Types.CheckoutResponse>> => {
         const response = await apiClient.post<ApiResponse<Types.CheckoutResponse>>(ENDPOINTS.PAYMENT.CHECKOUT, data);
         return response.data;
+    },
+
+    getOrderSummary: async (planId: string): Promise<ApiResponse<Types.OrderSummaryResponse>> => {
+        const response = await apiClient.get<ApiResponse<Types.OrderSummaryResponse>>(ENDPOINTS.PAYMENT.SUMMARY, {
+            params: { plan_id: planId }
+        });
+        return response.data;
     }
 };
