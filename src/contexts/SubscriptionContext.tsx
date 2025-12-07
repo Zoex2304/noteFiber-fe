@@ -33,10 +33,35 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     const fetchSubscriptionStatus = async () => {
         try {
             const response = await paymentService.getSubscriptionStatus();
+            console.log("Subscription Status Response:", response); // Debug log
+
             if (response.success && response.data) {
                 setPlanName(response.data.plan_name);
                 setIsActive(response.data.is_active);
-                setFeatures(response.data.features);
+
+                let rawFeatures = response.data.features;
+                let normalizedFeatures = { ...defaultFeatures };
+
+                // Handle if features is an Array (list of strings)
+                if (Array.isArray(rawFeatures)) {
+                    console.warn("Features received as array, normalizing...");
+                    const featureList = rawFeatures as unknown as string[];
+                    normalizedFeatures = {
+                        ai_chat: featureList.includes('ai_chat') || featureList.includes('aiChat'),
+                        semantic_search: featureList.includes('semantic_search') || featureList.includes('semanticSearch'),
+                        max_notes: 9999, // unlimited if array usually implies Pro
+                    };
+                }
+                // Handle if features is an Object
+                else if (typeof rawFeatures === 'object' && rawFeatures !== null) {
+                    normalizedFeatures = {
+                        ai_chat: rawFeatures.ai_chat || (rawFeatures as any).aiChat || false,
+                        semantic_search: rawFeatures.semantic_search || (rawFeatures as any).semanticSearch || false,
+                        max_notes: rawFeatures.max_notes || 5,
+                    };
+                }
+
+                setFeatures(normalizedFeatures);
             }
         } catch (error) {
             console.error("Failed to fetch subscription status:", error);

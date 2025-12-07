@@ -7,6 +7,7 @@ import { Toaster } from 'sonner';
 import { UpgradeModal } from '@/components/modals/UpgradeModal';
 import { useState, useEffect } from 'react';
 import { UPGRADE_EVENT } from '@/api/client/axios.client';
+import { TopLoader } from '@/components/shadui/TopLoader';
 
 /**
  * Ini adalah root layout.
@@ -30,6 +31,7 @@ export default function App() {
             <Outlet />
             <LogOverlay />
             <Toaster />
+            <TopLoader />
             <UpgradeModal
               isOpen={showUpgradeModal}
               onClose={() => setShowUpgradeModal(false)}
