@@ -26,6 +26,7 @@ const monthlyData: PricingCardData[] = [
         title: "Pro plan",
         price: "$199.00",
         period: "/ month",
+        isPopular: true,
         description:
             "Ideal for growing businesses that need more power, features, and support.",
         features: [

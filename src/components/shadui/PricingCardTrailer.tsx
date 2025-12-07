@@ -34,7 +34,11 @@ export function PricingCardTrailer({
     >
       {/* 3. Logic .map() sekarang ada di sini */}
       {cardsData.map((data) => (
-        <PricingCard key={data.title} data={data} />
+        <PricingCard
+          key={data.title}
+          data={data}
+          className="flex-1 basis-0 w-full" // Enforce equal width distribution
+        />
       ))}
     </div>
   );

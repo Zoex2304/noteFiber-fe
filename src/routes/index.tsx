@@ -15,6 +15,7 @@ import ValidateCode from '@/pages/auth/ValidateCode';
 
 import Checkout from '@/pages/checkout/Checkout';
 import AccountSettings from '@/pages/user/AccountSettings';
+import AppPricing from '@/pages/pricing/AppPricing';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { GuestGuard } from '@/components/auth/GuestGuard';
 
@@ -63,6 +64,10 @@ const router = createBrowserRouter([
       {
         element: <AuthGuard />,
         children: [
+          {
+            path: 'pricing',
+            element: <AppPricing />,
+          },
           {
             path: 'checkout',
             element: <Checkout />,

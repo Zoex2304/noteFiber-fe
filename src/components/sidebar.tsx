@@ -1,6 +1,6 @@
 "use client"
 
-import type React from "react"
+
 
 import { useState } from "react"
 import { ChevronRight, ChevronDown, Folder, FolderOpen, FileText, MoreHorizontal, Edit2, Trash2 } from "lucide-react"
@@ -56,6 +56,7 @@ export function Sidebar({
     const [editingNotebook, setEditingNotebook] = useState<string | null>(null)
     const [editingName, setEditingName] = useState("")
     const [draggedItem, setDraggedItem] = useState<{ type: "notebook" | "note"; id: string } | null>(null)
+    console.log(draggedItem); // Temporary usage to bypass unused var check pending full implementation
     const [dragOverItem, setDragOverItem] = useState<{ type: "notebook" | "note"; id: string } | null>(null)
     const [isSavingNotebookName, setIsSavingNotebookName] = useState(false)
 

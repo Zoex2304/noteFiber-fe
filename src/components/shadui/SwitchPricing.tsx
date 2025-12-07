@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Button } from "./button"; // Import Button
 
 export type PricingPeriod = "monthly" | "yearly";

@@ -3,12 +3,13 @@ import { cn } from "@/lib/utils";
 import type { LucideIcon } from "lucide-react";
 import { cva, type VariantProps } from "class-variance-authority";
 
-// 1. Definisikan varian untuk ukuran pot
+// 1. Definisikan varian untuk ukuran pot - DITAMBAHKAN size "xs"
 const potIconVariants = cva(
   "flex items-center justify-center rounded-full bg-royal-violet-base text-white",
   {
     variants: {
       size: {
+        xs: "h-8 w-8 p-1.5 lg:h-10 lg:w-10 lg:p-2", // Tambahan: extra small size
         default:
           "h-auto gap-2 p-3 lg:h-[61.34px] lg:w-[61.34px] lg:gap-[9.294px] lg:p-[18.588px]",
         small:
@@ -31,7 +32,7 @@ export interface PotIconProps
 /**
  * Komponen Reusable "Pot Icon"
  *
- * DIPERBARUI: Sekarang memiliki varian 'size' (default, small).
+ * DIPERBARUI: Sekarang memiliki varian 'size' (xs, default, small).
  */
 const PotIcon = React.forwardRef<HTMLDivElement, PotIconProps>(
   ({ className, icon: Icon, size, ...props }, ref) => {
@@ -41,7 +42,9 @@ const PotIcon = React.forwardRef<HTMLDivElement, PotIconProps>(
         ref={ref}
         {...props}
       >
-        <Icon className="h-5 w-5 lg:h-6 lg:w-6" />
+        <Icon className={cn(
+          size === "xs" ? "h-3 w-3 lg:h-4 lg:w-4" : "h-5 w-5 lg:h-6 lg:w-6"
+        )} />
       </div>
     );
   }

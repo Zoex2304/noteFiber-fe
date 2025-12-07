@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "./button";
 import { PriceAdvantageItem } from "./PriceAdvantageItem";
+import { cn } from "@/lib/utils";
 
 // Definisikan tipe untuk data yang akan ditampilkan
 export interface PricingCardData {
@@ -9,10 +10,12 @@ export interface PricingCardData {
   period: string;
   description: string;
   features: string[];
+  isPopular?: boolean;
 }
 
 interface PricingCardProps {
   data: PricingCardData;
+  className?: string; // Add optional className prop
 }
 
 /**
@@ -24,20 +27,26 @@ interface PricingCardProps {
  * 1. Deskripsi <p> diberi 'min-h-[8rem]' untuk meratakan tombol.
  * 2. Auto-wrap menggunakan max-width CSS (lebih natural dan responsive).
  */
-export function PricingCard({ data }: PricingCardProps) {
-  const { title, price, period, description, features } = data;
+export function PricingCard({ data, className }: PricingCardProps) {
+  const { title, price, period, description, features, isPopular } = data;
 
   return (
     // Container Card
     <div
-      className="
-        flex w-full flex-col items-start
-        rounded-[26.332px] border-[0.439px] border-customFont-base
-        p-5 lg:w-auto lg:p-[28.526px] 
-        gap-4 lg:gap-[21.943px]
-        bg-white
-      "
+      className={cn(
+        "flex w-full flex-col items-start rounded-[26.332px] border-[0.439px] p-5 lg:w-auto lg:p-[28.526px] gap-4 lg:gap-[21.943px] bg-white transition-all duration-300 relative",
+        isPopular ? "border-royal-violet-base shadow-lg scale-105 z-10" : "border-customFont-base",
+        className // Merge external className
+      )}
     >
+      {isPopular && (
+        <div className="absolute top-0 right-0 overflow-hidden w-[100px] h-[100px] pointer-events-none rounded-tr-[26.332px] z-20">
+          <div className="absolute top-[22px] -right-[30px] rotate-45 bg-royal-violet-base text-white w-[140px] text-center font-bold text-[10px] py-1 shadow-md tracking-wider uppercase">
+            Most Popular
+          </div>
+        </div>
+      )}
+
       {/* 1. Judul Plan */}
       <h3
         className="
@@ -66,7 +75,7 @@ export function PricingCard({ data }: PricingCardProps) {
             text-body-base
           "
         >
-          {period}
+          {period ? period.toLowerCase().startsWith('month') ? '/ month' : '/ year' : ''}
         </span>
       </div>
 
@@ -83,7 +92,7 @@ export function PricingCard({ data }: PricingCardProps) {
       </p>
 
       {/* 4. Tombol */}
-      <Link to={`/checkout?plan=${title.toLowerCase().replace(" ", "-")}&price=${price.replace("$", "")}&period=${period.replace("/", "")}`} className="w-full">
+      <Link to={`/checkout?plan=${title.toLowerCase().replace(" ", "-")}&price=${price.replace("$", "").replace(",", "")}&period=${period.includes("month") ? "monthly" : "yearly"}`} className="w-full">
         <Button
           variant="custom-outline"
           size="card-outline"

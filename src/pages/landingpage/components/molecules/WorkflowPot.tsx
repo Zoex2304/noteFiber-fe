@@ -1,4 +1,4 @@
-import * as React from 'react';
+
 import { PotIcon } from '@/components/shadui/PotIcon';
 import type { LucideIcon } from 'lucide-react';
 

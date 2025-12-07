@@ -29,6 +29,8 @@ export const checkoutRequestSchema = z.object({
 
 export const checkoutResponseSchema = z.object({
     subscription_id: z.string(),
-    payment_url: z.string(),
+    order_id: z.string(),
     status: z.string(),
+    snap_token: z.string(),
+    snap_redirect_url: z.string(),
 });

@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
-import Cropper, { Area } from 'react-easy-crop';
+import Cropper from 'react-easy-crop';
+import type { Area } from 'react-easy-crop';
 import { getCroppedImg } from '@/utils/cropImage';
 import { Button } from '@/components/shadui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
@@ -38,6 +39,16 @@ export function AvatarUploader({ currentAvatarUrl, onUpload, isUploading = false
         setCroppedAreaPixels(croppedAreaPixels);
     }, []);
 
+    const handleClose = () => {
+        setIsDialogOpen(false);
+        setImageSrc(null);
+        setZoom(1);
+        setCrop({ x: 0, y: 0 });
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
+
     const handleSave = async () => {
         if (!imageSrc || !croppedAreaPixels) return;
 
@@ -47,16 +58,6 @@ export function AvatarUploader({ currentAvatarUrl, onUpload, isUploading = false
             handleClose();
         } catch (e) {
             console.error(e);
-        }
-    };
-
-    const handleClose = () => {
-        setIsDialogOpen(false);
-        setImageSrc(null);
-        setZoom(1);
-        setCrop({ x: 0, y: 0 });
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
         }
     };
 

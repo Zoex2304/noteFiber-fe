@@ -21,11 +21,11 @@ import { PasswordInput } from "./components/PasswordInput";
 import { useLogin } from "@/hooks/auth/useLogin";
 import { debugLog } from "@/utils/debug/LogOverlay";
 
-// Extended schema for UI (includes rememberMe)
+// Schema with rememberMe as required boolean (not optional)
 const signInSchema = z.object({
     email: z.string().email({ message: "Please enter a valid email address." }),
     password: z.string().min(1, { message: "Password is required." }),
-    rememberMe: z.boolean().default(false),
+    rememberMe: z.boolean(),
 });
 
 type SignInFormValues = z.infer<typeof signInSchema>;
@@ -83,7 +83,7 @@ export default function SignIn() {
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                         <FormField
-                            control={form.control as any}
+                            control={form.control}
                             name="email"
                             render={({ field }) => (
                                 <FormItem>
@@ -100,7 +100,7 @@ export default function SignIn() {
                             )}
                         />
                         <FormField
-                            control={form.control as any}
+                            control={form.control}
                             name="password"
                             render={({ field }) => (
                                 <FormItem>
@@ -119,7 +119,7 @@ export default function SignIn() {
 
                         <div className="flex items-center justify-between">
                             <FormField
-                                control={form.control as any}
+                                control={form.control}
                                 name="rememberMe"
                                 render={({ field }) => (
                                     <FormItem className="flex flex-row items-center space-x-2 space-y-0">

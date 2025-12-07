@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/shadui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/shadui/avatar";
 import { useAuth } from "@/hooks/auth/useAuth";
-import { Settings, LogOut } from "lucide-react";
+import { Settings, LogOut, CreditCard } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ActionTooltip } from "@/components/common/ActionTooltip";
 
@@ -54,7 +54,12 @@ export function UserProfileMenu() {
                     </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate("/app/settings")}>
+                <DropdownMenuItem onClick={() => navigate("/pricing")} className="cursor-pointer">
+                    <CreditCard className="mr-2 h-4 w-4" />
+                    <span>Subscription Plan</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate("/app/settings")} className="cursor-pointer">
                     <Settings className="mr-2 h-4 w-4" />
                     <span>Account Settings</span>
                 </DropdownMenuItem>
