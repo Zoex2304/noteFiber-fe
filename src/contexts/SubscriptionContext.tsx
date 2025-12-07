@@ -33,7 +33,6 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     const fetchSubscriptionStatus = async () => {
         try {
             const response = await paymentService.getSubscriptionStatus();
-            console.log("Subscription Status Response:", response); // Debug log
 
             if (response.success && response.data) {
                 setPlanName(response.data.plan_name);
@@ -45,19 +44,28 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
                 // Handle if features is an Array (list of strings)
                 if (Array.isArray(rawFeatures)) {
                     console.warn("Features received as array, normalizing...");
-                    const featureList = rawFeatures as unknown as string[];
-                    normalizedFeatures = {
-                        ai_chat: featureList.includes('ai_chat') || featureList.includes('aiChat'),
-                        semantic_search: featureList.includes('semantic_search') || featureList.includes('semanticSearch'),
-                        max_notes: 9999, // unlimited if array usually implies Pro
-                    };
+                    const featureList = (rawFeatures as unknown as string[]).map(f => f.toLowerCase());
+
+                    normalizedFeatures.ai_chat = featureList.some(f =>
+                        f === 'ai_chat' ||
+                        f === 'aichat' ||
+                        (f.includes('ai') && f.includes('chat'))
+                    );
+
+                    normalizedFeatures.semantic_search = featureList.some(f =>
+                        f === 'semantic_search' ||
+                        f === 'semanticsearch' ||
+                        f.includes('semantic')
+                    );
+
+                    normalizedFeatures.max_notes = 9999;
                 }
                 // Handle if features is an Object
                 else if (typeof rawFeatures === 'object' && rawFeatures !== null) {
                     normalizedFeatures = {
-                        ai_chat: rawFeatures.ai_chat || (rawFeatures as any).aiChat || false,
-                        semantic_search: rawFeatures.semantic_search || (rawFeatures as any).semanticSearch || false,
-                        max_notes: rawFeatures.max_notes || 5,
+                        ai_chat: !!(rawFeatures.ai_chat || (rawFeatures as any).aiChat),
+                        semantic_search: !!(rawFeatures.semantic_search || (rawFeatures as any).semanticSearch),
+                        max_notes: rawFeatures.max_notes || 5, // Handles null -> 5
                     };
                 }
 
