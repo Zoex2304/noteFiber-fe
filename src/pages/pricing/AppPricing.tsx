@@ -49,6 +49,7 @@ export default function AppPricing() {
     // Map to PricingCardData format
     const cardsData = filteredPlans.map(plan => ({
         title: plan.name,
+        slug: plan.slug, // Pass valid slug from backend
         price: plan.currency === 'IDR'
             ? `Rp${(plan.price).toLocaleString('id-ID')}`
             : `$${(plan.price / 100).toFixed(2)}`,

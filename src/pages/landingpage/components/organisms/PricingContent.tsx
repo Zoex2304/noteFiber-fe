@@ -21,6 +21,7 @@ const monthlyData: PricingCardData[] = [
             "10 Team Members",
             "5GB Storage",
         ],
+        slug: "basic",
     },
     {
         title: "Pro plan",
@@ -36,6 +37,7 @@ const monthlyData: PricingCardData[] = [
             "50 Team Members",
             "50GB Storage",
         ],
+        slug: "pro",
     },
     {
         title: "Enterprise plan",
@@ -50,6 +52,7 @@ const monthlyData: PricingCardData[] = [
             "Unlimited Team Members",
             "500GB Storage",
         ],
+        slug: "enterprise",
     },
 ];
 

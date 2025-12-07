@@ -11,6 +11,7 @@ export interface PricingCardData {
   description: string;
   features: string[];
   isPopular?: boolean;
+  slug?: string; // Added slug property
 }
 
 interface PricingCardProps {
@@ -28,7 +29,18 @@ interface PricingCardProps {
  * 2. Auto-wrap menggunakan max-width CSS (lebih natural dan responsive).
  */
 export function PricingCard({ data, className }: PricingCardProps) {
-  const { title, price, period, description, features, isPopular } = data;
+  const { title, price, period, description, features, isPopular, slug } = data;
+
+  // Determine the target URL
+  // If slug is explicitly 'free' or price indicates free, redirect to dashboard
+  const isFree = slug === 'free' || price === '$0.00' || price === 'Rp0';
+
+  // Use slug if available, otherwise fallback to title-based slug (for backward compatibility)
+  const planSlug = slug || title.toLowerCase().replace(/\s+/g, "-");
+
+  const targetUrl = isFree
+    ? "/app/dashboard"
+    : `/checkout?plan=${planSlug}&price=${price.replace("$", "").replace("Rp", "").replace(/,/g, "")}&period=${period.includes("month") ? "monthly" : "yearly"}`;
 
   return (
     // Container Card
@@ -92,7 +104,7 @@ export function PricingCard({ data, className }: PricingCardProps) {
       </p>
 
       {/* 4. Tombol */}
-      <Link to={`/checkout?plan=${title.toLowerCase().replace(" ", "-")}&price=${price.replace("$", "").replace(",", "")}&period=${period.includes("month") ? "monthly" : "yearly"}`} className="w-full">
+      <Link to={targetUrl} className="w-full">
         <Button
           variant="custom-outline"
           size="card-outline"

@@ -8,7 +8,7 @@ import { OrderSummary } from "./components/OrderSummary";
 import { BillingForm } from "./components/BillingForm";
 import { useAuth } from "@/hooks/auth/useAuth";
 import { useSubscriptionPlans, useCheckout, useOrderSummary } from "@/hooks/payment";
-import { CheckoutFormValues } from "./schema";
+import { type CheckoutFormValues } from "./schema";
 
 // Extend Window interface for Snap
 declare global {
@@ -36,7 +36,22 @@ export default function Checkout() {
 
     // Derived State
     const plans = plansResponse?.data || [];
-    const selectedPlan = plans.find(p => p.slug.includes(planSlug)) || plans[0];
+
+    // Improved matching logic: Try exact match first, then includes
+    const selectedPlan = plans.find(p => p.slug === planSlug) ||
+        plans.find(p => p.slug.includes(planSlug)) ||
+        plans[0];
+
+    // Redirect Free Plan to Dashboard
+    useEffect(() => {
+        if (!isLoadingPlans && selectedPlan) {
+            // Check if it's a free plan (price 0 OR slug 'free')
+            if (selectedPlan.price === 0 || selectedPlan.slug === 'free') {
+                toast.info("Free plan selected. Redirecting to dashboard...");
+                navigate("/app/dashboard");
+            }
+        }
+    }, [selectedPlan, isLoadingPlans, navigate]);
 
     // Fetch Order Summary from Backend (Source of Truth)
     const { data: orderSummaryResponse, isLoading: isLoadingSummary } = useOrderSummary(selectedPlan?.id);

@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { toast } from "sonner"; // Assuming toast is used here or passed down? We'll handle generic errors here or let parent handle submit errors.
 // Parent handles submit logic, but form handles validation UI.
 
 import { Input } from "@/components/shadui/input";
@@ -19,8 +18,8 @@ import {
 
 import { useStates, useCities, useZipcodes } from "@/hooks/location/useLocation";
 import { useDebounce } from "@/hooks/useDebounce";
-import { checkoutSchema, CheckoutFormValues } from "../schema";
-import { User } from "@/types/auth"; // You might need to adjust this import based on where User type is defined
+import { checkoutSchema, type CheckoutFormValues } from "../schema";
+import type { User } from "@/api/services/auth/auth.types";
 
 // Standard list of countries (using ISO codes)
 const COUNTRIES = [
