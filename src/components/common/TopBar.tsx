@@ -3,6 +3,8 @@ import { UserProfileMenu } from "@/components/common/UserProfileMenu";
 import { ActionTooltip } from "@/components/common/ActionTooltip";
 import { Button } from "@/components/ui/button";
 import { MessageSquare, Search } from "lucide-react";
+import { useSubscription } from "@/contexts/SubscriptionContext";
+import { PlanStatusPill } from "@/components/common/PlanStatusPill";
 
 interface TopBarProps {
     onSearchClick: () => void;
@@ -10,6 +12,11 @@ interface TopBarProps {
 }
 
 export const TopBar = ({ onSearchClick, onChatClick }: TopBarProps) => {
+    const { checkPermission } = useSubscription();
+
+    const showSearch = checkPermission('semantic_search');
+    const showChat = checkPermission('ai_chat');
+
     return (
         <div className="w-full h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 sticky top-0 z-50">
             {/* Left: Logo */}
@@ -19,29 +26,36 @@ export const TopBar = ({ onSearchClick, onChatClick }: TopBarProps) => {
 
             {/* Right: Actions & Profile */}
             <div className="flex items-center gap-2">
-                <ActionTooltip label="Search">
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={onSearchClick}
-                        className="h-9 w-9 p-0 hover:bg-gray-100 rounded-full text-gray-600"
-                    >
-                        <Search className="h-5 w-5" />
-                    </Button>
-                </ActionTooltip>
+                {/* Plan Status Pill */}
+                <PlanStatusPill className="mr-2" />
 
-                <ActionTooltip label="Chat with AI">
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={onChatClick}
-                        className="h-9 w-9 p-0 hover:bg-gray-100 rounded-full text-gray-600"
-                    >
-                        <MessageSquare className="h-5 w-5" />
-                    </Button>
-                </ActionTooltip>
+                {showSearch && (
+                    <ActionTooltip label="Search">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={onSearchClick}
+                            className="h-9 w-9 p-0 hover:bg-gray-100 rounded-full text-gray-600"
+                        >
+                            <Search className="h-5 w-5" />
+                        </Button>
+                    </ActionTooltip>
+                )}
 
-                <div className="h-6 w-px bg-gray-200 mx-2" />
+                {showChat && (
+                    <ActionTooltip label="Chat with AI">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={onChatClick}
+                            className="h-9 w-9 p-0 hover:bg-gray-100 rounded-full text-gray-600"
+                        >
+                            <MessageSquare className="h-5 w-5" />
+                        </Button>
+                    </ActionTooltip>
+                )}
+
+                {(showSearch || showChat) && <div className="h-6 w-px bg-gray-200 mx-2" />}
 
                 <UserProfileMenu />
             </div>

@@ -36,6 +36,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/shadui/alert-dialog";
+import { PlanStatusPill } from "@/components/common/PlanStatusPill";
 
 const profileSchema = z.object({
     full_name: z.string().min(2, {
@@ -183,6 +184,12 @@ export default function AccountSettings() {
                         </p>
                     </div>
                     <div className="grid gap-4 max-w-xl text-sm">
+                        <div className="grid grid-cols-3 items-center">
+                            <span className="font-medium">Plan</span>
+                            <div className="col-span-2">
+                                <PlanStatusPill className="w-fit" />
+                            </div>
+                        </div>
                         <div className="grid grid-cols-3 items-center">
                             <span className="font-medium">Email</span>
                             <span className="col-span-2 text-muted-foreground">{user?.email}</span>
