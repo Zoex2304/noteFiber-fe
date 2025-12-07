@@ -10,8 +10,7 @@ import { ScrollArea } from "./ui/scroll-area";
 import { Send, Bot, User, Plus, Trash2 } from "lucide-react";
 import type { Note } from "../types/note";
 import type { ChatSession, Message } from "@/types/ai-chat";
-import axios from "axios";
-import { AppConfig } from "../config/config";
+import { apiClient } from "@/api/client/axios.client";
 import type { BaseResponse } from "../dto/base-response";
 import type {
   SendChatResponse,
@@ -54,8 +53,8 @@ export function AIChatDialog({ open, onOpenChange }: AIChatDialogProps) {
   // }
 
   const fetchData = async (): Promise<ChatSession[]> => {
-    const res = await axios.get<BaseResponse<GetAllSessionsResponse[]>>(
-      `${AppConfig.baseUrl}/api/chatbot/v1/sessions`
+    const res = await apiClient.get<BaseResponse<GetAllSessionsResponse[]>>(
+      `/chatbot/v1/sessions`
     );
 
     // SOLUSI: Pastikan res.data.data adalah array atau array kosong ([]),
@@ -77,8 +76,8 @@ export function AIChatDialog({ open, onOpenChange }: AIChatDialogProps) {
   const sessionClickHandler = async (sessionId: string) => {
     setActiveSessionId(sessionId);
 
-    const res = await axios.get<BaseResponse<GetChatHistoryResponse[]>>(
-      `${AppConfig.baseUrl}/api/chatbot/v1/chat-history?chat_session_id=${sessionId}`
+    const res = await apiClient.get<BaseResponse<GetChatHistoryResponse[]>>(
+      `/chatbot/v1/chat-history?chat_session_id=${sessionId}`
     );
 
     setSessions((prev) =>
@@ -100,8 +99,8 @@ export function AIChatDialog({ open, onOpenChange }: AIChatDialogProps) {
   };
 
   const createNewSession = async () => {
-    const res = await axios.post<BaseResponse<CreateSessionResponse>>(
-      `${AppConfig.baseUrl}/api/chatbot/v1/create-session`
+    const res = await apiClient.post<BaseResponse<CreateSessionResponse>>(
+      `/chatbot/v1/create-session`
     );
 
     await fetchData();
@@ -115,7 +114,7 @@ export function AIChatDialog({ open, onOpenChange }: AIChatDialogProps) {
     const data: DeleteSessionRequest = {
       chat_session_id: sessionId,
     };
-    await axios.delete(`${AppConfig.baseUrl}/api/chatbot/v1/delete-session`, {
+    await apiClient.delete(`/chatbot/v1/delete-session`, {
       data,
     });
 
@@ -157,8 +156,8 @@ export function AIChatDialog({ open, onOpenChange }: AIChatDialogProps) {
       chat: input,
       chat_session_id: activeSessionId,
     };
-    const res = await axios.post<BaseResponse<SendChatResponse>>(
-      `${AppConfig.baseUrl}/api/chatbot/v1/send-chat`,
+    const res = await apiClient.post<BaseResponse<SendChatResponse>>(
+      `/chatbot/v1/send-chat`,
       request
     );
 
@@ -248,11 +247,10 @@ export function AIChatDialog({ open, onOpenChange }: AIChatDialogProps) {
                         activeSessionId === session.id ? "secondary" : "ghost"
                       }
                       size="sm"
-                      className={`flex-1 justify-start h-auto py-2 px-2 text-left flex-col items-start transition-all duration-200 ${
-                        activeSessionId === session.id
+                      className={`flex-1 justify-start h-auto py-2 px-2 text-left flex-col items-start transition-all duration-200 ${activeSessionId === session.id
                           ? "bg-gradient-to-r from-blue-50 to-blue-100 text-blue-800 shadow-sm border-l-2 border-blue-500"
                           : "hover:bg-gray-50 hover:shadow-sm"
-                      }`}
+                        }`}
                       onClick={() => sessionClickHandler(session.id)}
                     >
                       <span className="truncate w-full text-xs font-medium">
@@ -286,16 +284,14 @@ export function AIChatDialog({ open, onOpenChange }: AIChatDialogProps) {
                 {messages.map((message) => (
                   <div
                     key={message.id}
-                    className={`flex gap-3 ${
-                      message.role === "user" ? "justify-end" : "justify-start"
-                    }`}
+                    className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"
+                      }`}
                   >
                     <div
-                      className={`flex gap-3 max-w-[80%] ${
-                        message.role === "user"
+                      className={`flex gap-3 max-w-[80%] ${message.role === "user"
                           ? "flex-row-reverse"
                           : "flex-row"
-                      }`}
+                        }`}
                     >
                       <div className="flex-shrink-0">
                         {message.role === "user" ? (
@@ -309,11 +305,10 @@ export function AIChatDialog({ open, onOpenChange }: AIChatDialogProps) {
                         )}
                       </div>
                       <div
-                        className={`rounded-lg p-3 shadow-sm ${
-                          message.role === "user"
+                        className={`rounded-lg p-3 shadow-sm ${message.role === "user"
                             ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white"
                             : "bg-gradient-to-r from-gray-50 to-gray-100 text-gray-900 border border-gray-200"
-                        }`}
+                          }`}
                       >
                         {message.role === "assistant" && (
                           <ReactMarkdown className={"prose prose-sm"}>
@@ -326,11 +321,10 @@ export function AIChatDialog({ open, onOpenChange }: AIChatDialogProps) {
                           </div>
                         )}
                         <div
-                          className={`text-xs mt-1 ${
-                            message.role === "user"
+                          className={`text-xs mt-1 ${message.role === "user"
                               ? "opacity-70"
                               : "opacity-60"
-                          }`}
+                            }`}
                         >
                           {message.timestamp.toLocaleTimeString()}
                         </div>
