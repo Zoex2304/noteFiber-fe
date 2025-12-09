@@ -43,3 +43,10 @@ src/pages/auth/SignIn.tsx(87,33): error TS2322: Type 'Control<{ email: string; p
 src/pages/landingpage/components/molecules/LeftPanelContent3.tsx(2,1): error TS6133: 'Tag' is declared but its value is never read.
 src/pages/landingpage/components/molecules/WorkflowPot.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
 src/pages/landingpage/components/organisms/ContactFormSection.tsx(14,5): error TS6133: 'FormLabel' is declared but its value is never read.
+
+
+
+
+D:\notetaker\notefiber-FE\src
+D:\notetaker\notefiber-FE\public
+D:\notetaker\notefiber-FE\node_modules
