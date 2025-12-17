@@ -21,6 +21,210 @@ NoteFiber is a comprehensive note-taking platform with AI-powered features inclu
 5. [Error Handling](#error-handling)
 6. [Rate Limiting](#rate-limiting)
 
+Payment Integration Guide (Backend-Driven Flow)
+Last Updated: October 2023
+
+🚀 Overview
+The payment system is now backend-driven. The frontend no longer handles redirect logic—the backend dynamically tells Midtrans where to redirect users after payment. This keeps the frontend clean and ensures consistent behavior across all projects.
+
+📱 Frontend Integration Steps
+1. Checkout Flow
+Step 1: User Clicks "Pay"
+Send a POST request to initiate checkout:
+
+javascript
+// Example: Checkout request
+const response = await axios.post('/api/payment/checkout', {
+  plan_id: "aa11bb22-cc33-44dd-ee55-ff66gg77hh88",
+  first_name: "Budi",
+  last_name: "Santoso",
+  email: "budi@example.com",
+  phone: "08123456789",
+  address_line1: "Jl. Sudirman No. 1",
+  city: "Jakarta",
+  state: "DKI Jakarta",
+  postal_code: "10220",
+  country: "Indonesia"
+});
+Step 2: Handle Backend Response
+The backend returns a snap_redirect_url:
+
+javascript
+// Simple redirect - no complex Snap.js popups needed
+window.location.href = response.data.snap_redirect_url;
+⚠️ Important: Use the redirect method instead of Snap.js popups unless you specifically need that UI. Redirects work reliably across all devices.
+
+Step 3: User Completes Payment on Midtrans Page
+Midtrans automatically redirects users back based on backend-configured URLs.
+
+2. Handling Payment Redirects
+After payment, users return to your app with a payment query parameter:
+
+Status	Redirect URL	Frontend Action
+Success	FRONTEND_URL/app?payment=success	Show success message, refresh subscription status
+Pending	FRONTEND_URL/app?payment=pending	Show processing message
+Error/Cancel	FRONTEND_URL/app?payment=error	Show error message
+Frontend Implementation Example (React):
+
+javascript
+// In your main app component (/app route)
+useEffect(() => {
+  const query = new URLSearchParams(window.location.search);
+  const paymentStatus = query.get("payment");
+
+  switch (paymentStatus) {
+    case "success":
+      toast.success("Payment Successful! Your plan is active.");
+      // Trigger subscription status refresh
+      fetchUserSubscription();
+      break;
+    case "pending":
+      toast.info("Payment is processing...");
+      break;
+    case "error":
+      toast.error("Payment failed or was canceled.");
+      break;
+  }
+
+  // Clean URL after processing (optional)
+  if (paymentStatus) {
+    window.history.replaceState(null, '', window.location.pathname);
+  }
+}, []);
+🧾 Order Summary Flow
+Required before checkout - Display pricing details to users.
+
+1. Fetch Order Summary
+When a user visits the checkout page (e.g., /checkout?plan_id=...):
+
+javascript
+// Fetch order summary
+const response = await axios.get('/api/payment/summary', {
+  params: { plan_id: "aa11bb22-cc33-44dd-ee55-ff66gg77hh88" }
+});
+
+// Response structure:
+{
+  success: true,
+  code: 200,
+  message: "Order summary",
+  data: {
+    plan_name: "Starter Plan",
+    billing_period: "year",
+    price_per_unit: "$9/year",
+    subtotal: 9,      // Before tax
+    tax: 0.99,        // Calculated tax
+    total: 9.99,      // Final amount
+    currency: "USD"
+  }
+}
+2. Display Summary in UI
+Render the breakdown directly from the API response:
+
+text
+Order Summary:
+──────────────
+Plan: Starter Plan (yearly)
+Price: $9/year
+
+Subtotal: $9.00
+Tax: $0.99
+──────────────
+Total: $9.99
+📋 API Reference
+POST /api/payment/checkout
+Request:
+
+json
+{
+  "plan_id": "aa11bb22-cc33-44dd-ee55-ff66gg77hh88",
+  "first_name": "Budi",
+  "last_name": "Santoso",
+  "email": "budi@example.com",
+  "phone": "08123456789",
+  "address_line1": "Jl. Sudirman No. 1",
+  "city": "Jakarta",
+  "state": "DKI Jakarta",
+  "postal_code": "10220",
+  "country": "Indonesia"
+}
+Response (200 OK):
+
+json
+{
+  "success": true,
+  "code": 200,
+  "message": "Subscription created",
+  "data": {
+    "subscription_id": "sub-12345-abcde-67890",
+    "snap_redirect_url": "https://app.sandbox.midtrans.com/snap/v3/redirection/2df43dd8-...",
+    "snap_token": "2df43dd8-1891-4f63-8c13-8a24bd9c14bc"
+  }
+}
+GET /api/payment/summary
+Query Parameters:
+
+plan_id (required): UUID of the selected plan
+
+Response (200 OK):
+
+json
+{
+  "success": true,
+  "code": 200,
+  "message": "Order summary",
+  "data": {
+    "plan_name": "Starter Plan",
+    "billing_period": "year",
+    "price_per_unit": "$9/year",
+    "subtotal": 9,
+    "tax": 0.99,
+    "total": 9.99,
+    "currency": "USD"
+  }
+}
+🔑 Key Takeaways for Frontend Team
+No Redirect Configuration Needed
+The backend dynamically injects finish_redirect_url into Midtrans requests. Ignore dashboard defaults.
+
+Simple Redirect Pattern
+Just redirect to snap_redirect_url → handle query parameters on return.
+
+Clean Separation
+Frontend is payment-gateway agnostic. All complex logic lives in the backend.
+
+Order Summary First
+Always fetch and display the order summary before initiating checkout.
+
+Parameter Handling
+Ensure your /app route gracefully handles the payment query parameter for user feedback.
+
+🛠️ Frontend Checklist
+Implement POST /api/payment/checkout call with user billing details
+
+Redirect users to snap_redirect_url from API response
+
+Add query parameter handling in /app route for payment=success|pending|error
+
+Implement GET /api/payment/summary call on checkout page load
+
+Display order summary breakdown (subtotal, tax, total)
+
+Add loading states and error handling for API calls
+
+Test complete flow: Summary → Checkout → Redirect → Return → Status Display
+
+Need Help?
+
+Backend handles all Midtrans configuration
+
+Frontend just needs to redirect and handle return parameters
+
+Test with sandbox credentials before going live
+
+Monitor network requests for debugging
+
+This documentation ensures your frontend team can implement payment integration quickly while maintaining a clean, maintainable codebase.
 ---
 
 ## Authentication

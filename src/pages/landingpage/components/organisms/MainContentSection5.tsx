@@ -17,53 +17,92 @@ import { PricingCardTrailer } from "@/components/shadui/PricingCardTrailer";
 // --- Data Placeholder (Tetap di sini) ---
 const monthlyData: PricingCardData[] = [
   {
-    title: "Basic plan",
-    price: "$99.00",
+    title: "Free",
+    price: "Rp 0",
     period: "/ month",
     description:
-      "Perfect for small businesses or startups, our Starter Plan gives you the essential tools.",
+      "Try basic AI note-taking with limited credits",
     features: [
-      "Unlimited Invoices",
-      "Basic Reporting",
-      "Email Support",
-      "10 Team Members",
-      "5GB Storage",
+      "AI transcription: 20 notes/month",
+      "Basic text search",
+      "5GB storage",
+      "Export to PDF/TXT",
+      "Community support"
     ],
   },
   {
-    title: "Pro plan",
-    price: "$199.00",
+    title: "Pro",
+    price: "Rp 350.000",
     period: "/ month",
     description:
-      "Ideal for growing businesses that need more power, features, and support.",
+      "More credits with semantic search and AI chatbot",
     features: [
-      "Everything in Basic",
-      "Advanced Reporting",
-      "Priority Support",
-      "50 Team Members",
-      "50GB Storage",
+      "AI transcription: 200 notes/month",
+      "Semantic search (find by meaning)",
+      "AI Chatbot for notes Q&A",
+      "Smart summarization",
+      "Priority support"
     ],
   },
   {
-    title: "Enterprise plan",
-    price: "$399.00",
+    title: "Business",
+    price: "Rp 1.250.000",
     period: "/ month",
     description:
-      "For large organizations with complex needs and dedicated support requirements.",
+      "High volume credits for professional use",
     features: [
-      "Everything in Pro",
-      "Custom Reporting",
-      "Dedicated Account Manager",
-      "Unlimited Team Members",
-      "500GB Storage",
+      "AI transcription: 1000 notes/month",
+      "Advanced semantic search",
+      "API access included",
+      "200GB storage",
+      "Dedicated support"
     ],
   },
 ];
 
 const yearlyData: PricingCardData[] = [
-  { ...monthlyData[0], price: "$990.00", period: "/ year" },
-  { ...monthlyData[1], price: "$1990.00", period: "/ year" },
-  { ...monthlyData[2], price: "$3990.00", period: "/ year" },
+  { 
+    ...monthlyData[0], 
+    title: "Free (Yearly)",
+    price: "Rp 0", 
+    period: "/ year",
+    description: "Free forever with yearly commitment",
+    features: [
+      "AI transcription: 240 notes/year",
+      "Basic text search",
+      "5GB storage",
+      "Export to PDF/TXT",
+      "Community support"
+    ]
+  },
+  { 
+    ...monthlyData[1], 
+    title: "Pro (Yearly)",
+    price: "Rp 3.500.000", 
+    period: "/ year",
+    description: "Save Rp 700.000 with yearly billing",
+    features: [
+      "AI transcription: 2400 notes/year",
+      "Semantic search (find by meaning)",
+      "AI Chatbot for notes Q&A",
+      "Smart summarization",
+      "Priority support"
+    ]
+  },
+  { 
+    ...monthlyData[2], 
+    title: "Business (Yearly)",
+    price: "Rp 12.000.000", 
+    period: "/ year",
+    description: "Save Rp 3.000.000 with yearly billing",
+    features: [
+      "AI transcription: 12000 notes/year",
+      "Advanced semantic search",
+      "API access included",
+      "200GB storage",
+      "Dedicated support"
+    ]
+  },
 ];
 // --------------------
 
