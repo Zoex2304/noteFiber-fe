@@ -1,7 +1,7 @@
 @import './styles/fonts.css';
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "tw-animate-css";
+@config "../tailwind.config.js";
 
 @layer base {
   :root {
@@ -78,54 +78,83 @@
 
 @layer base {
   * {
-    @apply border-border;
+    border-color: hsl(var(--border));
   }
 
   body {
-    @apply bg-background text-foreground;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
   }
 }
 
 .prose {
-  @apply text-gray-700 max-w-none;
+  color: rgb(55 65 81);
+  max-width: none;
 }
 
 .prose h1 {
-  @apply text-2xl font-bold text-gray-900 mb-4;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: rgb(17 24 39);
+  margin-bottom: 1rem;
 }
 
 .prose h2 {
-  @apply text-xl font-semibold text-gray-800 mb-3;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: rgb(31 41 55);
+  margin-bottom: 0.75rem;
 }
 
 .prose h3 {
-  @apply text-lg font-medium text-gray-800 mb-2;
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: rgb(31 41 55);
+  margin-bottom: 0.5rem;
 }
 
 .prose p {
-  @apply mb-4 leading-relaxed;
+  margin-bottom: 1rem;
+  line-height: 1.625;
 }
 
 .prose ul {
-  @apply list-disc list-inside mb-4;
+  list-style-type: disc;
+  list-style-position: inside;
+  margin-bottom: 1rem;
 }
 
 .prose ol {
-  @apply list-decimal list-inside mb-4;
+  list-style-type: decimal;
+  list-style-position: inside;
+  margin-bottom: 1rem;
 }
 
 .prose li {
-  @apply mb-1;
+  margin-bottom: 0.25rem;
 }
 
 .prose code {
-  @apply bg-gray-100 px-1 py-0.5 rounded text-sm font-mono;
+  background-color: rgb(243 244 246);
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 .prose pre {
-  @apply bg-gray-100 p-4 rounded-lg overflow-x-auto mb-4;
+  background-color: rgb(243 244 246);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin-bottom: 1rem;
 }
 
 .prose blockquote {
-  @apply border-l-4 border-gray-300 pl-4 italic text-gray-600 mb-4;
+  border-left-width: 4px;
+  border-left-color: rgb(209 213 219);
+  padding-left: 1rem;
+  font-style: italic;
+  color: rgb(75 85 99);
+  margin-bottom: 1rem;
 }
