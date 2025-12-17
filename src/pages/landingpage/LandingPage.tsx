@@ -1,5 +1,5 @@
 // src/pages/landingpage/LandingPage.tsx
-import { useSearchParams } from "react-router-dom";
+import { useSearch } from "@tanstack/react-router";
 
 // Impor 8 section untuk halaman utama
 import { HeroSection } from "./components/organisms/HeroSection";
@@ -22,8 +22,8 @@ import Contact from "./Contact";
  * Lokasi baru: src/pages/landingpage/LandingPage.tsx
  */
 export default function LandingPage() {
-  const [searchParams] = useSearchParams();
-  const page = searchParams.get("page");
+  const search = useSearch({ strict: false });
+  const page = (search as any).page;
 
   // Fungsi untuk memilih konten yang akan dirender
   const renderPageContent = () => {

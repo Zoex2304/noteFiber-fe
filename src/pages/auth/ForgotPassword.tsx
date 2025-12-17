@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
 
 import { Button } from "@/components/shadui/button";

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearch, useNavigate } from "@tanstack/react-router";
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
 
 import { Button } from "@/components/shadui/button";
@@ -32,8 +32,10 @@ const resetPasswordSchema = z
 type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
 
 export default function ResetPassword() {
-    const [searchParams] = useSearchParams();
-    const token = searchParams.get("token") || "";
+    const navigate = useNavigate();
+    const search = useSearch({ strict: false });
+    const token = (search as any).token;
+    const email = (search as any).email;
     const [password, setPassword] = useState("");
     const { mutate: resetPassword, isPending, error } = useResetPassword();
     const [isSuccess, setIsSuccess] = useState(false);

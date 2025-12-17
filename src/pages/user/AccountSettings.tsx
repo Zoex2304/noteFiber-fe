@@ -20,7 +20,7 @@ import {
 import { Input } from "@/components/shadui/input";
 import { Separator } from "@/components/shadui/separator";
 import { Loader2, MoveLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "@tanstack/react-router";
 import { AvatarUploader } from "@/components/common/AvatarUploader";
 import { toast } from "sonner";
 import {
@@ -46,7 +46,7 @@ type ProfileFormValues = z.infer<typeof profileSchema>;
 
 export default function AccountSettings() {
     const { user, updateUser } = useAuth();
-    const navigate = useNavigate();
+    const router = useRouter();
     const { mutate: updateProfile, isPending: isUpdating } = useUpdateProfile();
     const { mutate: deleteAccount, isPending: isDeleting } = useDeleteAccount();
 
@@ -108,7 +108,7 @@ export default function AccountSettings() {
                     <Button
                         variant="outline"
                         size="icon"
-                        onClick={() => navigate(-1)}
+                        onClick={() => router.history.go(-1)}
                         className="h-10 w-10 shrink-0 rounded-full border-gray-200"
                     >
                         <MoveLeft className="h-5 w-5" />

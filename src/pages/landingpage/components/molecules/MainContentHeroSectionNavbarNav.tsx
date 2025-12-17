@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
 import { MainContentHeroSectionNavbarLogo } from "../atoms/MainContentHeroSectionNavbarLogo";
 import { MainContentHeroSectionNavbarNavlink } from "../atoms/MainContentHeroSectionNavbarNavlink";
@@ -42,8 +42,12 @@ export function MainContentHeroSectionNavbarNav() {
           <MainContentHeroSectionNavbarLogo />
 
           {/* [TENGAH] Links Navigasi (Hanya Desktop) */}
-          <div className="hidden lg:flex">
-            <MainContentHeroSectionNavbarNavlink />
+          <div className="hidden lg:flex gap-8">
+            <MainContentHeroSectionNavbarNavlink textArg="Home" urlArg="" />
+            <MainContentHeroSectionNavbarNavlink textArg="Features" urlArg="features" />
+            <MainContentHeroSectionNavbarNavlink textArg="Pricing" urlArg="pricing" />
+            <MainContentHeroSectionNavbarNavlink textArg="About Us" urlArg="about-us" />
+            <MainContentHeroSectionNavbarNavlink textArg="Contact" urlArg="contact" />
           </div>
 
           {/* [KANAN] Tombol (Desktop) & Hamburger (Mobile) */}
@@ -72,7 +76,11 @@ export function MainContentHeroSectionNavbarNav() {
         {/* FIXED: Menghilangkan mt-2 untuk hapus gap */}
         {isOpen && (
           <div className="absolute left-0 right-0 top-full z-50 flex w-full flex-col gap-4 rounded-b-lg border-t border-customBorder-primary bg-white p-4 shadow-lg lg:hidden">
-            <MainContentHeroSectionNavbarNavlink />
+            <MainContentHeroSectionNavbarNavlink textArg="Home" urlArg="" />
+            <MainContentHeroSectionNavbarNavlink textArg="Features" urlArg="features" />
+            <MainContentHeroSectionNavbarNavlink textArg="Pricing" urlArg="pricing" />
+            <MainContentHeroSectionNavbarNavlink textArg="About Us" urlArg="about-us" />
+            <MainContentHeroSectionNavbarNavlink textArg="Contact" urlArg="contact" />
             <Link to="/signin" className="w-full">
               <Button
                 variant="default"

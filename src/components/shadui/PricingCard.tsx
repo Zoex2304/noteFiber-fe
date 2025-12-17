@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "@tanstack/react-router";
 import { Button } from "./button";
 import { PriceAdvantageItem } from "./PriceAdvantageItem";
 import { cn } from "@/lib/utils";
@@ -104,16 +104,37 @@ export function PricingCard({ data, className }: PricingCardProps) {
       </p>
 
       {/* 4. Tombol */}
-      <Link to={targetUrl} className="w-full">
-        <Button
-          variant="custom-outline"
-          size="card-outline"
-          className="relative overflow-hidden group transition-all duration-300 hover:border-royal-violet-base hover:shadow-[0_0_20px_rgba(112,80,240,0.3)] w-full"
+      {isFree ? (
+        <Link to="/app" className="w-full">
+          <Button
+            variant="custom-outline"
+            size="card-outline"
+            className="relative overflow-hidden group transition-all duration-300 hover:border-royal-violet-base hover:shadow-[0_0_20px_rgba(112,80,240,0.3)] w-full"
+          >
+            <span className="relative z-10">Get Started</span>
+            <div className="absolute inset-0 -translate-x-full group-hover:animate-shimmer bg-gradient-to-r from-transparent via-royal-violet-base/20 to-transparent z-0" />
+          </Button>
+        </Link>
+      ) : (
+        <Link
+          to="/checkout"
+          search={{
+            plan: planSlug,
+            price: price.replace("$", "").replace("Rp", "").replace(/,/g, ""),
+            period: period.includes("month") ? "monthly" : "yearly"
+          }}
+          className="w-full"
         >
-          <span className="relative z-10">Get Started</span>
-          <div className="absolute inset-0 -translate-x-full group-hover:animate-shimmer bg-gradient-to-r from-transparent via-royal-violet-base/20 to-transparent z-0" />
-        </Button>
-      </Link>
+          <Button
+            variant="custom-outline"
+            size="card-outline"
+            className="relative overflow-hidden group transition-all duration-300 hover:border-royal-violet-base hover:shadow-[0_0_20px_rgba(112,80,240,0.3)] w-full"
+          >
+            <span className="relative z-10">Get Started</span>
+            <div className="absolute inset-0 -translate-x-full group-hover:animate-shimmer bg-gradient-to-r from-transparent via-royal-violet-base/20 to-transparent z-0" />
+          </Button>
+        </Link>
+      )}
 
       {/* 5. Frame List Fitur */}
       <div className="flex flex-col items-start gap-2 lg:gap-[8.762px]">

@@ -11,8 +11,15 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@assets/*": ["./src/assets/*"]
+      "@/*": [
+        "./src/*"
+      ],
+      "@assets/*": [
+        "./src/assets/*"
+      ],
+      "@admin/*": [
+        "./admin/src/*"
+      ]
     }
   }
 }

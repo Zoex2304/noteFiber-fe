@@ -4,7 +4,7 @@ import { SwitchPricing, type PricingPeriod } from "@/components/shadui/SwitchPri
 import { PricingCardTrailer } from "@/components/shadui/PricingCardTrailer";
 import { Button } from "@/components/shadui/button";
 import { Loader2, ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@tanstack/react-router";
 
 export default function AppPricing() {
     const { data: plansResponse, isLoading, error } = useSubscriptionPlans();
@@ -73,7 +73,7 @@ export default function AppPricing() {
                     <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => navigate(-1)}
+                        onClick={() => navigate({ to: '..' })}
                         className="absolute left-0 rounded-full hover:bg-gray-200"
                     >
                         <ArrowLeft className="h-5 w-5" />

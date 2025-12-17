@@ -1,45 +1,35 @@
-// src/pages/landingpage/components/atoms/MainContentHeroSectionNavbarNavlink.tsx
-import { Link, useSearchParams } from 'react-router-dom';
-import { cn } from '@/lib/utils';
+import { Link, useSearch } from '@tanstack/react-router';
 
-const navLinks = [
-  { name: 'Features', to: '/landing?page=features', pageQuery: 'features' },
-  { name: 'Pricing', to: '/landing?page=pricing', pageQuery: 'pricing' },
-  { name: 'About Us', to: '/landing?page=about-us', pageQuery: 'about-us' },
-  { name: 'Contact', to: '/landing?page=contact', pageQuery: 'contact' },
-];
+interface MainContentHeroSectionNavbarNavlinkProps {
+  textArg: string;
+  urlArg: string;
+}
 
-/**
- * Navlink Component
- * UPDATED: Tambah onClick untuk close menu di mobile
- */
-export function MainContentHeroSectionNavbarNavlink() {
-  const [searchParams] = useSearchParams();
-  const currentPage = searchParams.get('page');
+export const MainContentHeroSectionNavbarNavlink = (props: MainContentHeroSectionNavbarNavlinkProps) => {
+  // TanStack Router's useSearch returns the validation object directly
+  // For now we'll assume a loose type if strict search params aren't defined yet
+  const search = useSearch({ strict: false });
+  const currentPage = (search as any).page;
+
+  const isActive = currentPage === props.urlArg || (!currentPage && props.urlArg === '');
 
   return (
-    <nav className="flex w-full flex-col items-start gap-3 lg:w-auto lg:flex-row lg:items-center lg:gap-[12.268px]">
-      {navLinks.map((link) => {
-        const isActive = currentPage === link.pageQuery;
-
-        return (
-          <Link
-            key={link.name}
-            to={link.to}
-            className={cn(
-              `w-full rounded-md px-3 py-2 text-body-base font-medium transition-all duration-200
-               hover:bg-gray-100 hover:text-royal-violet-base 
-               focus:outline-none focus:ring-2 focus:ring-royal-violet-base focus:ring-opacity-50
-               lg:w-auto`,
-              isActive
-                ? 'font-bold text-royal-violet-base'
-                : 'text-gray-400'
-            )}
-          >
-            {link.name}
-          </Link>
-        );
-      })}
-    </nav>
+    <Link
+      to="/landing"
+      search={{ page: props.urlArg || undefined }}
+      className={`
+                text-body-base 
+                cursor-pointer 
+                transition-all 
+                duration-300 
+                hover:text-royal-violet-base
+                ${isActive
+          ? "font-semibold text-royal-violet-base"
+          : "font-normal text-gray-500"
+        }
+            `}
+    >
+      {props.textArg}
+    </Link>
   );
-}
+};

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
@@ -18,19 +18,19 @@ declare global {
 }
 
 export default function Checkout() {
-    const [searchParams] = useSearchParams();
+    const search = useSearch({ strict: false });
     const navigate = useNavigate();
     const { user, isAuthenticated } = useAuth();
 
     // Redirect if not authenticated
     useEffect(() => {
         if (!isAuthenticated) {
-            navigate("/signin?redirect=/checkout");
+            navigate({ to: "/signin", search: { redirect: "/checkout" } });
         }
     }, [isAuthenticated, navigate]);
 
     // Get Data
-    const planSlug = searchParams.get("plan") || "pro";
+    const planSlug = (search as any).plan || "pro";
     const { data: plansResponse, isLoading: isLoadingPlans } = useSubscriptionPlans();
     const checkoutMutation = useCheckout();
 
@@ -48,7 +48,7 @@ export default function Checkout() {
             // Check if it's a free plan (price 0 OR slug 'free')
             if (selectedPlan.price === 0 || selectedPlan.slug === 'free') {
                 toast.info("Free plan selected. Redirecting to dashboard...");
-                navigate("/app");
+                navigate({ to: "/app" });
             }
         }
     }, [selectedPlan, isLoadingPlans, navigate]);
@@ -77,11 +77,11 @@ export default function Checkout() {
                         window.snap.pay(snap_token, {
                             onSuccess: function (_result: unknown) {
                                 toast.success("Payment successful!");
-                                navigate("/app");
+                                navigate({ to: "/app" });
                             },
                             onPending: function (_result: unknown) {
                                 toast.info("Payment pending...");
-                                navigate("/app");
+                                navigate({ to: "/app" });
                             },
                             onError: function (_result: unknown) {
                                 toast.error("Payment failed");

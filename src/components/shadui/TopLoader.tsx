@@ -1,34 +1,29 @@
 import { useEffect, useState } from "react";
-import { useLocation, useNavigation } from "react-router-dom";
+import { useRouterState } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 
-export function TopLoader() {
-    const location = useLocation();
-    const navigation = useNavigation();
+interface TopLoaderProps {
+    color?: string;
+}
+
+export function TopLoader({ color }: TopLoaderProps) {
+    const isLoading = useRouterState({ select: (s) => s.status === 'pending' });
     const [progress, setProgress] = useState(0);
     const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
-        // Start loading on route change or navigation state change
-        const isLoading = navigation.state === "loading" || navigation.state === "submitting";
-
         if (isLoading) {
             setIsVisible(true);
             setProgress(30);
         } else {
-            // If navigation is idle, we might still want to show a quick progress on location change
-            // to simulate loading for client-side transitions
-            setIsVisible(true);
-            setProgress(30);
-
-            // Finish quickly
+            // Finish quickly when loading completes
             const timer = setTimeout(() => {
                 setProgress(100);
             }, 100);
 
             return () => clearTimeout(timer);
         }
-    }, [location, navigation.state]);
+    }, [isLoading]);
 
     useEffect(() => {
         if (progress === 100) {
@@ -52,12 +47,16 @@ export function TopLoader() {
     if (!isVisible) return null;
 
     return (
-        <div className="fixed top-0 left-0 right-0 z-[100] h-1 bg-gray-100">
+        <div className="fixed top-0 left-0 right-0 z-[100] h-1 bg-transparent">
             <div
                 className={cn(
-                    "h-full bg-gradient-to-r from-royal-violet-base to-royal-violet-muted transition-all duration-500 ease-out"
+                    "h-full transition-all duration-500 ease-out",
+                    !color && "bg-gradient-to-r from-royal-violet-base to-royal-violet-muted"
                 )}
-                style={{ width: `${progress}%` }}
+                style={{
+                    width: `${progress}%`,
+                    backgroundColor: color || undefined
+                }}
             />
         </div>
     );

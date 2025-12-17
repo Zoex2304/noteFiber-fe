@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { AlertTriangle } from "lucide-react";
 
 import { Button } from "@/components/shadui/button";
@@ -67,7 +67,7 @@ export default function SignUp() {
             {
                 onSuccess: () => {
                     // Redirect to verification page with email
-                    navigate(`/validate-code?email=${encodeURIComponent(values.email)}`);
+                    navigate({ to: '/validate-code', search: { email: values.email } as any });
                 },
             }
         );
@@ -187,11 +187,11 @@ export default function SignUp() {
                                     <div className="space-y-1 leading-none">
                                         <FormLabel className="text-sm font-normal text-gray-600">
                                             I agree with{" "}
-                                            <Link to="#" className="text-royal-violet-base hover:underline">
+                                            <Link to="/landing" className="text-royal-violet-base hover:underline">
                                                 Terms
                                             </Link>{" "}
                                             and{" "}
-                                            <Link to="#" className="text-royal-violet-base hover:underline">
+                                            <Link to="/landing" className="text-royal-violet-base hover:underline">
                                                 Privacy
                                             </Link>
                                         </FormLabel>

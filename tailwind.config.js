@@ -8,6 +8,7 @@ export default {
 		"./components/**/*.{ts,tsx}",
 		"./app/**/*.{ts,tsx}",
 		"./src/**/*.{ts,tsx}",
+		"./admin/**/*.{ts,tsx}",
 		"*.{js,ts,jsx,tsx,mdx}",
 	],
 	prefix: "",

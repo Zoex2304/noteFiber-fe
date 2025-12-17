@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useSearchParams, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { AlertTriangle } from "lucide-react";
 
 import { Button } from "@/components/shadui/button";
@@ -10,9 +10,8 @@ import { debugLog } from "@/utils/debug/LogOverlay";
 
 export default function ValidateCode() {
     const navigate = useNavigate();
-    const { state } = useLocation();
-    const [searchParams] = useSearchParams();
-    const email = searchParams.get("email") || state?.email || "your email";
+    const search = useSearch({ strict: false });
+    const email = (search as any).email || "your email";
     const [otp, setOtp] = useState("");
 
     const { mutate: verifyEmail, isPending, error } = useVerifyEmail();
@@ -27,7 +26,7 @@ export default function ValidateCode() {
                 onSuccess: () => {
                     debugLog.info("ValidateCode: Success, Redirecting to /signin");
                     // Redirect to login on success
-                    navigate("/signin");
+                    navigate({ to: "/signin" });
                 },
                 onError: (error) => {
                     debugLog.error("ValidateCode: Failed", error);

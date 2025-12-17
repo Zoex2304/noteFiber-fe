@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@tanstack/react-router";
 import {
     Dialog,
     DialogContent,
@@ -21,7 +21,7 @@ export function UpgradeModal({ isOpen, onClose, featureName = "This feature" }: 
 
     const handleUpgrade = () => {
         onClose();
-        navigate("/pricing");
+        navigate({ to: "/pricing" });
     };
 
     return (
