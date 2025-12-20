@@ -5,29 +5,28 @@ import { Main } from '@admin/components/layout/main'
 import { ProfileDropdown } from '@admin/components/profile-dropdown'
 import { Search } from '@admin/components/search'
 import { ThemeSwitch } from '@admin/components/theme-switch'
-import { LogsTable } from './components/logs-table'
-import { useLogs } from './hooks/use-logs'
-import { LogListParams } from '@admin/lib/types/admin-api'
-import { NavigateFn } from '@admin/hooks/use-table-url-state'
+import { PaymentsTable } from './components/payments-table'
+import { usePayments } from './hooks/use-payments'
+import type { TransactionListParams } from '@admin/lib/types/admin-api'
+import type { NavigateFn } from '@admin/hooks/use-table-url-state'
 
-const route = getRouteApi('/_authenticated/logs')
+// @ts-expect-error Route generation might be stale
+const route = getRouteApi('/_authenticated/payments')
 
-export function Logs() {
-
-    const search = route.useSearch() as LogListParams
+export function Payments() {
+    const search = route.useSearch() as TransactionListParams
     const navigate = route.useNavigate() as NavigateFn
 
-    // safely cast search params
-    const queryParams: LogListParams = {
+    const queryParams: TransactionListParams = {
         page: search.page || 1,
         limit: search.limit || 10,
-        level: search.level,
+        status: search.status,
     }
 
-    const { data: logs = [], isLoading, error } = useLogs(queryParams)
+    const { data: payments = [], isLoading, error } = usePayments(queryParams)
 
     if (error) {
-        console.error("Failed to fetch logs", error)
+        console.error("Failed to fetch payments", error)
     }
 
     return (
@@ -44,13 +43,18 @@ export function Logs() {
             <Main className='flex flex-1 flex-col gap-4 sm:gap-6'>
                 <div className='flex items-center justify-between'>
                     <div>
-                        <h2 className='text-2xl font-bold tracking-tight'>System Logs</h2>
+                        <h2 className='text-2xl font-bold tracking-tight'>Payments</h2>
                         <p className='text-muted-foreground'>
-                            View system activity and audit logs.
+                            View and manage all subscription transactions.
                         </p>
                     </div>
                 </div>
-                <LogsTable data={logs} isLoading={isLoading} search={search} navigate={navigate} />
+                <PaymentsTable
+                    data={payments}
+                    isLoading={isLoading}
+                    search={search}
+                    navigate={navigate}
+                />
             </Main>
         </>
     )

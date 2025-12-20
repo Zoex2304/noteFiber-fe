@@ -59,7 +59,12 @@ export function UserAuthForm({
 
       // Redirect to the stored location or default to dashboard
       const storedRedirect = localStorage.getItem('admin_redirect')
-      const targetPath = storedRedirect || redirectTo || '/'
+      let targetPath = storedRedirect || redirectTo || '/'
+
+      // Fix: Strip /admin prefix if present to avoid double basepath with router's basepath configuration
+      if (targetPath.startsWith('/admin')) {
+        targetPath = targetPath.replace(/^\/admin/, '') || '/'
+      }
 
       if (storedRedirect) {
         localStorage.removeItem('admin_redirect')

@@ -8,7 +8,7 @@ const logsSearchSchema = z.object({
     level: z.string().optional(),
 })
 
-export const Route = createFileRoute('/_authenticated/logs/')({
+export const Route = createFileRoute('/_authenticated/logs')({
     component: Logs,
     validateSearch: (search) => logsSearchSchema.parse(search),
 })

@@ -51,7 +51,10 @@ const statusConfig: Record<
 }
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {
-    const config = statusConfig[status]
+    const config = statusConfig[status] ?? {
+        label: status || 'Unknown',
+        variant: 'secondary' as const,
+    }
 
     return (
         <Badge

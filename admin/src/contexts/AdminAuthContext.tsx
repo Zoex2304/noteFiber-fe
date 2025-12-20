@@ -44,20 +44,31 @@ export const AdminAuthProvider = ({ children }: { children: ReactNode }) => {
 
     const login = async (email: string, password: string) => {
         try {
-            // TODO: Replace with actual admin login endpoint
-            // For now using placeholder - verify with backend team
-            const response = await axios.post(`${API_BASE_URL}/admin/auth/signin`, {
+            // Using correct admin login endpoint
+            const response = await axios.post(`${API_BASE_URL}/admin/login`, {
                 email,
                 password,
             });
 
-            const { token, user } = response.data.data;
+            // The backend returns { access_token, refresh_token, user: { id, email, full_name, role } }
+            const { access_token, refresh_token, user } = response.data.data;
 
-            // Store token and user info
-            localStorage.setItem('admin_token', token);
-            localStorage.setItem('admin_user', JSON.stringify(user));
+            // Construct admin user object from response's user object
+            const adminUser: AdminUser = {
+                id: user.id,
+                email: user.email,
+                full_name: user.full_name || 'Admin',
+                role: user.role || 'admin'
+            };
 
-            setAdmin(user);
+            // Store tokens and user info
+            localStorage.setItem('admin_token', access_token);
+            if (refresh_token) {
+                localStorage.setItem('admin_refresh_token', refresh_token);
+            }
+            localStorage.setItem('admin_user', JSON.stringify(adminUser));
+
+            setAdmin(adminUser);
         } catch (error) {
             console.error('Admin login failed:', error);
             throw error;

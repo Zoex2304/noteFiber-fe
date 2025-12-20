@@ -14,6 +14,11 @@ import type {
     SystemLog,
     LogDetail,
     LogListParams,
+    UserGrowthData,
+    Transaction,
+    TransactionListParams,
+    UpgradeSubscriptionRequest,
+    UpgradeSubscriptionResponse,
 } from '../types/admin-api'
 
 // Base API configuration
@@ -29,7 +34,8 @@ const apiClient = axios.create({
 
 // Add auth token to requests
 apiClient.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token')
+    // Fix: Use 'admin_token' to match what is stored in AdminAuthContext
+    const token = localStorage.getItem('admin_token')
     if (token) {
         config.headers.Authorization = `Bearer ${token}`
     }
@@ -43,6 +49,22 @@ export const adminDashboardApi = {
      */
     async getStats(): Promise<DashboardStats> {
         const response = await apiClient.get<ApiSuccessResponse<DashboardStats>>('/admin/dashboard')
+        return response.data.data
+    },
+
+    /**
+     * Get user registration statistics over time (for charts)
+     */
+    async getGrowthStats(): Promise<UserGrowthData[]> {
+        const response = await apiClient.get<ApiSuccessResponse<UserGrowthData[]>>('/admin/growth')
+        return response.data.data
+    },
+
+    /**
+     * Get paginated transaction history
+     */
+    async getTransactions(params: TransactionListParams): Promise<Transaction[]> {
+        const response = await apiClient.get<ApiSuccessResponse<Transaction[]>>('/admin/transactions', { params })
         return response.data.data
     },
 }
@@ -167,6 +189,17 @@ export const adminRefundsApi = {
     async processRefund(data: RefundRequest): Promise<RefundResponse> {
         const response = await apiClient.post<ApiSuccessResponse<RefundResponse>>(
             '/admin/subscriptions/refund',
+            data
+        )
+        return response.data.data
+    },
+
+    /**
+     * Manually upgrade a user's subscription (Admin Override)
+     */
+    async upgradeSubscription(data: UpgradeSubscriptionRequest): Promise<UpgradeSubscriptionResponse> {
+        const response = await apiClient.post<ApiSuccessResponse<UpgradeSubscriptionResponse>>(
+            '/admin/subscriptions/upgrade',
             data
         )
         return response.data.data

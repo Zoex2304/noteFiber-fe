@@ -13,11 +13,11 @@ import { useUsers } from './hooks/use-users'
 import { UserListParams } from '@admin/lib/types/admin-api'
 import { NavigateFn } from '@admin/hooks/use-table-url-state'
 
-// @ts-expect-error Route generation might be stale
+
 const route = getRouteApi('/_authenticated/users/')
 
 export function Users() {
-  // @ts-expect-error Search params are verified but type inference fails if route is stale
+ 
   const search = route.useSearch() as UserListParams
   const navigate = route.useNavigate() as NavigateFn
 

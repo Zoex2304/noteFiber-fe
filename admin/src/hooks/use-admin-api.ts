@@ -11,11 +11,15 @@ import type {
     CreatePlanRequest,
     UpdatePlanRequest,
     RefundRequest,
+    TransactionListParams,
+    UpgradeSubscriptionRequest,
 } from '../lib/types/admin-api'
 
 // Query keys
 export const adminQueryKeys = {
     dashboard: ['admin', 'dashboard'] as const,
+    growth: ['admin', 'growth'] as const,
+    transactions: (params?: TransactionListParams) => ['admin', 'transactions', params] as const,
     plans: ['admin', 'plans'] as const,
     plan: (id: string) => ['admin', 'plans', id] as const,
     userDetail: (id: string) => ['admin', 'users', id] as const,
@@ -27,6 +31,20 @@ export function useDashboardStats(options?: { refetchInterval?: number }) {
         queryKey: adminQueryKeys.dashboard,
         queryFn: () => adminDashboardApi.getStats(),
         refetchInterval: options?.refetchInterval || false,
+    })
+}
+
+export function useUserGrowthStats() {
+    return useQuery({
+        queryKey: adminQueryKeys.growth,
+        queryFn: () => adminDashboardApi.getGrowthStats(),
+    })
+}
+
+export function useTransactions(params: TransactionListParams = { page: 1, limit: 10 }) {
+    return useQuery({
+        queryKey: adminQueryKeys.transactions(params),
+        queryFn: () => adminDashboardApi.getTransactions(params),
     })
 }
 
@@ -114,6 +132,22 @@ export function useProcessRefund() {
         },
         onError: (error) => {
             toast.error(`Failed to process refund: ${handleApiError(error)}`)
+        },
+    })
+}
+
+// Subscription Upgrade Hook
+export function useUpgradeSubscription() {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: (data: UpgradeSubscriptionRequest) => adminRefundsApi.upgradeSubscription(data),
+        onSuccess: (response) => {
+            queryClient.invalidateQueries({ queryKey: adminQueryKeys.dashboard })
+            toast.success(`Subscription upgraded. New ID: ${response.new_subscription_id}`)
+        },
+        onError: (error) => {
+            toast.error(`Failed to upgrade subscription: ${handleApiError(error)}`)
         },
     })
 }

@@ -12,6 +12,8 @@ import {
   Command,
   GalleryVerticalEnd,
   AudioWaveform,
+  ScrollText,
+  CreditCard,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -56,6 +58,16 @@ export const sidebarData: SidebarData = {
           title: 'Users',
           url: '/users',
           icon: Users,
+        },
+        {
+          title: 'Payments',
+          url: '/payments',
+          icon: CreditCard,
+        },
+        {
+          title: 'System Logs',
+          url: '/logs',
+          icon: ScrollText,
         },
       ],
     },

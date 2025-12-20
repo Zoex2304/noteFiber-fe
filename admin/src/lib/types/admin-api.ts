@@ -72,7 +72,7 @@ export const userDetailSchema = z.object({
     email: z.string(),
     full_name: z.string(),
     role: z.enum(['user', 'admin']),
-    status: z.enum(['active', 'pending', 'blocked']),
+    status: z.enum(['active', 'pending', 'banned']),
     ai_daily_usage: z.number(),
     created_at: z.string(),
 })
@@ -181,3 +181,49 @@ export type ApiSuccessResponse<T> = {
 }
 
 export type ApiErrorResponse = z.infer<typeof apiErrorResponseSchema>
+
+// User Growth Stats Types
+export const userGrowthDataSchema = z.object({
+    date: z.string(),
+    count: z.number(),
+})
+
+export type UserGrowthData = z.infer<typeof userGrowthDataSchema>
+
+// Transaction Types
+export const transactionListParamsSchema = z.object({
+    page: z.number().default(1),
+    limit: z.number().default(10),
+    status: z.string().optional(),
+})
+
+export type TransactionListParams = z.infer<typeof transactionListParamsSchema>
+
+export const transactionSchema = z.object({
+    id: z.string(),
+    user_id: z.string(),
+    user_email: z.string(),
+    plan_name: z.string(),
+    amount: z.number(),
+    status: z.string(),
+    payment_status: z.string(),
+    transaction_date: z.string(),
+    midtrans_order_id: z.string().nullable(),
+})
+
+export type Transaction = z.infer<typeof transactionSchema>
+
+// Subscription Upgrade Types
+export const upgradeSubscriptionRequestSchema = z.object({
+    user_id: z.string(),
+    new_plan_id: z.string(),
+})
+
+export const upgradeSubscriptionResponseSchema = z.object({
+    old_subscription_id: z.string(),
+    new_subscription_id: z.string(),
+    status: z.string(),
+})
+
+export type UpgradeSubscriptionRequest = z.infer<typeof upgradeSubscriptionRequestSchema>
+export type UpgradeSubscriptionResponse = z.infer<typeof upgradeSubscriptionResponseSchema>
