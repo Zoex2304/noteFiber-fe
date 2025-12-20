@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import useDialogState from '@admin/hooks/use-dialog-state'
-import { type User } from '../data/schema'
+import { type User } from '@admin/lib/types/admin-api'
 
-type UsersDialogType = 'invite' | 'add' | 'edit' | 'delete'
+type UsersDialogType = 'invite' | 'add' | 'edit' | 'delete' | 'edit-status'
 
 type UsersContextType = {
   open: UsersDialogType | null

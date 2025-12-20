@@ -4,9 +4,9 @@ import { Badge } from '@admin/components/ui/badge'
 import { Checkbox } from '@admin/components/ui/checkbox'
 import { DataTableColumnHeader } from '@admin/components/data-table'
 import { LongText } from '@admin/components/long-text'
-import { callTypes, roles } from '../data/data'
-import { type User } from '../data/schema'
+import { type User } from '@admin/lib/types/admin-api'
 import { DataTableRowActions } from './data-table-row-actions'
+import { User as UserIcon, Shield } from 'lucide-react'
 
 export const usersColumns: ColumnDef<User>[] = [
   {
@@ -37,12 +37,12 @@ export const usersColumns: ColumnDef<User>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: 'username',
+    accessorKey: 'full_name',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Username' />
+      <DataTableColumnHeader column={column} title='Name' />
     ),
     cell: ({ row }) => (
-      <LongText className='max-w-36 ps-3'>{row.getValue('username')}</LongText>
+      <LongText className='max-w-36 ps-3'>{row.getValue('full_name')}</LongText>
     ),
     meta: {
       className: cn(
@@ -51,18 +51,6 @@ export const usersColumns: ColumnDef<User>[] = [
       ),
     },
     enableHiding: false,
-  },
-  {
-    id: 'fullName',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Name' />
-    ),
-    cell: ({ row }) => {
-      const { firstName, lastName } = row.original
-      const fullName = `${firstName} ${lastName}`
-      return <LongText className='max-w-36'>{fullName}</LongText>
-    },
-    meta: { className: 'w-36' },
   },
   {
     accessorKey: 'email',
@@ -74,25 +62,17 @@ export const usersColumns: ColumnDef<User>[] = [
     ),
   },
   {
-    accessorKey: 'phoneNumber',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Phone Number' />
-    ),
-    cell: ({ row }) => <div>{row.getValue('phoneNumber')}</div>,
-    enableSorting: false,
-  },
-  {
     accessorKey: 'status',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Status' />
     ),
     cell: ({ row }) => {
       const { status } = row.original
-      const badgeColor = callTypes.get(status)
+      const badgeVariant = status === 'active' ? 'default' : status === 'pending' ? 'secondary' : 'destructive'
       return (
         <div className='flex space-x-2'>
-          <Badge variant='outline' className={cn('capitalize', badgeColor)}>
-            {row.getValue('status')}
+          <Badge variant={badgeVariant} className={cn('capitalize')}>
+            {status}
           </Badge>
         </div>
       )
@@ -110,18 +90,12 @@ export const usersColumns: ColumnDef<User>[] = [
     ),
     cell: ({ row }) => {
       const { role } = row.original
-      const userType = roles.find(({ value }) => value === role)
-
-      if (!userType) {
-        return null
-      }
+      const Icon = role === 'admin' ? Shield : UserIcon
 
       return (
         <div className='flex items-center gap-x-2'>
-          {userType.icon && (
-            <userType.icon size={16} className='text-muted-foreground' />
-          )}
-          <span className='text-sm capitalize'>{row.getValue('role')}</span>
+          <Icon size={16} className='text-muted-foreground' />
+          <span className='text-sm capitalize'>{role}</span>
         </div>
       )
     },
@@ -130,6 +104,16 @@ export const usersColumns: ColumnDef<User>[] = [
     },
     enableSorting: false,
     enableHiding: false,
+  },
+  {
+    accessorKey: 'created_at',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Created At' />
+    ),
+    cell: ({ row }) => {
+      const date = new Date(row.getValue('created_at'))
+      return <div className='text-sm'>{date.toLocaleDateString()}</div>
+    },
   },
   {
     id: 'actions',

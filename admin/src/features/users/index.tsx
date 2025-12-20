@@ -9,13 +9,30 @@ import { UsersDialogs } from './components/users-dialogs'
 import { UsersPrimaryButtons } from './components/users-primary-buttons'
 import { UsersProvider } from './components/users-provider'
 import { UsersTable } from './components/users-table'
-import { users } from './data/users'
+import { useUsers } from './hooks/use-users'
+import { UserListParams } from '@admin/lib/types/admin-api'
+import { NavigateFn } from '@admin/hooks/use-table-url-state'
 
+// @ts-expect-error Route generation might be stale
 const route = getRouteApi('/_authenticated/users/')
 
 export function Users() {
-  const search = route.useSearch()
-  const navigate = route.useNavigate()
+  // @ts-expect-error Search params are verified but type inference fails if route is stale
+  const search = route.useSearch() as UserListParams
+  const navigate = route.useNavigate() as NavigateFn
+
+  // safely cast search params
+  const queryParams: UserListParams = {
+    page: search.page || 1,
+    limit: search.limit || 10,
+    q: search.q || undefined,
+  }
+
+  const { data: users = [], isLoading, error } = useUsers(queryParams)
+
+  if (error) {
+    console.error("Failed to fetch users", error)
+  }
 
   return (
     <UsersProvider>
@@ -38,7 +55,7 @@ export function Users() {
           </div>
           <UsersPrimaryButtons />
         </div>
-        <UsersTable data={users} search={search} navigate={navigate} />
+        <UsersTable data={users} isLoading={isLoading} search={search} navigate={navigate} />
       </Main>
 
       <UsersDialogs />

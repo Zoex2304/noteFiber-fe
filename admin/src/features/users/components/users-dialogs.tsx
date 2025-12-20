@@ -1,6 +1,6 @@
 import { UsersActionDialog } from './users-action-dialog'
 import { UsersDeleteDialog } from './users-delete-dialog'
-import { UsersInviteDialog } from './users-invite-dialog'
+import { UsersStatusDialog } from './users-status-dialog'
 import { useUsers } from './users-provider'
 
 export function UsersDialogs() {
@@ -13,12 +13,6 @@ export function UsersDialogs() {
         onOpenChange={() => setOpen('add')}
       />
 
-      <UsersInviteDialog
-        key='user-invite'
-        open={open === 'invite'}
-        onOpenChange={() => setOpen('invite')}
-      />
-
       {currentRow && (
         <>
           <UsersActionDialog
@@ -26,6 +20,18 @@ export function UsersDialogs() {
             open={open === 'edit'}
             onOpenChange={() => {
               setOpen('edit')
+              setTimeout(() => {
+                setCurrentRow(null)
+              }, 500)
+            }}
+            currentRow={currentRow}
+          />
+
+          <UsersStatusDialog
+            key={`user-status-${currentRow.id}`}
+            open={open === 'edit-status'}
+            onOpenChange={() => {
+              setOpen('edit-status')
               setTimeout(() => {
                 setCurrentRow(null)
               }, 500)

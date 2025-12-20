@@ -2,12 +2,12 @@
 
 import { useState } from 'react'
 import { AlertTriangle } from 'lucide-react'
-import { showSubmittedData } from '@admin/lib/show-submitted-data'
 import { Alert, AlertDescription, AlertTitle } from '@admin/components/ui/alert'
 import { Input } from '@admin/components/ui/input'
 import { Label } from '@admin/components/ui/label'
 import { ConfirmDialog } from '@admin/components/confirm-dialog'
-import { type User } from '../data/schema'
+import { type User } from '@admin/lib/types/admin-api'
+import { useDeleteUser } from '../hooks/use-users'
 
 type UserDeleteDialogProps = {
   open: boolean
@@ -21,20 +21,28 @@ export function UsersDeleteDialog({
   currentRow,
 }: UserDeleteDialogProps) {
   const [value, setValue] = useState('')
+  const { mutate: deleteUser, isPending } = useDeleteUser()
 
   const handleDelete = () => {
-    if (value.trim() !== currentRow.username) return
+    if (value.trim() !== currentRow.email) return // Changed from username to email verification
 
-    onOpenChange(false)
-    showSubmittedData(currentRow, 'The following user has been deleted:')
+    deleteUser(currentRow.id, {
+      onSuccess: () => {
+        onOpenChange(false)
+        setValue('')
+      }
+    })
   }
+
+  // Use email for confirmation since username might not be unique or available in same format
+  const confirmValue = currentRow.email
 
   return (
     <ConfirmDialog
       open={open}
       onOpenChange={onOpenChange}
       handleConfirm={handleDelete}
-      disabled={value.trim() !== currentRow.username}
+      disabled={value.trim() !== confirmValue || isPending}
       title={
         <span className='text-destructive'>
           <AlertTriangle
@@ -48,9 +56,9 @@ export function UsersDeleteDialog({
         <div className='space-y-4'>
           <p className='mb-2'>
             Are you sure you want to delete{' '}
-            <span className='font-bold'>{currentRow.username}</span>?
+            <span className='font-bold'>{currentRow.full_name}</span>?
             <br />
-            This action will permanently remove the user with the role of{' '}
+            This action will permanently remove the user <span className='font-bold'>{currentRow.email}</span> with the role of{' '}
             <span className='font-bold'>
               {currentRow.role.toUpperCase()}
             </span>{' '}
@@ -58,11 +66,11 @@ export function UsersDeleteDialog({
           </p>
 
           <Label className='my-2'>
-            Username:
+            Email:
             <Input
               value={value}
               onChange={(e) => setValue(e.target.value)}
-              placeholder='Enter username to confirm deletion.'
+              placeholder='Enter email to confirm deletion.'
             />
           </Label>
 

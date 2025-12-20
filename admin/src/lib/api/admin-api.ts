@@ -8,6 +8,12 @@ import type {
     UserDetail,
     RefundRequest,
     RefundResponse,
+    User,
+    UserListParams,
+    UpdateUserRequest,
+    SystemLog,
+    LogDetail,
+    LogListParams,
 } from '../types/admin-api'
 
 // Base API configuration
@@ -94,12 +100,61 @@ export const adminPlansApi = {
 // User Management API
 export const adminUsersApi = {
     /**
+     * Get list of users
+     */
+    async getUsers(params: UserListParams): Promise<User[]> {
+        const response = await apiClient.get<ApiSuccessResponse<User[]>>('/admin/users', { params })
+        return response.data.data
+    },
+
+    /**
      * Get user detail including AI token usage
      */
     async getUserDetail(userId: string): Promise<UserDetail> {
         const response = await apiClient.get<ApiSuccessResponse<UserDetail>>(
             `/admin/users/${userId}`
         )
+        return response.data.data
+    },
+
+    /**
+     * Update user status
+     */
+    async updateUserStatus(id: string, status: 'active' | 'pending' | 'banned', reason?: string): Promise<void> {
+        await apiClient.put(`/admin/users/${id}/status`, { status, reason })
+    },
+
+    /**
+     * Update user profile
+     */
+    async updateUserProfile(id: string, data: UpdateUserRequest): Promise<UserDetail> {
+        const response = await apiClient.put<ApiSuccessResponse<UserDetail>>(`/admin/users/${id}`, data)
+        return response.data.data
+    },
+
+    /**
+     * Soft delete user
+     */
+    async deleteUser(id: string): Promise<void> {
+        await apiClient.delete(`/admin/users/${id}`)
+    },
+}
+
+// Logging Management API
+export const adminLogsApi = {
+    /**
+     * Get system logs
+     */
+    async getLogs(params: LogListParams): Promise<SystemLog[]> {
+        const response = await apiClient.get<ApiSuccessResponse<SystemLog[]>>('/admin/logs', { params })
+        return response.data.data
+    },
+
+    /**
+     * Get log details
+     */
+    async getLogDetail(id: string): Promise<LogDetail> {
+        const response = await apiClient.get<ApiSuccessResponse<LogDetail>>(`/admin/logs/${id}`)
         return response.data.data
     },
 }

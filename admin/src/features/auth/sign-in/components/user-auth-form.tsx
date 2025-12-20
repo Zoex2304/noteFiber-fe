@@ -66,10 +66,11 @@ export function UserAuthForm({
       }
 
       navigate({ to: targetPath, replace: true })
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Login error:', error)
+      const err = error as { response?: { data?: { message?: string } } }
       toast.error(
-        error.response?.data?.message ||
+        err.response?.data?.message ||
         'Invalid email or password. Please try again.'
       )
     } finally {

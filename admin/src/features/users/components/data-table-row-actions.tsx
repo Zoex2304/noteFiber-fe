@@ -1,6 +1,6 @@
 import { DotsHorizontalIcon } from '@radix-ui/react-icons'
 import { type Row } from '@tanstack/react-table'
-import { Trash2, UserPen } from 'lucide-react'
+import { Shield, Trash2, UserPen } from 'lucide-react'
 import { Button } from '@admin/components/ui/button'
 import {
   DropdownMenu,
@@ -10,7 +10,7 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from '@admin/components/ui/dropdown-menu'
-import { type User } from '../data/schema'
+import { type User } from '@admin/lib/types/admin-api'
 import { useUsers } from './users-provider'
 
 type DataTableRowActionsProps = {
@@ -38,9 +38,21 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
               setOpen('edit')
             }}
           >
-            Edit
+            Edit Profile
             <DropdownMenuShortcut>
               <UserPen size={16} />
+            </DropdownMenuShortcut>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => {
+              setCurrentRow(row.original)
+              setOpen('edit-status')
+            }}
+          >
+            Update Status
+            <DropdownMenuShortcut>
+              <Shield size={16} />
             </DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuSeparator />

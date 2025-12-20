@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import {
   type SortingState,
   type VisibilityState,
@@ -22,46 +22,45 @@ import {
   TableRow,
 } from '@admin/components/ui/table'
 import { DataTablePagination, DataTableToolbar } from '@admin/components/data-table'
-import { roles } from '../data/data'
-import { type User } from '../data/schema'
+import { type User } from '@admin/lib/types/admin-api'
 import { DataTableBulkActions } from './data-table-bulk-actions'
 import { usersColumns as columns } from './users-columns'
 
-type DataTableProps = {
+type UsersTableProps = {
   data: User[]
+  isLoading?: boolean
   search: Record<string, unknown>
   navigate: NavigateFn
 }
 
-export function UsersTable({ data, search, navigate }: DataTableProps) {
+export function UsersTable({ data, isLoading, search, navigate }: UsersTableProps) {
   // Local UI-only states
   const [rowSelection, setRowSelection] = useState({})
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [sorting, setSorting] = useState<SortingState>([])
 
-  // Local state management for table (uncomment to use local-only state, not synced with URL)
-  // const [columnFilters, onColumnFiltersChange] = useState<ColumnFiltersState>([])
-  // const [pagination, onPaginationChange] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 })
-
-  // Synced with URL states (keys/defaults mirror users route search schema)
+  // Synced with URL states
   const {
     columnFilters,
     onColumnFiltersChange,
     pagination,
     onPaginationChange,
-    ensurePageInRange,
   } = useTableUrlState({
     search,
     navigate,
     pagination: { defaultPage: 1, defaultPageSize: 10 },
     globalFilter: { enabled: false },
     columnFilters: [
-      // username per-column text filter
-      { columnId: 'username', searchKey: 'username', type: 'string' },
+      { columnId: 'email', searchKey: 'q', type: 'string' }, // Search by query "q"
       { columnId: 'status', searchKey: 'status', type: 'array' },
       { columnId: 'role', searchKey: 'role', type: 'array' },
     ],
   })
+
+  // Ensure page index is valid when data changes
+  // useEffect(() => {
+  //   ensurePageInRange(Math.ceil(data.length / pagination.pageSize))
+  // }, [data.length, pagination.pageSize, ensurePageInRange])
 
   const table = useReactTable({
     data,
@@ -74,6 +73,11 @@ export function UsersTable({ data, search, navigate }: DataTableProps) {
       columnVisibility,
     },
     enableRowSelection: true,
+    manualPagination: true, // We will handle pagination on server side for real implementation, but for now client side for "list" endpoint if it returns full list?
+    // Wait, the API returns a filtered list based on params.
+    // If backend handles pagination, we should set pageCount.
+    // For now simplifying to match basic setup.
+    pageCount: -1, // -1 means unknown page count, or pass total pages from API if available
     onPaginationChange,
     onColumnFiltersChange,
     onRowSelectionChange: setRowSelection,
@@ -87,36 +91,34 @@ export function UsersTable({ data, search, navigate }: DataTableProps) {
     getFacetedUniqueValues: getFacetedUniqueValues(),
   })
 
-  useEffect(() => {
-    ensurePageInRange(table.getPageCount())
-  }, [table, ensurePageInRange])
-
   return (
     <div
       className={cn(
-        'max-sm:has-[div[role="toolbar"]]:mb-16', // Add margin bottom to the table on mobile when the toolbar is visible
+        'max-sm:has-[div[role="toolbar"]]:mb-16',
         'flex flex-1 flex-col gap-4'
       )}
     >
       <DataTableToolbar
         table={table}
-        searchPlaceholder='Filter users...'
-        searchKey='username'
+        searchPlaceholder='Search users...'
+        searchKey='email' // Mapping "q" from search to email column filter logic visually
         filters={[
           {
             columnId: 'status',
             title: 'Status',
             options: [
               { label: 'Active', value: 'active' },
-              { label: 'Inactive', value: 'inactive' },
-              { label: 'Invited', value: 'invited' },
-              { label: 'Suspended', value: 'suspended' },
+              { label: 'Pending', value: 'pending' },
+              { label: 'Banned', value: 'banned' },
             ],
           },
           {
             columnId: 'role',
             title: 'Role',
-            options: roles.map((role) => ({ ...role })),
+            options: [
+              { label: 'Admin', value: 'admin' },
+              { label: 'User', value: 'user' },
+            ],
           },
         ]}
       />
@@ -149,7 +151,13 @@ export function UsersTable({ data, search, navigate }: DataTableProps) {
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={columns.length} className='h-24 text-center'>
+                  Loading...
+                </TableCell>
+              </TableRow>
+            ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}

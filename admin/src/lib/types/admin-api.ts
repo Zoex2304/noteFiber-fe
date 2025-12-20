@@ -95,22 +95,88 @@ export const refundResponseSchema = z.object({
 export type RefundRequest = z.infer<typeof refundRequestSchema>
 export type RefundResponse = z.infer<typeof refundResponseSchema>
 
+
+// User Management Types
+export const userListParamsSchema = z.object({
+    page: z.number().default(1),
+    limit: z.number().default(10),
+    q: z.string().optional(),
+})
+
+export type UserListParams = z.infer<typeof userListParamsSchema>
+
+export const userSchema = z.object({
+    id: z.string(),
+    email: z.string(),
+    full_name: z.string(),
+    role: z.enum(['user', 'admin']),
+    status: z.enum(['active', 'pending', 'banned']), // Updated from blocked to banned based on payload
+    created_at: z.string(),
+})
+
+export type User = z.infer<typeof userSchema>
+
+export const updateUserStatusSchema = z.object({
+    status: z.enum(['active', 'pending', 'banned']),
+    reason: z.string().optional(),
+})
+
+export const updateUserProfileSchema = z.object({
+    full_name: z.string().optional(),
+    email: z.string().email().optional(),
+    role: z.enum(['user', 'admin']).optional(),
+    status: z.enum(['active', 'pending', 'banned']).optional(),
+    avatar: z.string().optional(),
+})
+
+export type UpdateUserRequest = z.infer<typeof updateUserProfileSchema>
+
+// Logging Types
+export const logListParamsSchema = z.object({
+    page: z.number().default(1),
+    limit: z.number().default(10),
+    level: z.string().optional(),
+})
+
+export type LogListParams = z.infer<typeof logListParamsSchema>
+
+export const systemLogSchema = z.object({
+    id: z.string(),
+    level: z.string(),
+    module: z.string(),
+    message: z.string(),
+    details: z.record(z.string(), z.any()).optional(),
+    created_at: z.string(),
+})
+
+export type SystemLog = z.infer<typeof systemLogSchema>
+
+export const logDetailSchema = systemLogSchema.extend({
+    details: z.record(z.string(), z.any()).optional(),
+})
+
+export type LogDetail = z.infer<typeof logDetailSchema>
+
+
 // API Response Wrapper Types
 export const apiSuccessResponseSchema = z.object({
-    status: z.literal('success'),
-    message: z.string(),
+    status: z.literal('success'), // Keeping status for compatibility if backend sends it
+    success: z.boolean().optional(), // Adding success for new payloads
+    message: z.string().optional(),
     data: z.unknown(),
 })
 
 export const apiErrorResponseSchema = z.object({
     status: z.literal('error'),
+    success: z.boolean().optional(),
     message: z.string(),
-    code: z.number(),
+    code: z.number().optional(),
 })
 
 export type ApiSuccessResponse<T> = {
-    status: 'success'
-    message: string
+    status?: 'success'
+    success?: boolean
+    message?: string
     data: T
 }
 
