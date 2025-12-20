@@ -17,8 +17,8 @@ import Contact from "./Contact";
 
 
 export default function LandingPage() {
-  const search = useSearch({ strict: false });
-  const page = (search as any).page;
+  const search = useSearch({ strict: false }) as { page?: string };
+  const page = search.page;
 
   const renderPageContent = () => {
     switch (page) {

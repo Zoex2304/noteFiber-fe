@@ -10,8 +10,8 @@ import { debugLog } from "@/utils/debug/LogOverlay";
 
 export default function ValidateCode() {
     const navigate = useNavigate();
-    const search = useSearch({ strict: false });
-    const email = (search as any).email || "your email";
+    const search = useSearch({ strict: false }) as { email?: string };
+    const email = search.email || "your email";
     const [otp, setOtp] = useState("");
 
     const { mutate: verifyEmail, isPending, error } = useVerifyEmail();

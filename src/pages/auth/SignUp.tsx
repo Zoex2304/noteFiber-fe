@@ -67,7 +67,7 @@ export default function SignUp() {
             {
                 onSuccess: () => {
                     // Redirect to verification page with email
-                    navigate({ to: '/validate-code', search: { email: values.email } as any });
+                    navigate({ to: '/validate-code', search: { email: values.email } });
                 },
             }
         );
@@ -97,7 +97,7 @@ export default function SignUp() {
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                         <FormField
-                            control={form.control as any}
+                            control={form.control}
                             name="fullName"
                             render={({ field }) => (
                                 <FormItem>
@@ -114,7 +114,7 @@ export default function SignUp() {
                             )}
                         />
                         <FormField
-                            control={form.control as any}
+                            control={form.control}
                             name="email"
                             render={({ field }) => (
                                 <FormItem>
@@ -131,7 +131,7 @@ export default function SignUp() {
                             )}
                         />
                         <FormField
-                            control={form.control as any}
+                            control={form.control}
                             name="password"
                             render={({ field }) => (
                                 <FormItem>
@@ -156,7 +156,7 @@ export default function SignUp() {
                             )}
                         />
                         <FormField
-                            control={form.control as any}
+                            control={form.control}
                             name="confirmPassword"
                             render={({ field }) => (
                                 <FormItem>
@@ -173,7 +173,7 @@ export default function SignUp() {
                             )}
                         />
                         <FormField
-                            control={form.control as any}
+                            control={form.control}
                             name="agreeTerms"
                             render={({ field }) => (
                                 <FormItem>

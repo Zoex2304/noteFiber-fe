@@ -31,7 +31,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
             debugLog.info("AuthContext Init: Checking for token", { urlToken: !!urlToken, storedToken: !!storedToken, rawUrl: window.location.href });
 
-            let token = urlToken || storedToken;
+            const token = urlToken || storedToken;
 
             if (urlToken) {
                 // If token comes from URL, save it and clean URL

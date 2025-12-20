@@ -38,7 +38,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
                 setPlanName(response.data.plan_name);
                 setIsActive(response.data.is_active);
 
-                let rawFeatures = response.data.features;
+                const rawFeatures = response.data.features;
                 let normalizedFeatures = { ...defaultFeatures };
 
                 // Handle if features is an Array (list of strings)
@@ -62,10 +62,11 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
                 }
                 // Handle if features is an Object
                 else if (typeof rawFeatures === 'object' && rawFeatures !== null) {
+                    const featureRecord = rawFeatures as Record<string, boolean | number>;
                     normalizedFeatures = {
-                        ai_chat: !!(rawFeatures.ai_chat || (rawFeatures as any).aiChat),
-                        semantic_search: !!(rawFeatures.semantic_search || (rawFeatures as any).semanticSearch),
-                        max_notes: rawFeatures.max_notes || 5, // Handles null -> 5
+                        ai_chat: !!(featureRecord.ai_chat || featureRecord.aiChat),
+                        semantic_search: !!(featureRecord.semantic_search || featureRecord.semanticSearch),
+                        max_notes: (featureRecord.max_notes as number) || 5, // Handles null -> 5
                     };
                 }
 

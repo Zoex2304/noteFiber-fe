@@ -10,10 +10,27 @@ import { useAuth } from "@/hooks/auth/useAuth";
 import { useSubscriptionPlans, useCheckout, useOrderSummary } from "@/hooks/payment";
 import { type CheckoutFormValues } from "./schema";
 
+// Define Midtrans Snap interface
+interface MidtransSnapResult {
+    order_id?: string;
+    status_code?: string;
+    transaction_status?: string;
+    [key: string]: unknown;
+}
+
+interface MidtransSnap {
+    pay: (token: string, options: {
+        onSuccess?: (result: MidtransSnapResult) => void;
+        onPending?: (result: MidtransSnapResult) => void;
+        onError?: (result: MidtransSnapResult) => void;
+        onClose?: () => void;
+    }) => void;
+}
+
 // Extend Window interface for Snap
 declare global {
     interface Window {
-        snap: any;
+        snap: MidtransSnap;
     }
 }
 
@@ -30,7 +47,7 @@ export default function Checkout() {
     }, [isAuthenticated, navigate]);
 
     // Get Data
-    const planSlug = (search as any).plan || "pro";
+    const planSlug = (search as { plan?: string }).plan || "pro";
     const { data: plansResponse, isLoading: isLoadingPlans } = useSubscriptionPlans();
     const checkoutMutation = useCheckout();
 
@@ -75,17 +92,17 @@ export default function Checkout() {
 
                     if (window.snap) {
                         window.snap.pay(snap_token, {
-                            onSuccess: function (_result: unknown) {
+                            onSuccess: function () {
                                 toast.success("Payment successful!");
                                 navigate({ to: "/app" });
                             },
-                            onPending: function (_result: unknown) {
+                            onPending: function () {
                                 toast.info("Payment pending...");
                                 navigate({ to: "/app" });
                             },
-                            onError: function (_result: unknown) {
+                            onError: function (result) {
                                 toast.error("Payment failed");
-                                console.error(_result);
+                                console.error(result);
                             },
                             onClose: function () {
                                 toast.warning("Payment window closed");

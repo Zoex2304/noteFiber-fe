@@ -146,7 +146,7 @@ export default function AccountSettings() {
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 max-w-xl">
                             <div className="flex flex-col sm:flex-row gap-4 items-start">
                                 <FormField
-                                    control={form.control as any}
+                                    control={form.control}
                                     name="full_name"
                                     render={({ field }) => (
                                         <FormItem className="flex-1">

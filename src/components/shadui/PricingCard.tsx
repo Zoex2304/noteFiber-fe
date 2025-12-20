@@ -38,9 +38,8 @@ export function PricingCard({ data, className }: PricingCardProps) {
   // Use slug if available, otherwise fallback to title-based slug (for backward compatibility)
   const planSlug = slug || title.toLowerCase().replace(/\s+/g, "-");
 
-  const targetUrl = isFree
-    ? "/app"
-    : `/checkout?plan=${planSlug}&price=${price.replace("$", "").replace("Rp", "").replace(/,/g, "")}&period=${period.includes("month") ? "monthly" : "yearly"}`;
+  // Future: Add direct checkout URL functionality here
+  // const targetUrl = isFree ? "/app" : `/checkout?plan=${planSlug}&...`
 
   return (
     // Container Card

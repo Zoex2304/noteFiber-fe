@@ -39,7 +39,7 @@ export function BlockTypeDropdown() {
                 if (elementType in BLOCK_TYPES) {
                     // For headings, we need to check the tag
                     if (elementType === 'heading') {
-                        // @ts-ignore
+                        // @ts-expect-error LexicalEditor type doesn't recognize dynamic command names
                         const tag = element.getTag();
                         setBlockType(tag);
                     } else {

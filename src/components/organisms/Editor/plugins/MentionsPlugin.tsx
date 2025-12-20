@@ -29,10 +29,6 @@ function MentionsTypeaheadMenuItem({
     onMouseEnter: () => void;
     option: MentionOption;
 }) {
-    let className = "item";
-    if (isSelected) {
-        className += " selected";
-    }
     return (
         <li
             key={option.key}

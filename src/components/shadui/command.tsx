@@ -21,6 +21,8 @@ const Command = React.forwardRef<
 ))
 Command.displayName = CommandPrimitive.displayName
 
+// Extends DialogProps for future customization
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface CommandDialogProps extends DialogProps { }
 
 const CommandDialog = ({ children, ...props }: CommandDialogProps) => {
@@ -123,6 +125,10 @@ const CommandItem = React.forwardRef<
 ))
 
 CommandItem.displayName = CommandPrimitive.Item.displayName
+
+// Extends InputHTMLAttributes for future customization
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> { }
 
 const CommandShortcut = ({
     className,

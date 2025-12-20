@@ -12,6 +12,7 @@ import { MarkdownShortcutPlugin } from "@lexical/react/LexicalMarkdownShortcutPl
 import { TRANSFORMERS, $convertFromMarkdownString } from "@lexical/markdown";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
+import { type EditorState } from "lexical";
 
 import { EditorNodes } from "./nodes";
 import { editorTheme } from "./theme";
@@ -43,7 +44,7 @@ function InitialStatePlugin({ content }: { content: string }) {
                     editor.setEditorState(editorState);
                     return;
                 }
-            } catch (e) {
+            } catch {
                 // Not valid JSON, fall back to Markdown
             }
 
@@ -71,7 +72,7 @@ interface EditorProps {
 }
 
 export function Editor({ initialContent = "", onChange, readOnly = false }: EditorProps) {
-    const onChangeHandler = (editorState: any) => {
+    const onChangeHandler = (editorState: EditorState) => {
         if (readOnly) return;
 
         editorState.read(() => {

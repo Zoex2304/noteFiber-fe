@@ -8,12 +8,14 @@ import { useState, useEffect } from 'react'
 import { SubscriptionProvider } from '@/contexts/SubscriptionContext'
 import { UpgradeModal } from '@/components/modals/UpgradeModal'
 
+import { type User } from '@/api/services/auth/auth.types';
+
 // Define the router context type
 export interface RouterContext {
     queryClient: QueryClient
     auth?: {
         isAuthenticated: boolean
-        user: any | null
+        user: User | null
     }
 }
 

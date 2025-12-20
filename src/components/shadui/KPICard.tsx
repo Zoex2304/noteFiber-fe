@@ -39,7 +39,7 @@ export function KPICard({ endValue, suffix, description, decimals = 0, className
           lg:text-[47.829px] lg:leading-[1.4]
         "
         // 'ref' ini akan memicu animasi saat terlihat
-        ref={ref as any}
+        ref={ref as React.Ref<HTMLDivElement>}
       >
         {count}
         {suffix}

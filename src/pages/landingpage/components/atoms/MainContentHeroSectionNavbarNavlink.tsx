@@ -8,8 +8,8 @@ interface MainContentHeroSectionNavbarNavlinkProps {
 export const MainContentHeroSectionNavbarNavlink = (props: MainContentHeroSectionNavbarNavlinkProps) => {
   // TanStack Router's useSearch returns the validation object directly
   // For now we'll assume a loose type if strict search params aren't defined yet
-  const search = useSearch({ strict: false });
-  const currentPage = (search as any).page;
+  const search = useSearch({ strict: false }) as { page?: string };
+  const currentPage = search.page;
 
   const isActive = currentPage === props.urlArg || (!currentPage && props.urlArg === '');
 

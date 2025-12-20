@@ -6,7 +6,7 @@ interface LogEntry {
     timestamp: string;
     level: LogLevel;
     message: string;
-    data?: any;
+    data?: unknown;
 }
 
 const listeners: ((entry: LogEntry) => void)[] = [];
@@ -16,12 +16,12 @@ const notifyListeners = (entry: LogEntry) => {
 };
 
 export const debugLog = {
-    info: (message: string, data?: any) => {
+    info: (message: string, data?: unknown) => {
         const entry: LogEntry = { timestamp: new Date().toISOString().split('T')[1].slice(0, -1), level: 'info', message, data };
         console.log(`[DEBUG] ${message}`, data || '');
         notifyListeners(entry);
     },
-    error: (message: string, data?: any) => {
+    error: (message: string, data?: unknown) => {
         const entry: LogEntry = { timestamp: new Date().toISOString().split('T')[1].slice(0, -1), level: 'error', message, data };
         console.error(`[DEBUG] ${message}`, data || '');
         notifyListeners(entry);
@@ -63,7 +63,7 @@ export function LogOverlay() {
                         <span className="text-gray-500">[{log.timestamp}]</span> <span className="font-bold">{log.message}</span>
                         {log.data && (
                             <pre className="ml-4 mt-1 text-gray-400 overflow-x-auto">
-                                {typeof log.data === 'object' ? JSON.stringify(log.data, null, 2) : String(log.data)}
+                                {String(typeof log.data === 'object' ? JSON.stringify(log.data, null, 2) : log.data)}
                             </pre>
                         )}
                     </div>

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Link, useSearch, useNavigate } from "@tanstack/react-router";
+import { Link, useSearch } from "@tanstack/react-router";
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
 
 import { Button } from "@/components/shadui/button";
@@ -32,10 +32,8 @@ const resetPasswordSchema = z
 type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
 
 export default function ResetPassword() {
-    const navigate = useNavigate();
-    const search = useSearch({ strict: false });
-    const token = (search as any).token;
-    const email = (search as any).email;
+    const search = useSearch({ strict: false }) as { token?: string; email?: string };
+    const token = search.token;
     const [password, setPassword] = useState("");
     const { mutate: resetPassword, isPending, error } = useResetPassword();
     const [isSuccess, setIsSuccess] = useState(false);
@@ -130,7 +128,7 @@ export default function ResetPassword() {
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                         <FormField
-                            control={form.control as any}
+                            control={form.control}
                             name="newPassword"
                             render={({ field }) => (
                                 <FormItem>
@@ -155,7 +153,7 @@ export default function ResetPassword() {
                             )}
                         />
                         <FormField
-                            control={form.control as any}
+                            control={form.control}
                             name="confirmPassword"
                             render={({ field }) => (
                                 <FormItem>

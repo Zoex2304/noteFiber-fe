@@ -5,6 +5,8 @@ import { configureRetryInterceptor } from './interceptors/retry.interceptor';
 import createAuthRefreshInterceptor from 'axios-auth-refresh';
 import { HTTP_STATUS } from '../../constants/api.constants';
 
+import { AxiosError } from 'axios';
+
 // Register Request Interceptors
 axiosInstance.interceptors.request.use(authRequestInterceptor, Promise.reject);
 
@@ -19,7 +21,7 @@ configureRetryInterceptor(axiosInstance);
 
 // Register Auth Refresh Logic (using axios-auth-refresh)
 // Note: Logic for refresh token would go here. For now we just reject.
-const refreshAuthLogic = (failedRequest: any) => {
+const refreshAuthLogic = (failedRequest: AxiosError) => {
     // Placeholder: Implement actual refresh logic here
     return Promise.reject(failedRequest);
 };
