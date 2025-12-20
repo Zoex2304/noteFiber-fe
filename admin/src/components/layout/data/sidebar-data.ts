@@ -14,6 +14,7 @@ import {
   AudioWaveform,
   ScrollText,
   CreditCard,
+  RotateCcw,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -63,6 +64,11 @@ export const sidebarData: SidebarData = {
           title: 'Payments',
           url: '/payments',
           icon: CreditCard,
+        },
+        {
+          title: 'Refunds',
+          url: '/refunds',
+          icon: RotateCcw,
         },
         {
           title: 'System Logs',

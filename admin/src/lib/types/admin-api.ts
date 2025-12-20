@@ -95,6 +95,47 @@ export const refundResponseSchema = z.object({
 export type RefundRequest = z.infer<typeof refundRequestSchema>
 export type RefundResponse = z.infer<typeof refundResponseSchema>
 
+// Refund List Types (for admin management page)
+export const refundStatusSchema = z.enum(['pending', 'approved', 'rejected'])
+export type RefundStatus = z.infer<typeof refundStatusSchema>
+
+export const refundListParamsSchema = z.object({
+    status: refundStatusSchema.optional(),
+    page: z.number().default(1),
+    limit: z.number().default(10),
+})
+export type RefundListParams = z.infer<typeof refundListParamsSchema>
+
+export const refundListItemSchema = z.object({
+    id: z.string(),
+    user: z.object({
+        id: z.string(),
+        email: z.string(),
+        full_name: z.string(),
+    }),
+    subscription: z.object({
+        id: z.string(),
+        plan_name: z.string(),
+        amount_paid: z.number(),
+        payment_date: z.string(),
+    }),
+    amount: z.number(),
+    reason: z.string(),
+    status: refundStatusSchema,
+    admin_notes: z.string().optional(),
+    created_at: z.string(),
+    processed_at: z.string().optional(),
+})
+export type RefundListItem = z.infer<typeof refundListItemSchema>
+
+export const refundApprovalResponseSchema = z.object({
+    refund_id: z.string(),
+    status: z.literal('approved'),
+    refunded_amount: z.number(),
+    processed_at: z.string(),
+})
+export type RefundApprovalResponse = z.infer<typeof refundApprovalResponseSchema>
+
 
 // User Management Types
 export const userListParamsSchema = z.object({

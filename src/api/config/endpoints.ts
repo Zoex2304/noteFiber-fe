@@ -31,4 +31,8 @@ export const ENDPOINTS = {
         SUMMARY: '/payment/summary',
         STATUS: '/payment/status',
     },
+    REFUND: {
+        REQUEST: '/user/refund/request',
+        LIST: '/user/refunds',
+    },
 } as const;

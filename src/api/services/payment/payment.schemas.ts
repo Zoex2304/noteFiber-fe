@@ -58,4 +58,6 @@ export const subscriptionStatusSchema = z.object({
     is_active: z.boolean(),
     ai_daily_usage: z.number().optional(),
     features: subscriptionFeaturesSchema,
+    subscription_id: z.string().optional(),
+    id: z.string().optional(),
 });

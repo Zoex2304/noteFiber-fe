@@ -7,6 +7,7 @@ interface SubscriptionContextType {
     isLoading: boolean;
     planName: string;
     isActive: boolean;
+    subscriptionId: string | null;
     features: {
         ai_chat: boolean;
         semantic_search: boolean;
@@ -36,6 +37,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [planName, setPlanName] = useState<string>("Free Plan");
     const [isActive, setIsActive] = useState<boolean>(false);
+    const [subscriptionId, setSubscriptionId] = useState<string | null>(null);
     const [features, setFeatures] = useState(defaultFeatures);
     const [tokenUsage, setTokenUsage] = useState({
         dailyUsed: 0,
@@ -50,6 +52,12 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
             if (response.success && response.data) {
                 setPlanName(response.data.plan_name);
                 setIsActive(response.data.is_active);
+                // Set subscription_id if available from response
+                const responseData = response.data as Record<string, unknown>;
+                console.log('Subscription Response Data:', responseData); // DEBUG LOG
+                const subId = (responseData.subscription_id || responseData.id) as string | undefined;
+                console.log('Extracted subscriptionId:', subId); // DEBUG LOG
+                setSubscriptionId(subId || null);
 
                 const rawFeatures = response.data.features;
                 let normalizedFeatures = { ...defaultFeatures };
@@ -125,6 +133,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
                 isLoading,
                 planName,
                 isActive,
+                subscriptionId,
                 features,
                 tokenUsage,
                 checkPermission,

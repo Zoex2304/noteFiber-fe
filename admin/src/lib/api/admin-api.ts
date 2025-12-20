@@ -8,6 +8,9 @@ import type {
     UserDetail,
     RefundRequest,
     RefundResponse,
+    RefundListParams,
+    RefundListItem,
+    RefundApprovalResponse,
     User,
     UserListParams,
     UpdateUserRequest,
@@ -20,6 +23,7 @@ import type {
     UpgradeSubscriptionRequest,
     UpgradeSubscriptionResponse,
 } from '../types/admin-api'
+import { ADMIN_ENDPOINTS } from '../../config/admin-endpoints'
 
 // Base API configuration
 const envUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'
@@ -48,7 +52,7 @@ export const adminDashboardApi = {
      * Fetch dashboard statistics including revenue, user counts, and recent transactions
      */
     async getStats(): Promise<DashboardStats> {
-        const response = await apiClient.get<ApiSuccessResponse<DashboardStats>>('/admin/dashboard')
+        const response = await apiClient.get<ApiSuccessResponse<DashboardStats>>(ADMIN_ENDPOINTS.DASHBOARD.STATS)
         return response.data.data
     },
 
@@ -56,7 +60,7 @@ export const adminDashboardApi = {
      * Get user registration statistics over time (for charts)
      */
     async getGrowthStats(): Promise<UserGrowthData[]> {
-        const response = await apiClient.get<ApiSuccessResponse<UserGrowthData[]>>('/admin/growth')
+        const response = await apiClient.get<ApiSuccessResponse<UserGrowthData[]>>(ADMIN_ENDPOINTS.DASHBOARD.GROWTH)
         return response.data.data
     },
 
@@ -64,7 +68,7 @@ export const adminDashboardApi = {
      * Get paginated transaction history
      */
     async getTransactions(params: TransactionListParams): Promise<Transaction[]> {
-        const response = await apiClient.get<ApiSuccessResponse<Transaction[]>>('/admin/transactions', { params })
+        const response = await apiClient.get<ApiSuccessResponse<Transaction[]>>(ADMIN_ENDPOINTS.DASHBOARD.TRANSACTIONS, { params })
         return response.data.data
     },
 }
@@ -75,7 +79,7 @@ export const adminPlansApi = {
      * Get all subscription plans
      */
     async getPlans(): Promise<SubscriptionPlan[]> {
-        const response = await apiClient.get<ApiSuccessResponse<SubscriptionPlan[]>>('/admin/plans')
+        const response = await apiClient.get<ApiSuccessResponse<SubscriptionPlan[]>>(ADMIN_ENDPOINTS.PLANS.LIST)
         return response.data.data
     },
 
@@ -84,7 +88,7 @@ export const adminPlansApi = {
      */
     async getPlan(id: string): Promise<SubscriptionPlan> {
         const response = await apiClient.get<ApiSuccessResponse<SubscriptionPlan>>(
-            `/admin/plans/${id}`
+            ADMIN_ENDPOINTS.PLANS.DETAIL(id)
         )
         return response.data.data
     },
@@ -94,7 +98,7 @@ export const adminPlansApi = {
      */
     async createPlan(data: CreatePlanRequest): Promise<SubscriptionPlan> {
         const response = await apiClient.post<ApiSuccessResponse<SubscriptionPlan>>(
-            '/admin/plans',
+            ADMIN_ENDPOINTS.PLANS.CREATE,
             data
         )
         return response.data.data
@@ -105,7 +109,7 @@ export const adminPlansApi = {
      */
     async updatePlan(id: string, data: UpdatePlanRequest): Promise<SubscriptionPlan> {
         const response = await apiClient.put<ApiSuccessResponse<SubscriptionPlan>>(
-            `/admin/plans/${id}`,
+            ADMIN_ENDPOINTS.PLANS.UPDATE(id),
             data
         )
         return response.data.data
@@ -115,7 +119,7 @@ export const adminPlansApi = {
      * Delete a subscription plan (soft delete)
      */
     async deletePlan(id: string): Promise<void> {
-        await apiClient.delete(`/admin/plans/${id}`)
+        await apiClient.delete(ADMIN_ENDPOINTS.PLANS.DELETE(id))
     },
 }
 
@@ -125,7 +129,7 @@ export const adminUsersApi = {
      * Get list of users
      */
     async getUsers(params: UserListParams): Promise<User[]> {
-        const response = await apiClient.get<ApiSuccessResponse<User[]>>('/admin/users', { params })
+        const response = await apiClient.get<ApiSuccessResponse<User[]>>(ADMIN_ENDPOINTS.USERS.LIST, { params })
         return response.data.data
     },
 
@@ -134,7 +138,7 @@ export const adminUsersApi = {
      */
     async getUserDetail(userId: string): Promise<UserDetail> {
         const response = await apiClient.get<ApiSuccessResponse<UserDetail>>(
-            `/admin/users/${userId}`
+            ADMIN_ENDPOINTS.USERS.DETAIL(userId)
         )
         return response.data.data
     },
@@ -143,14 +147,14 @@ export const adminUsersApi = {
      * Update user status
      */
     async updateUserStatus(id: string, status: 'active' | 'pending' | 'banned', reason?: string): Promise<void> {
-        await apiClient.put(`/admin/users/${id}/status`, { status, reason })
+        await apiClient.put(ADMIN_ENDPOINTS.USERS.UPDATE_STATUS(id), { status, reason })
     },
 
     /**
      * Update user profile
      */
     async updateUserProfile(id: string, data: UpdateUserRequest): Promise<UserDetail> {
-        const response = await apiClient.put<ApiSuccessResponse<UserDetail>>(`/admin/users/${id}`, data)
+        const response = await apiClient.put<ApiSuccessResponse<UserDetail>>(ADMIN_ENDPOINTS.USERS.UPDATE_PROFILE(id), data)
         return response.data.data
     },
 
@@ -158,7 +162,7 @@ export const adminUsersApi = {
      * Soft delete user
      */
     async deleteUser(id: string): Promise<void> {
-        await apiClient.delete(`/admin/users/${id}`)
+        await apiClient.delete(ADMIN_ENDPOINTS.USERS.DELETE(id))
     },
 }
 
@@ -168,7 +172,7 @@ export const adminLogsApi = {
      * Get system logs
      */
     async getLogs(params: LogListParams): Promise<SystemLog[]> {
-        const response = await apiClient.get<ApiSuccessResponse<SystemLog[]>>('/admin/logs', { params })
+        const response = await apiClient.get<ApiSuccessResponse<SystemLog[]>>(ADMIN_ENDPOINTS.LOGS.LIST, { params })
         return response.data.data
     },
 
@@ -176,7 +180,7 @@ export const adminLogsApi = {
      * Get log details
      */
     async getLogDetail(id: string): Promise<LogDetail> {
-        const response = await apiClient.get<ApiSuccessResponse<LogDetail>>(`/admin/logs/${id}`)
+        const response = await apiClient.get<ApiSuccessResponse<LogDetail>>(ADMIN_ENDPOINTS.LOGS.DETAIL(id))
         return response.data.data
     },
 }
@@ -184,11 +188,45 @@ export const adminLogsApi = {
 // Refund Processing API
 export const adminRefundsApi = {
     /**
-     * Process a subscription refund
+     * Get list of refund requests with filtering by status
+     */
+    async getRefunds(params?: RefundListParams): Promise<RefundListItem[]> {
+        const response = await apiClient.get<ApiSuccessResponse<RefundListItem[]>>(ADMIN_ENDPOINTS.REFUNDS.LIST, { params })
+        return response.data.data
+    },
+
+    /**
+     * Get a single refund request details
+     */
+    async getRefund(id: string): Promise<RefundListItem> {
+        const response = await apiClient.get<ApiSuccessResponse<RefundListItem>>(ADMIN_ENDPOINTS.REFUNDS.DETAIL(id))
+        return response.data.data
+    },
+
+    /**
+     * Approve a pending refund request
+     */
+    async approveRefund(id: string, adminNotes?: string): Promise<RefundApprovalResponse> {
+        const response = await apiClient.post<ApiSuccessResponse<RefundApprovalResponse>>(
+            ADMIN_ENDPOINTS.REFUNDS.APPROVE(id),
+            { admin_notes: adminNotes }
+        )
+        return response.data.data
+    },
+
+    /**
+     * Reject a pending refund request (optional future feature)
+     */
+    async rejectRefund(id: string, reason: string): Promise<void> {
+        await apiClient.post(ADMIN_ENDPOINTS.REFUNDS.REJECT(id), { rejection_reason: reason })
+    },
+
+    /**
+     * Process a subscription refund (legacy - for direct refund from dashboard)
      */
     async processRefund(data: RefundRequest): Promise<RefundResponse> {
         const response = await apiClient.post<ApiSuccessResponse<RefundResponse>>(
-            '/admin/subscriptions/refund',
+            ADMIN_ENDPOINTS.REFUNDS.PROCESS_LEGACY,
             data
         )
         return response.data.data
@@ -199,7 +237,7 @@ export const adminRefundsApi = {
      */
     async upgradeSubscription(data: UpgradeSubscriptionRequest): Promise<UpgradeSubscriptionResponse> {
         const response = await apiClient.post<ApiSuccessResponse<UpgradeSubscriptionResponse>>(
-            '/admin/subscriptions/upgrade',
+            ADMIN_ENDPOINTS.REFUNDS.UPGRADE_SUBSCRIPTION,
             data
         )
         return response.data.data

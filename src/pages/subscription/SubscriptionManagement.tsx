@@ -16,10 +16,13 @@ import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useNavigate } from '@tanstack/react-router';
 import { Check, CreditCard, Calendar, Zap } from 'lucide-react';
 import { toast } from 'sonner';
+import { useState } from 'react';
+import { RefundRequestModal } from './RefundRequestModal';
 
 export function SubscriptionManagement() {
-    const { planName, isActive, features, tokenUsage } = useSubscription();
+    const { planName, isActive, features, tokenUsage, subscriptionId, refreshSubscription } = useSubscription();
     const navigate = useNavigate();
+    const [refundModalOpen, setRefundModalOpen] = useState(false);
 
     const handleCancelSubscription = async () => {
         try {
@@ -31,14 +34,8 @@ export function SubscriptionManagement() {
         }
     };
 
-    const handleRequestRefund = async () => {
-        try {
-            // TODO: Implement refund request API call
-            // await paymentService.requestRefund();
-            toast.success('Refund request submitted. Our team will review it within 24 hours.');
-        } catch (error) {
-            toast.error('Failed to submit refund request. Please contact support.');
-        }
+    const handleRefundSuccess = () => {
+        refreshSubscription();
     };
 
     return (
@@ -139,28 +136,21 @@ export function SubscriptionManagement() {
                     </Button>
                     {isActive && planName !== 'Free Plan' && (
                         <>
-                            <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                    <Button variant="outline" className="w-full sm:w-auto">
-                                        Request Refund
-                                    </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                        <AlertDialogTitle>Request Refund</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                            Our support team will review your refund request within 24 hours.
-                                            Refunds are typically processed according to our refund policy.
-                                        </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                        <AlertDialogAction onClick={handleRequestRefund}>
-                                            Submit Request
-                                        </AlertDialogAction>
-                                    </AlertDialogFooter>
-                                </AlertDialogContent>
-                            </AlertDialog>
+                            <Button
+                                variant="outline"
+                                className="w-full sm:w-auto"
+                                onClick={() => setRefundModalOpen(true)}
+                            >
+                                Request Refund
+                            </Button>
+
+                            <RefundRequestModal
+                                open={refundModalOpen}
+                                onOpenChange={setRefundModalOpen}
+                                subscriptionId={subscriptionId}
+                                planName={planName}
+                                onSuccess={handleRefundSuccess}
+                            />
 
                             <AlertDialog>
                                 <AlertDialogTrigger asChild>
@@ -210,6 +200,12 @@ export function SubscriptionManagement() {
                     </p>
                 </CardContent>
             </Card>
+            {/* DEBUG OVERLAY */}
+            <div className="fixed bottom-4 right-4 bg-black/80 text-white p-4 rounded-lg text-xs z-50 font-mono">
+                <p>Plan: {planName}</p>
+                <p>Active: {String(isActive)}</p>
+                <p>Sub ID: {subscriptionId || 'NULL'}</p>
+            </div>
         </div>
     );
 }
