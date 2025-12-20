@@ -1,18 +1,16 @@
-import { createFileRoute, Navigate } from '@tanstack/react-router'
-import { useAuthContext } from '@/contexts/AuthContext'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 import SignUp from '@/pages/auth/SignUp'
 
-function SignUpRouteComponent() {
-    const { user } = useAuthContext()
-
-    // Guest guard: redirect if already authenticated
-    if (user) {
-        return <Navigate to="/app" />
-    }
-
-    return <SignUp />
-}
-
 export const Route = createFileRoute('/(auth)/signup')({
-    component: SignUpRouteComponent,
+    component: SignUp,
+    beforeLoad: async () => {
+        // Check if user is authenticated by checking localStorage
+        const token = localStorage.getItem('token')
+        const refreshToken = localStorage.getItem('refreshToken')
+
+        if (token && refreshToken) {
+            // User is authenticated, redirect to app
+            throw redirect({ to: '/app', replace: true })
+        }
+    },
 })

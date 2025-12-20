@@ -1,16 +1,17 @@
 import { useEffect } from "react";
-import { useNavigate, Outlet, useLocation } from "react-router-dom";
+import { useNavigate, Outlet, useRouter } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/auth/useAuth";
 
 export const AuthGuard = () => {
     const { isAuthenticated, isLoading } = useAuth();
     const navigate = useNavigate();
-    const location = useLocation();
+    const router = useRouter();
+    const location = router.state.location;
 
     useEffect(() => {
         if (!isLoading && !isAuthenticated) {
             console.log("AuthGuard: Redirecting to signin", { isLoading, isAuthenticated, path: location.pathname });
-            navigate("/signin", { state: { from: location.pathname } });
+            navigate({ to: "/signin", search: { from: location.pathname } });
         }
     }, [isLoading, isAuthenticated, navigate, location]);
 

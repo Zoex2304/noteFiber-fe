@@ -1,4 +1,3 @@
-import { Outlet } from 'react-router-dom';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
 import { QueryProvider } from '@/contexts/QueryClientProvider';
@@ -23,7 +22,7 @@ export default function App() {
       <AuthProvider>
         <SubscriptionProvider>
           <div className="min-h-screen bg-background font-sans antialiased">
-            <Outlet />
+            {/* Note: This component appears to be legacy. The actual routing is handled by __root.tsx */}
             <LogOverlay />
             <Toaster />
             <TopLoader />

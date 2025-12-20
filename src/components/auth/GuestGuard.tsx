@@ -1,9 +1,18 @@
-import { Navigate, Outlet } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Outlet, useNavigate } from '@tanstack/react-router';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { debugLog } from '@/utils/debug/LogOverlay';
 
 export const GuestGuard = () => {
     const { isAuthenticated, isLoading } = useAuth();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!isLoading && isAuthenticated) {
+            debugLog.info("GuestGuard: User is authenticated, redirecting to /app");
+            navigate({ to: "/app", replace: true });
+        }
+    }, [isLoading, isAuthenticated, navigate]);
 
     if (isLoading) {
         return (
@@ -14,8 +23,7 @@ export const GuestGuard = () => {
     }
 
     if (isAuthenticated) {
-        debugLog.info("GuestGuard: User is authenticated, redirecting to /app");
-        return <Navigate to="/app" replace />;
+        return null; // Will redirect via useEffect
     }
 
     return <Outlet />;
