@@ -54,9 +54,9 @@ export function UserProfileMenu() {
                     </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate({ to: "/pricing" })} className="cursor-pointer">
+                <DropdownMenuItem onClick={() => navigate({ to: "/subscription" })} className="cursor-pointer">
                     <CreditCard className="mr-2 h-4 w-4" />
-                    <span>Subscription Plan</span>
+                    <span>Manage Subscription</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate({ to: "/app/settings" })} className="cursor-pointer">

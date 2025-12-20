@@ -49,11 +49,13 @@ export const subscriptionFeaturesSchema = z.object({
     ai_chat: z.boolean(),
     semantic_search: z.boolean(),
     max_notes: z.number(),
+    daily_token_limit: z.number().optional(),
 });
 
 export const subscriptionStatusSchema = z.object({
     plan_name: z.string(),
     status: z.string(),
     is_active: z.boolean(),
+    ai_daily_usage: z.number().optional(),
     features: subscriptionFeaturesSchema,
 });

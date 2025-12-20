@@ -126,10 +126,6 @@ const CommandItem = React.forwardRef<
 
 CommandItem.displayName = CommandPrimitive.Item.displayName
 
-// Extends InputHTMLAttributes for future customization
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> { }
-
 const CommandShortcut = ({
     className,
     ...props

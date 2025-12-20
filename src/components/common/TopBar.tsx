@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { MessageSquare, Search } from "lucide-react";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { PlanStatusPill } from "@/components/common/PlanStatusPill";
+import { TokenUsageIndicator } from "@/components/common/TokenUsageIndicator";
 
 interface TopBarProps {
     onSearchClick: () => void;
@@ -12,7 +13,7 @@ interface TopBarProps {
 }
 
 export const TopBar = ({ onSearchClick, onChatClick }: TopBarProps) => {
-    const { checkPermission } = useSubscription();
+    const { checkPermission, tokenUsage } = useSubscription();
 
     const showSearch = checkPermission('semantic_search');
     const showChat = checkPermission('ai_chat');
@@ -43,16 +44,31 @@ export const TopBar = ({ onSearchClick, onChatClick }: TopBarProps) => {
                 )}
 
                 {showChat && (
-                    <ActionTooltip label="Chat with AI">
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={onChatClick}
-                            className="h-9 w-9 p-0 hover:bg-gray-100 rounded-full text-gray-600"
-                        >
-                            <MessageSquare className="h-5 w-5" />
-                        </Button>
-                    </ActionTooltip>
+                    <div className="flex items-center gap-2">
+                        <ActionTooltip label="Chat with AI">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={onChatClick}
+                                className="h-9 w-9 p-0 hover:bg-gray-100 rounded-full text-gray-600"
+                            >
+                                <MessageSquare className="h-5 w-5" />
+                            </Button>
+                        </ActionTooltip>
+                        {tokenUsage.dailyLimit > 0 && (
+                            <div className="w-32">
+                                <TokenUsageIndicator
+                                    dailyUsed={tokenUsage.dailyUsed}
+                                    dailyLimit={tokenUsage.dailyLimit}
+                                    percentage={tokenUsage.percentage}
+                                    showLabel={false}
+                                />
+                                <p className="text-[10px] text-muted-foreground mt-0.5 text-center">
+                                    {tokenUsage.dailyUsed}/{tokenUsage.dailyLimit}
+                                </p>
+                            </div>
+                        )}
+                    </div>
                 )}
 
                 {(showSearch || showChat) && <div className="h-6 w-px bg-gray-200 mx-2" />}

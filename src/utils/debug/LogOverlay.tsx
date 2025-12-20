@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 
+/* eslint-disable react-refresh/only-export-components */
 // Simple event emitter for logs
 type LogLevel = 'info' | 'warn' | 'error';
 interface LogEntry {

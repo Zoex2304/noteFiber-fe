@@ -18,6 +18,7 @@ export function NoteEditor({ note, onUpdate }: NoteEditorProps) {
     const [content, setContent] = useState(note.content)
     const [title, setTitle] = useState(note.title)
     const [hasChanges, setHasChanges] = useState(false)
+    const [isSaving, setIsSaving] = useState(false)
 
     useEffect(() => {
         setContent(note.content)
@@ -29,9 +30,14 @@ export function NoteEditor({ note, onUpdate }: NoteEditorProps) {
         setHasChanges(content !== note.content || title !== note.title)
     }, [content, title, note.content, note.title])
 
-    const handleSave = () => {
-        onUpdate(note.id, { content, title })
-        setHasChanges(false)
+    const handleSave = async () => {
+        setIsSaving(true)
+        try {
+            await onUpdate(note.id, { content, title })
+            setHasChanges(false)
+        } finally {
+            setIsSaving(false)
+        }
     }
 
 
@@ -49,9 +55,15 @@ export function NoteEditor({ note, onUpdate }: NoteEditorProps) {
                     />
                     <div className="flex items-center gap-2">
                         {hasChanges && (
-                            <Button variant="outline" size="sm" onClick={handleSave} className="h-8 bg-transparent">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={handleSave}
+                                disabled={isSaving}
+                                className="h-8 bg-transparent"
+                            >
                                 <Save className="h-4 w-4 mr-2" />
-                                Save
+                                {isSaving ? 'Saving...' : 'Save'}
                             </Button>
                         )}
                         <Button variant="outline" size="sm" onClick={() => setIsPreview(!isPreview)} className="h-8">

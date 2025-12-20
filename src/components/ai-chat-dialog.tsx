@@ -12,6 +12,9 @@ import type { Note } from "../types/note";
 import type { ChatSession, Message } from "@/types/ai-chat";
 import { apiClient } from "@/api/client/axios.client";
 import type { BaseResponse } from "../dto/base-response";
+import { useSubscription } from "@/contexts/SubscriptionContext";
+import { TokenUsageIndicator } from "@/components/common/TokenUsageIndicator";
+import { TokenLimitDialog } from "@/components/common/TokenLimitDialog";
 import type {
   SendChatResponse,
   CreateSessionResponse,
@@ -32,6 +35,9 @@ export function AIChatDialog({ open, onOpenChange }: AIChatDialogProps) {
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [activeSessionId, setActiveSessionId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showTokenLimitDialog, setShowTokenLimitDialog] = useState(false);
+
+  const { tokenUsage, refreshSubscription } = useSubscription();
 
   const activeSession = sessions.find((s) => s.id === activeSessionId);
   const messages = activeSession?.messages || [];
@@ -156,41 +162,66 @@ export function AIChatDialog({ open, onOpenChange }: AIChatDialogProps) {
       chat: input,
       chat_session_id: activeSessionId,
     };
-    const res = await apiClient.post<BaseResponse<SendChatResponse>>(
-      `/chatbot/v1/send-chat`,
-      request
-    );
 
-    setSessions((prev) =>
-      prev.map((s) => {
-        if (s.id === activeSessionId) {
-          return {
-            ...s,
-            name: res.data.data.title,
-            messages: [
-              ...s.messages.slice(0, -1),
-              {
-                id: res.data.data.sent.id,
-                content: res.data.data.sent.chat,
-                role:
-                  res.data.data.sent.role === "model" ? "assistant" : "user",
-                timestamp: new Date(res.data.data.sent.created_at),
-              },
-              {
-                id: res.data.data.reply.id,
-                content: res.data.data.reply.chat,
-                role:
-                  res.data.data.reply.role === "model" ? "assistant" : "user",
-                timestamp: new Date(res.data.data.reply.created_at),
-              },
-            ],
-          };
-        }
-        return { ...s };
-      })
-    );
+    try {
+      const res = await apiClient.post<BaseResponse<SendChatResponse>>(
+        `/chatbot/v1/send-chat`,
+        request
+      );
 
-    setIsLoading(false);
+      setSessions((prev) =>
+        prev.map((s) => {
+          if (s.id === activeSessionId) {
+            return {
+              ...s,
+              name: res.data.data.title,
+              messages: [
+                ...s.messages.slice(0, -1),
+                {
+                  id: res.data.data.sent.id,
+                  content: res.data.data.sent.chat,
+                  role:
+                    res.data.data.sent.role === "model" ? "assistant" : "user",
+                  timestamp: new Date(res.data.data.sent.created_at),
+                },
+                {
+                  id: res.data.data.reply.id,
+                  content: res.data.data.reply.chat,
+                  role:
+                    res.data.data.reply.role === "model" ? "assistant" : "user",
+                  timestamp: new Date(res.data.data.reply.created_at),
+                },
+              ],
+            };
+          }
+          return { ...s };
+        })
+      );
+
+      // Refresh subscription to get updated token usage
+      await refreshSubscription();
+    } catch (error: any) {
+      // Handle token limit error
+      if (error.response?.status === 500 &&
+        error.response?.data?.message?.includes("daily AI usage limit exceeded")) {
+        setShowTokenLimitDialog(true);
+      }
+      // Remove optimistic user message on error
+      setSessions((prev) =>
+        prev.map((s) => {
+          if (s.id === activeSessionId) {
+            return {
+              ...s,
+              messages: s.messages.slice(0, -1),
+            };
+          }
+          return { ...s };
+        })
+      );
+      console.error("Failed to send chat:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -220,15 +251,30 @@ export function AIChatDialog({ open, onOpenChange }: AIChatDialogProps) {
             <DialogTitle className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               Ask AI
             </DialogTitle>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={createNewSession}
-              className="bg-transparent hover:bg-blue-50"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              New Chat
-            </Button>
+            <div className="flex items-center gap-4">
+              {tokenUsage.dailyLimit > 0 && (
+                <div className="w-48">
+                  <TokenUsageIndicator
+                    dailyUsed={tokenUsage.dailyUsed}
+                    dailyLimit={tokenUsage.dailyLimit}
+                    percentage={tokenUsage.percentage}
+                    showLabel={false}
+                  />
+                  <p className="text-xs text-muted-foreground mt-1 text-center">
+                    {tokenUsage.dailyUsed}/{tokenUsage.dailyLimit} requests
+                  </p>
+                </div>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={createNewSession}
+                className="bg-transparent hover:bg-blue-50"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                New Chat
+              </Button>
+            </div>
           </div>
         </DialogHeader>
 
@@ -248,8 +294,8 @@ export function AIChatDialog({ open, onOpenChange }: AIChatDialogProps) {
                       }
                       size="sm"
                       className={`flex-1 justify-start h-auto py-2 px-2 text-left flex-col items-start transition-all duration-200 ${activeSessionId === session.id
-                          ? "bg-gradient-to-r from-blue-50 to-blue-100 text-blue-800 shadow-sm border-l-2 border-blue-500"
-                          : "hover:bg-gray-50 hover:shadow-sm"
+                        ? "bg-gradient-to-r from-blue-50 to-blue-100 text-blue-800 shadow-sm border-l-2 border-blue-500"
+                        : "hover:bg-gray-50 hover:shadow-sm"
                         }`}
                       onClick={() => sessionClickHandler(session.id)}
                     >
@@ -289,8 +335,8 @@ export function AIChatDialog({ open, onOpenChange }: AIChatDialogProps) {
                   >
                     <div
                       className={`flex gap-3 max-w-[80%] ${message.role === "user"
-                          ? "flex-row-reverse"
-                          : "flex-row"
+                        ? "flex-row-reverse"
+                        : "flex-row"
                         }`}
                     >
                       <div className="flex-shrink-0">
@@ -306,8 +352,8 @@ export function AIChatDialog({ open, onOpenChange }: AIChatDialogProps) {
                       </div>
                       <div
                         className={`rounded-lg p-3 shadow-sm ${message.role === "user"
-                            ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white"
-                            : "bg-gradient-to-r from-gray-50 to-gray-100 text-gray-900 border border-gray-200"
+                          ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white"
+                          : "bg-gradient-to-r from-gray-50 to-gray-100 text-gray-900 border border-gray-200"
                           }`}
                       >
                         {message.role === "assistant" && (
@@ -322,8 +368,8 @@ export function AIChatDialog({ open, onOpenChange }: AIChatDialogProps) {
                         )}
                         <div
                           className={`text-xs mt-1 ${message.role === "user"
-                              ? "opacity-70"
-                              : "opacity-60"
+                            ? "opacity-70"
+                            : "opacity-60"
                             }`}
                         >
                           {message.timestamp.toLocaleTimeString()}
@@ -370,6 +416,12 @@ export function AIChatDialog({ open, onOpenChange }: AIChatDialogProps) {
             </div>
           </div>
         </div>
+
+        <TokenLimitDialog
+          open={showTokenLimitDialog}
+          onOpenChange={setShowTokenLimitDialog}
+          dailyLimit={tokenUsage.dailyLimit}
+        />
       </DialogContent>
     </Dialog>
   );

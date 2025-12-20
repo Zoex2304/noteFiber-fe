@@ -12,6 +12,7 @@ import { handleServerError } from '@admin/lib/handle-server-error'
 import { DirectionProvider } from '@admin/context/direction-provider'
 import { FontProvider } from '@admin/context/font-provider'
 import { ThemeProvider } from '@admin/context/theme-provider'
+import { AdminAuthProvider } from '@admin/contexts/AdminAuthContext'
 // Generated Routes
 import { routeTree } from '@admin/routeTree.gen'
 // Styles - temporarily commented out due to Tailwind v4 conflict
@@ -92,13 +93,15 @@ export default function AdminApp() {
   return (
     <StrictMode>
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-          <FontProvider>
-            <DirectionProvider>
-              <RouterProvider router={router} />
-            </DirectionProvider>
-          </FontProvider>
-        </ThemeProvider>
+        <AdminAuthProvider>
+          <ThemeProvider>
+            <FontProvider>
+              <DirectionProvider>
+                <RouterProvider router={router} />
+              </DirectionProvider>
+            </FontProvider>
+          </ThemeProvider>
+        </AdminAuthProvider>
       </QueryClientProvider>
     </StrictMode>
   )

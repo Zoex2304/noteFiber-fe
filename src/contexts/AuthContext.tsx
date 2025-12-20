@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { type User } from '../api/services/auth/auth.types';
 import { tokenStorage } from '../utils/storage/token.storage';

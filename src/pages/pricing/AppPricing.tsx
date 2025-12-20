@@ -73,7 +73,7 @@ export default function AppPricing() {
                     <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => navigate({ to: '..' })}
+                        onClick={() => navigate({ to: '/app' })}
                         className="absolute left-0 rounded-full hover:bg-gray-200"
                     >
                         <ArrowLeft className="h-5 w-5" />

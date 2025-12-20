@@ -1,6 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import type { LucideIcon } from "lucide-react";
+/* eslint-disable react-refresh/only-export-components */
 import { cva, type VariantProps } from "class-variance-authority";
 
 // 1. Definisikan varian untuk ukuran pot - DITAMBAHKAN size "xs"
@@ -25,7 +26,7 @@ const potIconVariants = cva(
 // 2. Definisikan Props
 export interface PotIconProps
   extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof potIconVariants> {
+  VariantProps<typeof potIconVariants> {
   icon: LucideIcon;
 }
 

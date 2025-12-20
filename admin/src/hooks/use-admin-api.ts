@@ -6,12 +6,12 @@ import {
     adminUsersApi,
     adminRefundsApi,
     handleApiError,
-} from '../api/admin-api'
+} from '../lib/api/admin-api'
 import type {
     CreatePlanRequest,
     UpdatePlanRequest,
     RefundRequest,
-} from '../types/admin-api'
+} from '../lib/types/admin-api'
 
 // Query keys
 export const adminQueryKeys = {

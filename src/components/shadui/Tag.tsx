@@ -1,4 +1,5 @@
 import * as React from "react";
+/* eslint-disable react-refresh/only-export-components */
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 
@@ -25,7 +26,7 @@ const tagVariants = cva(
 // 2. Definisikan Props
 export interface TagProps
   extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof tagVariants> {
+  VariantProps<typeof tagVariants> {
   /**
    * Path ke file ikon/logo (SEKARANG OPSIONAL).
    */

@@ -13,6 +13,7 @@ import { Route as LandingRouteImport } from './routes/landing'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminSplatRouteImport } from './routes/admin.$'
+import { Route as AuthenticatedSubscriptionRouteImport } from './routes/_authenticated/subscription'
 import { Route as AuthenticatedPricingRouteImport } from './routes/_authenticated/pricing'
 import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated/checkout'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
@@ -21,6 +22,7 @@ import { Route as authSignupRouteImport } from './routes/(auth)/signup'
 import { Route as authSigninRouteImport } from './routes/(auth)/signin'
 import { Route as authResetPasswordRouteImport } from './routes/(auth)/reset-password'
 import { Route as authForgotPasswordRouteImport } from './routes/(auth)/forgot-password'
+import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/app.settings'
 
 const LandingRoute = LandingRouteImport.update({
@@ -42,6 +44,12 @@ const AdminSplatRoute = AdminSplatRouteImport.update({
   path: '/admin/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedSubscriptionRoute =
+  AuthenticatedSubscriptionRouteImport.update({
+    id: '/subscription',
+    path: '/subscription',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedPricingRoute = AuthenticatedPricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
@@ -82,6 +90,11 @@ const authForgotPasswordRoute = authForgotPasswordRouteImport.update({
   path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAppSettingsRoute =
   AuthenticatedAppSettingsRouteImport.update({
     id: '/settings',
@@ -100,8 +113,10 @@ export interface FileRoutesByFullPath {
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/pricing': typeof AuthenticatedPricingRoute
+  '/subscription': typeof AuthenticatedSubscriptionRoute
   '/admin/$': typeof AdminSplatRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
+  '/app/': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -111,11 +126,12 @@ export interface FileRoutesByTo {
   '/signin': typeof authSigninRoute
   '/signup': typeof authSignupRoute
   '/validate-code': typeof authValidateCodeRoute
-  '/app': typeof AuthenticatedAppRouteWithChildren
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/pricing': typeof AuthenticatedPricingRoute
+  '/subscription': typeof AuthenticatedSubscriptionRoute
   '/admin/$': typeof AdminSplatRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
+  '/app': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -130,8 +146,10 @@ export interface FileRoutesById {
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/checkout': typeof AuthenticatedCheckoutRoute
   '/_authenticated/pricing': typeof AuthenticatedPricingRoute
+  '/_authenticated/subscription': typeof AuthenticatedSubscriptionRoute
   '/admin/$': typeof AdminSplatRoute
   '/_authenticated/app/settings': typeof AuthenticatedAppSettingsRoute
+  '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -146,8 +164,10 @@ export interface FileRouteTypes {
     | '/app'
     | '/checkout'
     | '/pricing'
+    | '/subscription'
     | '/admin/$'
     | '/app/settings'
+    | '/app/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -157,11 +177,12 @@ export interface FileRouteTypes {
     | '/signin'
     | '/signup'
     | '/validate-code'
-    | '/app'
     | '/checkout'
     | '/pricing'
+    | '/subscription'
     | '/admin/$'
     | '/app/settings'
+    | '/app'
   id:
     | '__root__'
     | '/'
@@ -175,8 +196,10 @@ export interface FileRouteTypes {
     | '/_authenticated/app'
     | '/_authenticated/checkout'
     | '/_authenticated/pricing'
+    | '/_authenticated/subscription'
     | '/admin/$'
     | '/_authenticated/app/settings'
+    | '/_authenticated/app/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -220,6 +243,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/$'
       preLoaderRoute: typeof AdminSplatRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/subscription': {
+      id: '/_authenticated/subscription'
+      path: '/subscription'
+      fullPath: '/subscription'
+      preLoaderRoute: typeof AuthenticatedSubscriptionRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/pricing': {
       id: '/_authenticated/pricing'
@@ -277,6 +307,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/app/': {
+      id: '/_authenticated/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/settings': {
       id: '/_authenticated/app/settings'
       path: '/settings'
@@ -289,10 +326,12 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppSettingsRoute: typeof AuthenticatedAppSettingsRoute
+  AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppSettingsRoute: AuthenticatedAppSettingsRoute,
+  AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
 }
 
 const AuthenticatedAppRouteWithChildren =
@@ -302,12 +341,14 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAppRoute: typeof AuthenticatedAppRouteWithChildren
   AuthenticatedCheckoutRoute: typeof AuthenticatedCheckoutRoute
   AuthenticatedPricingRoute: typeof AuthenticatedPricingRoute
+  AuthenticatedSubscriptionRoute: typeof AuthenticatedSubscriptionRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAppRoute: AuthenticatedAppRouteWithChildren,
   AuthenticatedCheckoutRoute: AuthenticatedCheckoutRoute,
   AuthenticatedPricingRoute: AuthenticatedPricingRoute,
+  AuthenticatedSubscriptionRoute: AuthenticatedSubscriptionRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

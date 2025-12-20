@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { paymentService } from '@/api/services/payment/payment.service';
@@ -10,6 +11,12 @@ interface SubscriptionContextType {
         ai_chat: boolean;
         semantic_search: boolean;
         max_notes: number;
+        daily_token_limit: number;
+    };
+    tokenUsage: {
+        dailyUsed: number;
+        dailyLimit: number;
+        percentage: number;
     };
     checkPermission: (feature: 'ai_chat' | 'semantic_search') => boolean;
     refreshSubscription: () => Promise<void>;
@@ -19,6 +26,7 @@ const defaultFeatures = {
     ai_chat: false,
     semantic_search: false,
     max_notes: 5,
+    daily_token_limit: 0,
 };
 
 const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
@@ -29,6 +37,11 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     const [planName, setPlanName] = useState<string>("Free Plan");
     const [isActive, setIsActive] = useState<boolean>(false);
     const [features, setFeatures] = useState(defaultFeatures);
+    const [tokenUsage, setTokenUsage] = useState({
+        dailyUsed: 0,
+        dailyLimit: 0,
+        percentage: 0,
+    });
 
     const fetchSubscriptionStatus = async () => {
         try {
@@ -66,11 +79,23 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
                     normalizedFeatures = {
                         ai_chat: !!(featureRecord.ai_chat || featureRecord.aiChat),
                         semantic_search: !!(featureRecord.semantic_search || featureRecord.semanticSearch),
-                        max_notes: (featureRecord.max_notes as number) || 5, // Handles null -> 5
+                        max_notes: (featureRecord.max_notes as number) || 5,
+                        daily_token_limit: (featureRecord.daily_token_limit as number) || 0,
                     };
                 }
 
                 setFeatures(normalizedFeatures);
+
+                // Update token usage from response
+                const dailyUsed = (response.data.ai_daily_usage as number) || 0;
+                const dailyLimit = normalizedFeatures.daily_token_limit;
+                const percentage = dailyLimit > 0 ? Math.min((dailyUsed / dailyLimit) * 100, 100) : 0;
+
+                setTokenUsage({
+                    dailyUsed,
+                    dailyLimit,
+                    percentage,
+                });
             }
         } catch (error) {
             console.error("Failed to fetch subscription status:", error);
@@ -101,6 +126,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
                 planName,
                 isActive,
                 features,
+                tokenUsage,
                 checkPermission,
                 refreshSubscription: fetchSubscriptionStatus
             }}
