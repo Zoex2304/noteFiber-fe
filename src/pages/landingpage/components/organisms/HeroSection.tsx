@@ -11,18 +11,7 @@ interface HeroSectionProps {
   customHeroContent?: ReactNode;
 }
 
-/**
- * Section 1 (Frame 1 - Hero)
- *
- * Specs:
- * - flex, flex-col, items-flex-start (di wrapper-nya)
- * - w-full (Mobile)
- * - lg:max-w-[1766.593px] (Desktop)
- * - gap-3 (Mobile)
- * - lg:gap-[12.268px] (Desktop)
- * - px-4 (Mobile padding)
- * - lg:px-0 (Desktop no padding)
- */
+
 export function HeroSection({
   tagText,
   title,

@@ -5,6 +5,8 @@ import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { Toaster } from 'sonner'
 import { TopLoader } from '@/components/shadui/TopLoader'
 import { useState, useEffect } from 'react'
+import { SubscriptionProvider } from '@/contexts/SubscriptionContext'
+import { UpgradeModal } from '@/components/modals/UpgradeModal'
 
 // Define the router context type
 export interface RouterContext {
@@ -33,16 +35,23 @@ function RootComponent() {
     const isAdmin = router.location.pathname.startsWith('/admin');
 
     return (
-        <div className="min-h-screen bg-background font-sans antialiased">
-            <Outlet />
-            <Toaster position="top-right" richColors duration={5000} />
-            <TopLoader color={isAdmin ? "#E5E7EB" : undefined} />
-            {import.meta.env.DEV && (
-                <>
-                    <ReactQueryDevtools buttonPosition="bottom-left" />
-                    <TanStackRouterDevtools position="bottom-right" />
-                </>
-            )}
-        </div>
+        <SubscriptionProvider>
+            <div className="min-h-screen bg-background font-sans antialiased">
+                <Outlet />
+                <Toaster position="top-right" richColors duration={5000} />
+                <TopLoader color={isAdmin ? "#E5E7EB" : undefined} />
+                <UpgradeModal
+                    isOpen={showUpgradeModal}
+                    onClose={() => setShowUpgradeModal(false)}
+                    featureName="This pro feature"
+                />
+                {import.meta.env.DEV && (
+                    <>
+                        <ReactQueryDevtools buttonPosition="bottom-left" />
+                        <TanStackRouterDevtools position="bottom-right" />
+                    </>
+                )}
+            </div>
+        </SubscriptionProvider>
     )
 }

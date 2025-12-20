@@ -9,11 +9,6 @@ import { useState, useEffect } from 'react';
 import { UPGRADE_EVENT } from '@/api/client/axios.client';
 import { TopLoader } from '@/components/shadui/TopLoader';
 
-/**
- * Ini adalah root layout.
- * <Outlet /> akan merender halaman yang cocok
- * berdasarkan path (LandingPage, LoginPage, MainApp, dll.)
- */
 export default function App() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 

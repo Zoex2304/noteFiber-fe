@@ -28,23 +28,24 @@ Last Updated: October 2023
 The payment system is now backend-driven. The frontend no longer handles redirect logic—the backend dynamically tells Midtrans where to redirect users after payment. This keeps the frontend clean and ensures consistent behavior across all projects.
 
 📱 Frontend Integration Steps
+
 1. Checkout Flow
-Step 1: User Clicks "Pay"
-Send a POST request to initiate checkout:
+   Step 1: User Clicks "Pay"
+   Send a POST request to initiate checkout:
 
 javascript
 // Example: Checkout request
 const response = await axios.post('/api/payment/checkout', {
-  plan_id: "aa11bb22-cc33-44dd-ee55-ff66gg77hh88",
-  first_name: "Budi",
-  last_name: "Santoso",
-  email: "budi@example.com",
-  phone: "08123456789",
-  address_line1: "Jl. Sudirman No. 1",
-  city: "Jakarta",
-  state: "DKI Jakarta",
-  postal_code: "10220",
-  country: "Indonesia"
+plan_id: "aa11bb22-cc33-44dd-ee55-ff66gg77hh88",
+first_name: "Budi",
+last_name: "Santoso",
+email: "budi@example.com",
+phone: "08123456789",
+address_line1: "Jl. Sudirman No. 1",
+city: "Jakarta",
+state: "DKI Jakarta",
+postal_code: "10220",
+country: "Indonesia"
 });
 Step 2: Handle Backend Response
 The backend returns a snap_redirect_url:
@@ -58,67 +59,66 @@ Step 3: User Completes Payment on Midtrans Page
 Midtrans automatically redirects users back based on backend-configured URLs.
 
 2. Handling Payment Redirects
-After payment, users return to your app with a payment query parameter:
+   After payment, users return to your app with a payment query parameter:
 
-Status	Redirect URL	Frontend Action
-Success	FRONTEND_URL/app?payment=success	Show success message, refresh subscription status
-Pending	FRONTEND_URL/app?payment=pending	Show processing message
-Error/Cancel	FRONTEND_URL/app?payment=error	Show error message
+Status Redirect URL Frontend Action
+Success FRONTEND_URL/app?payment=success Show success message, refresh subscription status
+Pending FRONTEND_URL/app?payment=pending Show processing message
+Error/Cancel FRONTEND_URL/app?payment=error Show error message
 Frontend Implementation Example (React):
 
 javascript
 // In your main app component (/app route)
 useEffect(() => {
-  const query = new URLSearchParams(window.location.search);
-  const paymentStatus = query.get("payment");
+const query = new URLSearchParams(window.location.search);
+const paymentStatus = query.get("payment");
 
-  switch (paymentStatus) {
-    case "success":
-      toast.success("Payment Successful! Your plan is active.");
-      // Trigger subscription status refresh
-      fetchUserSubscription();
-      break;
-    case "pending":
-      toast.info("Payment is processing...");
-      break;
-    case "error":
-      toast.error("Payment failed or was canceled.");
-      break;
-  }
+switch (paymentStatus) {
+case "success":
+toast.success("Payment Successful! Your plan is active.");
+// Trigger subscription status refresh
+fetchUserSubscription();
+break;
+case "pending":
+toast.info("Payment is processing...");
+break;
+case "error":
+toast.error("Payment failed or was canceled.");
+break;
+}
 
-  // Clean URL after processing (optional)
-  if (paymentStatus) {
-    window.history.replaceState(null, '', window.location.pathname);
-  }
+// Clean URL after processing (optional)
+if (paymentStatus) {
+window.history.replaceState(null, '', window.location.pathname);
+}
 }, []);
 🧾 Order Summary Flow
 Required before checkout - Display pricing details to users.
 
 1. Fetch Order Summary
-When a user visits the checkout page (e.g., /checkout?plan_id=...):
+   When a user visits the checkout page (e.g., /checkout?plan_id=...):
 
 javascript
 // Fetch order summary
 const response = await axios.get('/api/payment/summary', {
-  params: { plan_id: "aa11bb22-cc33-44dd-ee55-ff66gg77hh88" }
+params: { plan_id: "aa11bb22-cc33-44dd-ee55-ff66gg77hh88" }
 });
 
 // Response structure:
 {
-  success: true,
-  code: 200,
-  message: "Order summary",
-  data: {
-    plan_name: "Starter Plan",
-    billing_period: "year",
-    price_per_unit: "$9/year",
-    subtotal: 9,      // Before tax
-    tax: 0.99,        // Calculated tax
-    total: 9.99,      // Final amount
-    currency: "USD"
-  }
+success: true,
+code: 200,
+message: "Order summary",
+data: {
+plan_name: "Starter Plan",
+billing_period: "year",
+price_per_unit: "$9/year",
+subtotal: 9, // Before tax
+tax: 0.99, // Calculated tax
+total: 9.99, // Final amount
+currency: "USD"
 }
-2. Display Summary in UI
+} 2. Display Summary in UI
 Render the breakdown directly from the API response:
 
 text
@@ -137,29 +137,29 @@ Request:
 
 json
 {
-  "plan_id": "aa11bb22-cc33-44dd-ee55-ff66gg77hh88",
-  "first_name": "Budi",
-  "last_name": "Santoso",
-  "email": "budi@example.com",
-  "phone": "08123456789",
-  "address_line1": "Jl. Sudirman No. 1",
-  "city": "Jakarta",
-  "state": "DKI Jakarta",
-  "postal_code": "10220",
-  "country": "Indonesia"
+"plan_id": "aa11bb22-cc33-44dd-ee55-ff66gg77hh88",
+"first_name": "Budi",
+"last_name": "Santoso",
+"email": "budi@example.com",
+"phone": "08123456789",
+"address_line1": "Jl. Sudirman No. 1",
+"city": "Jakarta",
+"state": "DKI Jakarta",
+"postal_code": "10220",
+"country": "Indonesia"
 }
 Response (200 OK):
 
 json
 {
-  "success": true,
-  "code": 200,
-  "message": "Subscription created",
-  "data": {
-    "subscription_id": "sub-12345-abcde-67890",
-    "snap_redirect_url": "https://app.sandbox.midtrans.com/snap/v3/redirection/2df43dd8-...",
-    "snap_token": "2df43dd8-1891-4f63-8c13-8a24bd9c14bc"
-  }
+"success": true,
+"code": 200,
+"message": "Subscription created",
+"data": {
+"subscription_id": "sub-12345-abcde-67890",
+"snap_redirect_url": "https://app.sandbox.midtrans.com/snap/v3/redirection/2df43dd8-...",
+"snap_token": "2df43dd8-1891-4f63-8c13-8a24bd9c14bc"
+}
 }
 GET /api/payment/summary
 Query Parameters:
@@ -170,18 +170,18 @@ Response (200 OK):
 
 json
 {
-  "success": true,
-  "code": 200,
-  "message": "Order summary",
-  "data": {
-    "plan_name": "Starter Plan",
-    "billing_period": "year",
-    "price_per_unit": "$9/year",
-    "subtotal": 9,
-    "tax": 0.99,
-    "total": 9.99,
-    "currency": "USD"
-  }
+"success": true,
+"code": 200,
+"message": "Order summary",
+"data": {
+"plan_name": "Starter Plan",
+"billing_period": "year",
+"price_per_unit": "$9/year",
+"subtotal": 9,
+"tax": 0.99,
+"total": 9.99,
+"currency": "USD"
+}
 }
 🔑 Key Takeaways for Frontend Team
 No Redirect Configuration Needed
@@ -224,8 +224,7 @@ Test with sandbox credentials before going live
 
 Monitor network requests for debugging
 
-This documentation ensures your frontend team can implement payment integration quickly while maintaining a clean, maintainable codebase.
----
+## This documentation ensures your frontend team can implement payment integration quickly while maintaining a clean, maintainable codebase.
 
 ## Authentication
 
@@ -255,11 +254,13 @@ Create a new user account. An OTP will be sent to the registered email address f
 **Endpoint:** `POST /auth/register`
 
 **Request Headers:**
+
 ```
 Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "full_name": "John Doe",
@@ -270,13 +271,14 @@ Content-Type: application/json
 
 **Request Parameters:**
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| full_name | string | Yes | User's full name (2-100 characters) |
-| email | string | Yes | Valid email address |
-| password | string | Yes | Password (minimum 8 characters) |
+| Field     | Type   | Required | Description                         |
+| --------- | ------ | -------- | ----------------------------------- |
+| full_name | string | Yes      | User's full name (2-100 characters) |
+| email     | string | Yes      | Valid email address                 |
+| password  | string | Yes      | Password (minimum 8 characters)     |
 
 **Success Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -291,13 +293,14 @@ Content-Type: application/json
 
 **Error Responses:**
 
-| Status Code | Description |
-|-------------|-------------|
-| 400 | Invalid request body or email already exists |
-| 422 | Validation error |
-| 500 | Internal server error |
+| Status Code | Description                                  |
+| ----------- | -------------------------------------------- |
+| 400         | Invalid request body or email already exists |
+| 422         | Validation error                             |
+| 500         | Internal server error                        |
 
 **Example Request (PowerShell):**
+
 ```powershell
 curl -Method POST "http://localhost:3000/api/auth/register" `
   -Headers @{ "Content-Type"="application/json" } `
@@ -305,6 +308,7 @@ curl -Method POST "http://localhost:3000/api/auth/register" `
 ```
 
 **Example Request (cURL):**
+
 ```bash
 curl -X POST http://localhost:3000/api/auth/register \
   -H "Content-Type: application/json" \
@@ -324,11 +328,13 @@ Verify a newly registered account using the OTP sent to the user's email.
 **Endpoint:** `POST /auth/verify-email`
 
 **Request Headers:**
+
 ```
 Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "email": "john@example.com",
@@ -338,12 +344,13 @@ Content-Type: application/json
 
 **Request Parameters:**
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| email | string | Yes | Registered email address |
-| token | string | Yes | 6-digit OTP code |
+| Field | Type   | Required | Description              |
+| ----- | ------ | -------- | ------------------------ |
+| email | string | Yes      | Registered email address |
+| token | string | Yes      | 6-digit OTP code         |
 
 **Success Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -355,11 +362,11 @@ Content-Type: application/json
 
 **Error Responses:**
 
-| Status Code | Description |
-|-------------|-------------|
-| 400 | Invalid or expired token |
-| 404 | User not found |
-| 500 | Internal server error |
+| Status Code | Description              |
+| ----------- | ------------------------ |
+| 400         | Invalid or expired token |
+| 404         | User not found           |
+| 500         | Internal server error    |
 
 ---
 
@@ -370,11 +377,13 @@ Authenticate a user and retrieve a JWT access token.
 **Endpoint:** `POST /auth/login`
 
 **Request Headers:**
+
 ```
 Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "email": "john@example.com",
@@ -384,12 +393,13 @@ Content-Type: application/json
 
 **Request Parameters:**
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| email | string | Yes | Registered email address |
-| password | string | Yes | User's password |
+| Field    | Type   | Required | Description              |
+| -------- | ------ | -------- | ------------------------ |
+| email    | string | Yes      | Registered email address |
+| password | string | Yes      | User's password          |
 
 **Success Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -409,13 +419,14 @@ Content-Type: application/json
 
 **Error Responses:**
 
-| Status Code | Description |
-|-------------|-------------|
-| 401 | Invalid credentials |
-| 403 | Email not verified |
-| 500 | Internal server error |
+| Status Code | Description           |
+| ----------- | --------------------- |
+| 401         | Invalid credentials   |
+| 403         | Email not verified    |
+| 500         | Internal server error |
 
 **Example Request (PowerShell):**
+
 ```powershell
 $response = curl -Method POST "http://localhost:3000/api/auth/login" `
   -Headers @{ "Content-Type"="application/json" } `
@@ -432,11 +443,13 @@ Initiate the password reset process. A reset token will be sent to the user's em
 **Endpoint:** `POST /auth/forgot-password`
 
 **Request Headers:**
+
 ```
 Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "email": "john@example.com"
@@ -445,11 +458,12 @@ Content-Type: application/json
 
 **Request Parameters:**
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| email | string | Yes | Registered email address |
+| Field | Type   | Required | Description              |
+| ----- | ------ | -------- | ------------------------ |
+| email | string | Yes      | Registered email address |
 
 **Success Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -460,6 +474,7 @@ Content-Type: application/json
 ```
 
 **Notes:**
+
 - For security reasons, the API returns success even if the email doesn't exist
 - Reset token is valid for 1 hour
 
@@ -472,11 +487,13 @@ Reset the user's password using the token received via email.
 **Endpoint:** `POST /auth/reset-password`
 
 **Request Headers:**
+
 ```
 Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "token": "550e8400-e29b-41d4-a716-446655440000",
@@ -487,13 +504,14 @@ Content-Type: application/json
 
 **Request Parameters:**
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| token | string | Yes | Reset token from email |
-| new_password | string | Yes | New password (minimum 8 characters) |
-| confirm_password | string | Yes | Must match new_password |
+| Field            | Type   | Required | Description                         |
+| ---------------- | ------ | -------- | ----------------------------------- |
+| token            | string | Yes      | Reset token from email              |
+| new_password     | string | Yes      | New password (minimum 8 characters) |
+| confirm_password | string | Yes      | Must match new_password             |
 
 **Success Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -505,11 +523,11 @@ Content-Type: application/json
 
 **Error Responses:**
 
-| Status Code | Description |
-|-------------|-------------|
-| 400 | Invalid or expired token, or passwords don't match |
-| 422 | Validation error |
-| 500 | Internal server error |
+| Status Code | Description                                        |
+| ----------- | -------------------------------------------------- |
+| 400         | Invalid or expired token, or passwords don't match |
+| 422         | Validation error                                   |
+| 500         | Internal server error                              |
 
 ---
 
@@ -523,6 +541,7 @@ Initiate Google OAuth authentication flow.
 Redirects to Google's OAuth consent screen.
 
 **Flow:**
+
 1. User clicks "Login with Google"
 2. Redirected to Google consent screen
 3. After approval, redirected to callback URL
@@ -538,14 +557,15 @@ Handles the OAuth callback from Google.
 
 **Query Parameters:**
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| code | string | Authorization code from Google |
+| Parameter | Type   | Description                    |
+| --------- | ------ | ------------------------------ |
+| code      | string | Authorization code from Google |
 
 **Success Response:**
 Returns JWT token in the same format as standard login.
 
 **Notes:**
+
 - This endpoint is typically handled automatically by the frontend
 - State parameter is used for CSRF protection
 
@@ -564,11 +584,13 @@ Retrieve the authenticated user's profile information.
 **Endpoint:** `GET /user/profile`
 
 **Request Headers:**
+
 ```
 Authorization: Bearer <access_token>
 ```
 
 **Success Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -589,26 +611,27 @@ Authorization: Bearer <access_token>
 
 **Response Fields:**
 
-| Field | Type | Description |
-|-------|------|-------------|
-| id | string | User UUID |
-| email | string | User's email address |
-| full_name | string | User's full name |
-| role | string | User role (user/admin) |
-| status | string | Account status (active/inactive/suspended) |
-| ai_daily_usage | integer | AI credits used today |
-| created_at | string | Account creation timestamp (ISO 8601) |
-| updated_at | string | Last update timestamp (ISO 8601) |
+| Field          | Type    | Description                                |
+| -------------- | ------- | ------------------------------------------ |
+| id             | string  | User UUID                                  |
+| email          | string  | User's email address                       |
+| full_name      | string  | User's full name                           |
+| role           | string  | User role (user/admin)                     |
+| status         | string  | Account status (active/inactive/suspended) |
+| ai_daily_usage | integer | AI credits used today                      |
+| created_at     | string  | Account creation timestamp (ISO 8601)      |
+| updated_at     | string  | Last update timestamp (ISO 8601)           |
 
 **Error Responses:**
 
-| Status Code | Description |
-|-------------|-------------|
-| 401 | Invalid or expired token |
-| 404 | User not found |
-| 500 | Internal server error |
+| Status Code | Description              |
+| ----------- | ------------------------ |
+| 401         | Invalid or expired token |
+| 404         | User not found           |
+| 500         | Internal server error    |
 
 **Example Request (PowerShell):**
+
 ```powershell
 curl -Method GET "http://localhost:3000/api/user/profile" `
   -Headers @{ "Authorization"="Bearer $token" }
@@ -623,12 +646,14 @@ Update the authenticated user's profile information.
 **Endpoint:** `PUT /user/profile`
 
 **Request Headers:**
+
 ```
 Authorization: Bearer <access_token>
 Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "full_name": "Johnathan Doe"
@@ -637,11 +662,12 @@ Content-Type: application/json
 
 **Request Parameters:**
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| full_name | string | No | Updated full name (2-100 characters) |
+| Field     | Type   | Required | Description                          |
+| --------- | ------ | -------- | ------------------------------------ |
+| full_name | string | No       | Updated full name (2-100 characters) |
 
 **Success Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -653,19 +679,20 @@ Content-Type: application/json
 
 **Error Responses:**
 
-| Status Code | Description |
-|-------------|-------------|
-| 400 | Invalid request body |
-| 401 | Invalid or expired token |
-| 422 | Validation error |
-| 500 | Internal server error |
+| Status Code | Description              |
+| ----------- | ------------------------ |
+| 400         | Invalid request body     |
+| 401         | Invalid or expired token |
+| 422         | Validation error         |
+| 500         | Internal server error    |
 
 **Example Request (PowerShell):**
+
 ```powershell
 curl -Method PUT "http://localhost:3000/api/user/profile" `
-  -Headers @{ 
+  -Headers @{
     "Authorization"="Bearer $token"
-    "Content-Type"="application/json" 
+    "Content-Type"="application/json"
   } `
   -Body '{"full_name":"Johnathan Doe"}'
 ```
@@ -679,11 +706,13 @@ Permanently delete the user's account and all associated data.
 **Endpoint:** `DELETE /user/account`
 
 **Request Headers:**
+
 ```
 Authorization: Bearer <access_token>
 ```
 
 **Success Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -695,12 +724,13 @@ Authorization: Bearer <access_token>
 
 **Error Responses:**
 
-| Status Code | Description |
-|-------------|-------------|
-| 401 | Invalid or expired token |
-| 500 | Internal server error |
+| Status Code | Description              |
+| ----------- | ------------------------ |
+| 401         | Invalid or expired token |
+| 500         | Internal server error    |
 
 **Warning:**
+
 - This action is irreversible
 - All user data, notes, and subscriptions will be permanently deleted
 - Active subscriptions will be cancelled
@@ -720,6 +750,7 @@ Automatically detect the user's country based on their IP address or browser set
 **Endpoint:** `GET /location/detect-country`
 
 **Success Response (200 OK):**
+
 ```json
 {
   "country": "ID",
@@ -729,16 +760,18 @@ Automatically detect the user's country based on their IP address or browser set
 
 **Response Fields:**
 
-| Field | Type | Description |
-|-------|------|-------------|
-| country | string | ISO 3166-1 alpha-2 country code |
-| country_name | string | Full country name |
+| Field        | Type   | Description                     |
+| ------------ | ------ | ------------------------------- |
+| country      | string | ISO 3166-1 alpha-2 country code |
+| country_name | string | Full country name               |
 
 **Notes:**
+
 - Currently defaults to Indonesia in development environment
 - Production uses IP geolocation service
 
 **Example Request (PowerShell):**
+
 ```powershell
 curl -Method GET "http://localhost:3000/api/location/detect-country"
 ```
@@ -753,12 +786,13 @@ Search for cities within a specific country.
 
 **Query Parameters:**
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| country | string | Yes | ISO 3166-1 alpha-2 country code (e.g., ID, US) |
-| query | string | Yes | City name search term (minimum 2 characters) |
+| Parameter | Type   | Required | Description                                    |
+| --------- | ------ | -------- | ---------------------------------------------- |
+| country   | string | Yes      | ISO 3166-1 alpha-2 country code (e.g., ID, US) |
+| query     | string | Yes      | City name search term (minimum 2 characters)   |
 
 **Success Response (200 OK):**
+
 ```json
 {
   "country": "ID",
@@ -779,13 +813,14 @@ Search for cities within a specific country.
 
 **Error Responses:**
 
-| Status Code | Description |
-|-------------|-------------|
-| 400 | Missing required parameters |
-| 404 | No cities found |
-| 500 | Internal server error |
+| Status Code | Description                 |
+| ----------- | --------------------------- |
+| 400         | Missing required parameters |
+| 404         | No cities found             |
+| 500         | Internal server error       |
 
 **Example Request (PowerShell):**
+
 ```powershell
 curl -Method GET "http://localhost:3000/api/location/cities?country=ID&query=jakarta"
 ```
@@ -800,12 +835,13 @@ Retrieve states or provinces for a specific city.
 
 **Query Parameters:**
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| country | string | Yes | ISO 3166-1 alpha-2 country code |
-| city | string | Yes | City name |
+| Parameter | Type   | Required | Description                     |
+| --------- | ------ | -------- | ------------------------------- |
+| country   | string | Yes      | ISO 3166-1 alpha-2 country code |
+| city      | string | Yes      | City name                       |
 
 **Success Response (200 OK):**
+
 ```json
 {
   "city": "Jakarta",
@@ -821,13 +857,14 @@ Retrieve states or provinces for a specific city.
 
 **Response Fields:**
 
-| Field | Type | Description |
-|-------|------|-------------|
-| name | string | State/province name |
-| code | string | Official state/province code |
+| Field    | Type   | Description                          |
+| -------- | ------ | ------------------------------------ |
+| name     | string | State/province name                  |
+| code     | string | Official state/province code         |
 | province | string | Province name (may differ from name) |
 
 **Example Request (PowerShell):**
+
 ```powershell
 curl -Method GET "http://localhost:3000/api/location/states?country=ID&city=Jakarta"
 ```
@@ -842,13 +879,14 @@ Retrieve postal/ZIP codes for a specific location.
 
 **Query Parameters:**
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| country | string | Yes | ISO 3166-1 alpha-2 country code |
-| city | string | Yes | City name |
-| state | string | Yes | State/province name |
+| Parameter | Type   | Required | Description                     |
+| --------- | ------ | -------- | ------------------------------- |
+| country   | string | Yes      | ISO 3166-1 alpha-2 country code |
+| city      | string | Yes      | City name                       |
+| state     | string | Yes      | State/province name             |
 
 **Success Response (200 OK):**
+
 ```json
 {
   "city": "Jakarta",
@@ -870,13 +908,14 @@ Retrieve postal/ZIP codes for a specific location.
 
 **Response Fields:**
 
-| Field | Type | Description |
-|-------|------|-------------|
-| code | string | Postal/ZIP code |
-| area | string | Specific area or district name |
-| country | string | Country name |
+| Field   | Type   | Description                    |
+| ------- | ------ | ------------------------------ |
+| code    | string | Postal/ZIP code                |
+| area    | string | Specific area or district name |
+| country | string | Country name                   |
 
 **Example Request (PowerShell):**
+
 ```powershell
 curl -Method GET "http://localhost:3000/api/location/zipcodes?country=ID&city=Jakarta&state=DKI%20JAKARTA"
 ```
@@ -898,6 +937,7 @@ Retrieve all available subscription plans.
 **Authentication Required:** No
 
 **Success Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -912,10 +952,7 @@ Retrieve all available subscription plans.
       "currency": "IDR",
       "billing_period": "monthly",
       "description": "Basic features for getting started",
-      "features": [
-        "Basic Note Taking",
-        "5 AI requests per day"
-      ],
+      "features": ["Basic Note Taking", "5 AI requests per day"],
       "ai_daily_credit_limit": 5,
       "is_active": true
     },
@@ -943,20 +980,21 @@ Retrieve all available subscription plans.
 
 **Response Fields:**
 
-| Field | Type | Description |
-|-------|------|-------------|
-| id | string | Plan UUID |
-| name | string | Plan display name |
-| slug | string | Plan identifier (used in checkout) |
-| price | integer | Price in smallest currency unit (e.g., cents) |
-| currency | string | ISO 4217 currency code |
-| billing_period | string | Billing frequency (monthly/yearly) |
-| description | string | Plan description |
-| features | array | List of plan features |
-| ai_daily_credit_limit | integer | Daily AI request limit |
-| is_active | boolean | Whether plan is available for purchase |
+| Field                 | Type    | Description                                   |
+| --------------------- | ------- | --------------------------------------------- |
+| id                    | string  | Plan UUID                                     |
+| name                  | string  | Plan display name                             |
+| slug                  | string  | Plan identifier (used in checkout)            |
+| price                 | integer | Price in smallest currency unit (e.g., cents) |
+| currency              | string  | ISO 4217 currency code                        |
+| billing_period        | string  | Billing frequency (monthly/yearly)            |
+| description           | string  | Plan description                              |
+| features              | array   | List of plan features                         |
+| ai_daily_credit_limit | integer | Daily AI request limit                        |
+| is_active             | boolean | Whether plan is available for purchase        |
 
 **Example Request (PowerShell):**
+
 ```powershell
 curl -Method GET "http://localhost:3000/api/payment/plans"
 ```
@@ -970,12 +1008,14 @@ Create a new subscription and initiate payment process.
 **Endpoint:** `POST /payment/checkout`
 
 **Request Headers:**
+
 ```
 Authorization: Bearer <access_token>
 Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "plan_id": "550e8400-e29b-41d4-a716-446655440001",
@@ -994,21 +1034,22 @@ Content-Type: application/json
 
 **Request Parameters:**
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| plan_id | string | Yes | UUID of the subscription plan |
-| first_name | string | Yes | Customer's first name |
-| last_name | string | Yes | Customer's last name |
-| email | string | Yes | Billing email address |
-| phone | string | Yes | Contact phone number |
-| address_line1 | string | Yes | Primary address line |
-| address_line2 | string | No | Secondary address line (apartment, suite, etc.) |
-| city | string | Yes | City name |
-| state | string | Yes | State/province name |
-| postal_code | string | Yes | ZIP/postal code |
-| country | string | Yes | Country name |
+| Field         | Type   | Required | Description                                     |
+| ------------- | ------ | -------- | ----------------------------------------------- |
+| plan_id       | string | Yes      | UUID of the subscription plan                   |
+| first_name    | string | Yes      | Customer's first name                           |
+| last_name     | string | Yes      | Customer's last name                            |
+| email         | string | Yes      | Billing email address                           |
+| phone         | string | Yes      | Contact phone number                            |
+| address_line1 | string | Yes      | Primary address line                            |
+| address_line2 | string | No       | Secondary address line (apartment, suite, etc.) |
+| city          | string | Yes      | City name                                       |
+| state         | string | Yes      | State/province name                             |
+| postal_code   | string | Yes      | ZIP/postal code                                 |
+| country       | string | Yes      | Country name                                    |
 
 **Success Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -1026,15 +1067,16 @@ Content-Type: application/json
 
 **Response Fields:**
 
-| Field | Type | Description |
-|-------|------|-------------|
-| subscription_id | string | Subscription UUID |
-| order_id | string | Order reference number |
-| status | string | Subscription status (pending/active/cancelled) |
-| snap_token | string | Midtrans Snap token for payment |
-| snap_redirect_url | string | Payment page URL |
+| Field             | Type   | Description                                    |
+| ----------------- | ------ | ---------------------------------------------- |
+| subscription_id   | string | Subscription UUID                              |
+| order_id          | string | Order reference number                         |
+| status            | string | Subscription status (pending/active/cancelled) |
+| snap_token        | string | Midtrans Snap token for payment                |
+| snap_redirect_url | string | Payment page URL                               |
 
 **Payment Flow:**
+
 1. Create subscription via this endpoint
 2. Redirect user to `snap_redirect_url`
 3. User completes payment on Midtrans
@@ -1043,15 +1085,16 @@ Content-Type: application/json
 
 **Error Responses:**
 
-| Status Code | Description |
-|-------------|-------------|
-| 400 | Invalid plan_id or request body |
-| 401 | Invalid or expired token |
-| 409 | User already has active subscription |
-| 422 | Validation error |
-| 500 | Internal server error |
+| Status Code | Description                          |
+| ----------- | ------------------------------------ |
+| 400         | Invalid plan_id or request body      |
+| 401         | Invalid or expired token             |
+| 409         | User already has active subscription |
+| 422         | Validation error                     |
+| 500         | Internal server error                |
 
 **Example Request (PowerShell):**
+
 ```powershell
 $body = @{
     plan_id = "550e8400-e29b-41d4-a716-446655440001"
@@ -1067,9 +1110,9 @@ $body = @{
 } | ConvertTo-Json
 
 curl -Method POST "http://localhost:3000/api/payment/checkout" `
-  -Headers @{ 
+  -Headers @{
     "Authorization"="Bearer $token"
-    "Content-Type"="application/json" 
+    "Content-Type"="application/json"
   } `
   -Body $body
 ```
@@ -1083,11 +1126,13 @@ Retrieve the authenticated user's current subscription status.
 **Endpoint:** `GET /payment/status`
 
 **Request Headers:**
+
 ```
 Authorization: Bearer <access_token>
 ```
 
 **Success Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -1110,28 +1155,29 @@ Authorization: Bearer <access_token>
 
 **Response Fields:**
 
-| Field | Type | Description |
-|-------|------|-------------|
-| subscription_id | string | Subscription UUID |
-| plan_name | string | Current plan name |
-| plan_slug | string | Plan identifier |
-| status | string | Subscription status (active/cancelled/expired) |
-| current_period_start | string | Billing period start date (ISO 8601) |
-| current_period_end | string | Billing period end date (ISO 8601) |
-| ai_daily_credit_limit | integer | Daily AI request limit |
-| ai_daily_usage | integer | AI requests used today |
-| is_active | boolean | Whether subscription is currently active |
-| auto_renew | boolean | Whether subscription will auto-renew |
+| Field                 | Type    | Description                                    |
+| --------------------- | ------- | ---------------------------------------------- |
+| subscription_id       | string  | Subscription UUID                              |
+| plan_name             | string  | Current plan name                              |
+| plan_slug             | string  | Plan identifier                                |
+| status                | string  | Subscription status (active/cancelled/expired) |
+| current_period_start  | string  | Billing period start date (ISO 8601)           |
+| current_period_end    | string  | Billing period end date (ISO 8601)             |
+| ai_daily_credit_limit | integer | Daily AI request limit                         |
+| ai_daily_usage        | integer | AI requests used today                         |
+| is_active             | boolean | Whether subscription is currently active       |
+| auto_renew            | boolean | Whether subscription will auto-renew           |
 
 **Error Responses:**
 
-| Status Code | Description |
-|-------------|-------------|
-| 401 | Invalid or expired token |
-| 404 | No active subscription found |
-| 500 | Internal server error |
+| Status Code | Description                  |
+| ----------- | ---------------------------- |
+| 401         | Invalid or expired token     |
+| 404         | No active subscription found |
+| 500         | Internal server error        |
 
 **Example Request (PowerShell):**
+
 ```powershell
 curl -Method GET "http://localhost:3000/api/payment/status" `
   -Headers @{ "Authorization"="Bearer $token" }
@@ -1146,11 +1192,13 @@ Cancel the user's current active subscription.
 **Endpoint:** `POST /payment/cancel`
 
 **Request Headers:**
+
 ```
 Authorization: Bearer <access_token>
 ```
 
 **Success Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -1167,28 +1215,30 @@ Authorization: Bearer <access_token>
 
 **Response Fields:**
 
-| Field | Type | Description |
-|-------|------|-------------|
-| subscription_id | string | Subscription UUID |
-| status | string | Updated status (cancelled) |
-| cancelled_at | string | Cancellation timestamp (ISO 8601) |
-| access_until | string | End of paid access period (ISO 8601) |
+| Field           | Type   | Description                          |
+| --------------- | ------ | ------------------------------------ |
+| subscription_id | string | Subscription UUID                    |
+| status          | string | Updated status (cancelled)           |
+| cancelled_at    | string | Cancellation timestamp (ISO 8601)    |
+| access_until    | string | End of paid access period (ISO 8601) |
 
 **Notes:**
+
 - Cancellation is immediate but access continues until end of billing period
 - No refunds for partial periods
 - User will revert to free plan after access period ends
 
 **Error Responses:**
 
-| Status Code | Description |
-|-------------|-------------|
-| 401 | Invalid or expired token |
-| 404 | No active subscription found |
-| 409 | Subscription already cancelled |
-| 500 | Internal server error |
+| Status Code | Description                    |
+| ----------- | ------------------------------ |
+| 401         | Invalid or expired token       |
+| 404         | No active subscription found   |
+| 409         | Subscription already cancelled |
+| 500         | Internal server error          |
 
 **Example Request (PowerShell):**
+
 ```powershell
 curl -Method POST "http://localhost:3000/api/payment/cancel" `
   -Headers @{ "Authorization"="Bearer $token" }
@@ -1205,6 +1255,7 @@ Webhook endpoint for receiving payment notifications from Midtrans.
 **Authentication Required:** No (Validated via signature)
 
 **Notes:**
+
 - This endpoint is called automatically by Midtrans
 - Do not call this endpoint manually
 - Used to update subscription status after payment completion
@@ -1233,33 +1284,36 @@ All API endpoints follow a consistent error response format:
 
 ### HTTP Status Codes
 
-| Status Code | Meaning | Description |
-|-------------|---------|-------------|
-| 200 | OK | Request succeeded |
-| 201 | Created | Resource created successfully |
-| 400 | Bad Request | Invalid request format or parameters |
-| 401 | Unauthorized | Missing or invalid authentication token |
-| 403 | Forbidden | Authenticated but not authorized |
-| 404 | Not Found | Resource not found |
-| 409 | Conflict | Resource already exists or conflict |
-| 422 | Unprocessable Entity | Validation failed |
-| 429 | Too Many Requests | Rate limit exceeded |
-| 500 | Internal Server Error | Server-side error |
-| 503 | Service Unavailable | Service temporarily unavailable |
+| Status Code | Meaning               | Description                             |
+| ----------- | --------------------- | --------------------------------------- |
+| 200         | OK                    | Request succeeded                       |
+| 201         | Created               | Resource created successfully           |
+| 400         | Bad Request           | Invalid request format or parameters    |
+| 401         | Unauthorized          | Missing or invalid authentication token |
+| 403         | Forbidden             | Authenticated but not authorized        |
+| 404         | Not Found             | Resource not found                      |
+| 409         | Conflict              | Resource already exists or conflict     |
+| 422         | Unprocessable Entity  | Validation failed                       |
+| 429         | Too Many Requests     | Rate limit exceeded                     |
+| 500         | Internal Server Error | Server-side error                       |
+| 503         | Service Unavailable   | Service temporarily unavailable         |
 
 ### Common Error Messages
 
 **Authentication Errors:**
+
 - `"Invalid or expired token"` - Token is invalid or has expired
 - `"Email not verified"` - User must verify email before login
 - `"Invalid credentials"` - Wrong email or password
 
 **Validation Errors:**
+
 - `"Invalid email format"` - Email address is malformed
 - `"Password too short"` - Password doesn't meet minimum length
 - `"Required field missing"` - Required parameter not provided
 
 **Business Logic Errors:**
+
 - `"User already exists"` - Email already registered
 - `"No active subscription"` - User doesn't have active subscription
 - `"Daily limit exceeded"` - AI request limit reached
@@ -1280,27 +1334,31 @@ X-RateLimit-Remaining: 95
 X-RateLimit-Reset: 1638360000
 ```
 
-| Header | Description |
-|--------|-------------|
-| X-RateLimit-Limit | Maximum requests allowed per time window |
-| X-RateLimit-Remaining | Requests remaining in current window |
-| X-RateLimit-Reset | Unix timestamp when limit resets |
+| Header                | Description                              |
+| --------------------- | ---------------------------------------- |
+| X-RateLimit-Limit     | Maximum requests allowed per time window |
+| X-RateLimit-Remaining | Requests remaining in current window     |
+| X-RateLimit-Reset     | Unix timestamp when limit resets         |
 
 ### Rate Limit Tiers
 
 **Unauthenticated Requests:**
+
 - 20 requests per minute per IP
 - Applies to: Registration, Login, Forgot Password
 
 **Authenticated Users (Free Plan):**
+
 - 60 requests per minute
 - 1,000 requests per day
 
 **Authenticated Users (Pro Plan):**
+
 - 120 requests per minute
 - 10,000 requests per day
 
 **AI-Specific Limits:**
+
 - Governed by subscription plan's `ai_daily_credit_limit`
 - Separate from general API rate limits
 
@@ -1348,4 +1406,4 @@ When rate limit is exceeded:
 
 1. **Use sandbox environment** - Test with sandbox credentials
 2. **Test error scenarios** - Verify error handling works correctly
-3
+   3

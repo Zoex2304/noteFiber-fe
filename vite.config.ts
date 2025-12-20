@@ -14,6 +14,15 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  server: {
+    host: true, // Listen on all addresses
+    port: 5173,
+    allowedHosts: [
+      'notefiber.autovoid.cyou',
+      '.autovoid.cyou', // Wildcard untuk semua subdomain
+      'localhost',
+    ],
+  },
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "./src"),

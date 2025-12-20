@@ -1,7 +1,6 @@
 // src/pages/landingpage/LandingPage.tsx
 import { useSearch } from "@tanstack/react-router";
 
-// Impor 8 section untuk halaman utama
 import { HeroSection } from "./components/organisms/HeroSection";
 import { Section2 } from "./components/organisms/Section2";
 import { Section3 } from "./components/organisms/Section3";
@@ -11,23 +10,17 @@ import { Section6 } from "./components/organisms/Section6";
 import { Section7 } from "./components/organisms/Section7";
 import { Section8 } from "./components/organisms/Section8";
 
-// DIPERBARUI: Impor halaman-halaman baru dari direktori yang sama
 import Features from "./Features";
 import Pricing from "./Pricing";
 import AboutUs from "./AboutUs";
 import Contact from "./Contact";
 
-/**
- * Halaman Landing Page Utama (Controller)
- * Lokasi baru: src/pages/landingpage/LandingPage.tsx
- */
+
 export default function LandingPage() {
   const search = useSearch({ strict: false });
   const page = (search as any).page;
 
-  // Fungsi untuk memilih konten yang akan dirender
   const renderPageContent = () => {
-    // DIPERBARUI: Menggunakan komponen yang baru diimpor
     switch (page) {
       case "features":
         return <Features />;
@@ -38,7 +31,6 @@ export default function LandingPage() {
       case "contact":
         return <Contact />;
       default:
-        // Default: Tampilkan 8 section utama
         return (
           <>
             <HeroSection />
@@ -55,9 +47,7 @@ export default function LandingPage() {
   };
 
   return (
-    // Style 'body' (main frame) dari Figma Anda
     <main className="mx-auto flex w-full max-w-screen-2xl flex-col items-center bg-white">
-      {/* Style 'wrapper' dari Figma Anda */}
       <div className="flex w-full flex-col items-center">
         {renderPageContent()}
       </div>

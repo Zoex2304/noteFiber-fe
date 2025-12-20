@@ -176,27 +176,30 @@ export default function SignUp() {
                             control={form.control as any}
                             name="agreeTerms"
                             render={({ field }) => (
-                                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                                    <FormControl>
-                                        <Checkbox
-                                            checked={field.value}
-                                            onCheckedChange={field.onChange}
-                                            disabled={isPending}
-                                        />
-                                    </FormControl>
-                                    <div className="space-y-1 leading-none">
-                                        <FormLabel className="text-sm font-normal text-gray-600">
-                                            I agree with{" "}
-                                            <Link to="/landing" className="text-royal-violet-base hover:underline">
-                                                Terms
-                                            </Link>{" "}
-                                            and{" "}
-                                            <Link to="/landing" className="text-royal-violet-base hover:underline">
-                                                Privacy
-                                            </Link>
-                                        </FormLabel>
-                                        <FormMessage />
+                                <FormItem>
+                                    <div className="flex flex-row items-start space-x-3">
+                                        <FormControl>
+                                            <Checkbox
+                                                checked={field.value}
+                                                onCheckedChange={field.onChange}
+                                                disabled={isPending}
+                                                className={form.formState.errors.agreeTerms ? "border-red-500" : ""}
+                                            />
+                                        </FormControl>
+                                        <div className="space-y-1 leading-none flex-1">
+                                            <FormLabel className="text-sm font-normal text-gray-600">
+                                                I agree with{" "}
+                                                <Link to="/landing" className="text-royal-violet-base hover:underline">
+                                                    Terms
+                                                </Link>{" "}
+                                                and{" "}
+                                                <Link to="/landing" className="text-royal-violet-base hover:underline">
+                                                    Privacy
+                                                </Link>
+                                            </FormLabel>
+                                        </div>
                                     </div>
+                                    <FormMessage className="text-red-600 text-sm mt-2" />
                                 </FormItem>
                             )}
                         />
