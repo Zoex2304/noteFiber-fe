@@ -13,6 +13,7 @@ import type { ChatSession, Message } from "@/types/ai-chat";
 import { apiClient } from "@/api/client/axios.client";
 import type { BaseResponse } from "../dto/base-response";
 import { useSubscription } from "@/contexts/SubscriptionContext";
+import { useUsageLimits, handleLimitExceededError } from "@/contexts/UsageLimitsContext";
 import { TokenUsageIndicator } from "@/components/common/TokenUsageIndicator";
 import { TokenLimitDialog } from "@/components/common/TokenLimitDialog";
 import type {
@@ -38,6 +39,7 @@ export function AIChatDialog({ open, onOpenChange }: AIChatDialogProps) {
   const [showTokenLimitDialog, setShowTokenLimitDialog] = useState(false);
 
   const { tokenUsage, refreshSubscription } = useSubscription();
+  const { showPricingModal } = useUsageLimits();
 
   const activeSession = sessions.find((s) => s.id === activeSessionId);
   const messages = activeSession?.messages || [];
@@ -201,10 +203,13 @@ export function AIChatDialog({ open, onOpenChange }: AIChatDialogProps) {
       // Refresh subscription to get updated token usage
       await refreshSubscription();
     } catch (error: any) {
-      // Handle token limit error
-      if (error.response?.status === 500 &&
-        error.response?.data?.message?.includes("daily AI usage limit exceeded")) {
-        setShowTokenLimitDialog(true);
+      // Handle limit exceeded error (429) with pricing modal
+      if (!handleLimitExceededError(error, showPricingModal)) {
+        // Handle legacy token limit error (500)
+        if (error.response?.status === 500 &&
+          error.response?.data?.message?.includes("daily AI usage limit exceeded")) {
+          setShowTokenLimitDialog(true);
+        }
       }
       // Remove optimistic user message on error
       setSessions((prev) =>

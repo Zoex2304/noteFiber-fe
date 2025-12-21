@@ -3,6 +3,8 @@ import { toast } from 'sonner'
 import {
     adminDashboardApi,
     adminPlansApi,
+    adminPlanFeaturesApi,
+    adminFeaturesApi,
     adminUsersApi,
     adminRefundsApi,
     handleApiError,
@@ -13,6 +15,11 @@ import type {
     RefundRequest,
     TransactionListParams,
     UpgradeSubscriptionRequest,
+    UpgradeSubscriptionRequest,
+    CreatePlanDisplayFeatureRequest,
+    UpdatePlanDisplayFeatureRequest,
+    CreateFeatureRequest,
+    UpdateFeatureRequest,
 } from '../lib/types/admin-api'
 
 // Query keys
@@ -22,6 +29,8 @@ export const adminQueryKeys = {
     transactions: (params?: TransactionListParams) => ['admin', 'transactions', params] as const,
     plans: ['admin', 'plans'] as const,
     plan: (id: string) => ['admin', 'plans', id] as const,
+    planFeatures: (planId: string) => ['admin', 'plans', planId, 'features'] as const,
+    features: ['admin', 'features'] as const,
     userDetail: (id: string) => ['admin', 'users', id] as const,
 }
 
@@ -148,6 +157,101 @@ export function useUpgradeSubscription() {
         },
         onError: (error) => {
             toast.error(`Failed to upgrade subscription: ${handleApiError(error)}`)
+        },
+    })
+}
+
+// Master Features Hooks
+export function useFeatures() {
+    return useQuery({
+        queryKey: adminQueryKeys.features,
+        queryFn: () => adminFeaturesApi.getFeatures(),
+    })
+}
+
+export function useCreateFeature() {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: (data: CreateFeatureRequest) => adminFeaturesApi.createFeature(data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: adminQueryKeys.features })
+            toast.success('Feature created successfully')
+        },
+        onError: (error) => {
+            toast.error(`Failed to create feature: ${handleApiError(error)}`)
+        },
+    })
+}
+
+export function useUpdateFeature() {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: ({ id, data }: { id: string; data: UpdateFeatureRequest }) =>
+            adminFeaturesApi.updateFeature(id, data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: adminQueryKeys.features })
+            toast.success('Feature updated successfully')
+        },
+        onError: (error) => {
+            toast.error(`Failed to update feature: ${handleApiError(error)}`)
+        },
+    })
+}
+
+export function useDeleteFeature() {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: (id: string) => adminFeaturesApi.deleteFeature(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: adminQueryKeys.features })
+            toast.success('Feature deleted successfully')
+        },
+        onError: (error) => {
+            toast.error(`Failed to delete feature: ${handleApiError(error)}`)
+        },
+    })
+}
+
+// Plan Display Features Hooks
+export function usePlanFeatures(planId: string) {
+    return useQuery({
+        queryKey: adminQueryKeys.planFeatures(planId),
+        queryFn: () => adminPlanFeaturesApi.getFeatures(planId),
+        enabled: !!planId,
+    })
+}
+
+export function useAssignFeature() {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: ({ planId, featureKey }: { planId: string; featureKey: string }) =>
+            adminPlanFeaturesApi.assignFeature(planId, featureKey),
+        onSuccess: (_, { planId }) => {
+            queryClient.invalidateQueries({ queryKey: adminQueryKeys.planFeatures(planId) })
+            toast.success('Feature assigned successfully')
+        },
+        onError: (error) => {
+            toast.error(`Failed to assign feature: ${handleApiError(error)}`)
+        },
+    })
+}
+
+export function useRemoveFeature() {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: ({ planId, featureId }: { planId: string; featureId: string }) =>
+            adminPlanFeaturesApi.removeFeature(planId, featureId),
+        onSuccess: (_, { planId }) => {
+            queryClient.invalidateQueries({ queryKey: adminQueryKeys.planFeatures(planId) })
+            toast.success('Feature removed successfully')
+        },
+        onError: (error) => {
+            toast.error(`Failed to remove feature: ${handleApiError(error)}`)
         },
     })
 }

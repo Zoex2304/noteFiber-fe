@@ -146,7 +146,9 @@ export default function SignIn() {
 
                         <Button
                             type="submit"
-                            className="w-full bg-royal-violet-base hover:bg-royal-violet-dark text-white h-12"
+                            variant="default"
+                            size="default"
+                            className="w-full"
                             disabled={isPending}
                         >
                             {isPending ? "Signing in..." : "Sign in"}

@@ -16,12 +16,10 @@ export function TopLoader({ color }: TopLoaderProps) {
             setIsVisible(true);
             setProgress(30);
         } else {
-            // Finish quickly when loading completes
-            const timer = setTimeout(() => {
+            // Finish immediately when loading completes
+            if (isVisible) {
                 setProgress(100);
-            }, 100);
-
-            return () => clearTimeout(timer);
+            }
         }
     }, [isLoading]);
 

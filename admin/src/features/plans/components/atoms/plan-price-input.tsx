@@ -1,5 +1,5 @@
 import { Label } from '@admin/components/ui/label'
-import { Input } from '@admin/components/ui/input'
+import { CleanNumberInput } from './clean-number-input'
 import { cn } from '@admin/lib/utils'
 import { DollarSign } from 'lucide-react'
 
@@ -23,16 +23,14 @@ export function PlanPriceInput({
             <Label htmlFor='plan-price'>Price (USD)</Label>
             <div className='relative'>
                 <DollarSign className='text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2' />
-                <Input
+                <CleanNumberInput
                     id='plan-price'
-                    type='number'
-                    step='0.01'
-                    min='0'
                     placeholder='0.00'
                     value={value}
-                    onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
+                    onChange={onChange}
                     disabled={disabled}
                     className={cn('pl-9', error && 'border-destructive')}
+                    min={0}
                 />
             </div>
             {error && <p className='text-destructive text-sm'>{error}</p>}

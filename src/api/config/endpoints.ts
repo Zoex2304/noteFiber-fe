@@ -15,9 +15,15 @@ export const ENDPOINTS = {
         GOOGLE: '/auth/google',
         GOOGLE_CALLBACK: '/auth/google/callback',
     },
+    // Public endpoints (no auth required)
+    PUBLIC: {
+        PLANS: '/plans', // GET /api/plans - for pricing modal
+    },
     USER: {
         PROFILE: '/user/profile',
         ACCOUNT: '/user/account',
+        USAGE_STATUS: '/user/usage-status', // GET /api/user/usage-status
+        // NOTE: Use PAYMENT.STATUS for subscription status (old /user/subscription/status doesn't exist)
     },
     LOCATION: {
         DETECT_COUNTRY: '/location/detect-country',

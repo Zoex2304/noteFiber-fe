@@ -9,7 +9,8 @@ import { ThemeSwitch } from '@admin/components/theme-switch'
 import { PlansList } from './components/organisms/plans-list'
 import { CreatePlanForm } from './components/organisms/create-plan-form'
 import { EditPlanForm } from './components/organisms/edit-plan-form'
-import { Plus, ArrowLeft } from 'lucide-react'
+import { FeatureManagementDialog } from './components/molecules/feature-management-dialog'
+import { Plus, ArrowLeft, Layers } from 'lucide-react'
 import type { SubscriptionPlan } from './data/schema'
 
 type ViewMode = 'list' | 'create' | 'edit'
@@ -17,6 +18,7 @@ type ViewMode = 'list' | 'create' | 'edit'
 export function PlansManagement() {
     const [viewMode, setViewMode] = useState<ViewMode>('list')
     const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null)
+    const [showFeaturesDialog, setShowFeaturesDialog] = useState(false)
 
     const handleCreateNew = () => {
         setViewMode('create')
@@ -55,10 +57,16 @@ export function PlansManagement() {
                                     Manage subscription plans and pricing
                                 </p>
                             </div>
-                            <Button onClick={handleCreateNew}>
-                                <Plus className='mr-2 h-4 w-4' />
-                                Create Plan
-                            </Button>
+                            <div className="flex gap-2">
+                                <Button variant="outline" onClick={() => setShowFeaturesDialog(true)}>
+                                    <Layers className="mr-2 h-4 w-4" />
+                                    Manage Features
+                                </Button>
+                                <Button onClick={handleCreateNew}>
+                                    <Plus className='mr-2 h-4 w-4' />
+                                    Create Plan
+                                </Button>
+                            </div>
                         </>
                     ) : (
                         <>
@@ -85,6 +93,11 @@ export function PlansManagement() {
                         onCancel={handleBack}
                     />
                 )}
+
+                <FeatureManagementDialog
+                    open={showFeaturesDialog}
+                    onOpenChange={setShowFeaturesDialog}
+                />
             </Main>
         </>
     )

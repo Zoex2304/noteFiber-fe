@@ -10,6 +10,9 @@ export const ADMIN_ENDPOINTS = {
         CREATE: '/admin/plans',
         UPDATE: (id: string) => `/admin/plans/${id}`,
         DELETE: (id: string) => `/admin/plans/${id}`,
+        // Plan Features endpoints (Assignment)
+        FEATURES: (planId: string) => `/admin/plans/${planId}/features`,
+        FEATURE_DELETE: (planId: string, featureId: string) => `/admin/plans/${planId}/features/${featureId}`,
     },
     USERS: {
         LIST: '/admin/users',
@@ -17,6 +20,12 @@ export const ADMIN_ENDPOINTS = {
         UPDATE_STATUS: (id: string) => `/admin/users/${id}/status`,
         UPDATE_PROFILE: (id: string) => `/admin/users/${id}`,
         DELETE: (id: string) => `/admin/users/${id}`,
+    },
+    FEATURES: {
+        LIST: '/admin/features',
+        CREATE: '/admin/features',
+        UPDATE: (id: string) => `/admin/features/${id}`,
+        DELETE: (id: string) => `/admin/features/${id}`,
     },
     LOGS: {
         LIST: '/admin/logs',

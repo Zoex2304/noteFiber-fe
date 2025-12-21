@@ -32,9 +32,11 @@ import type {
 
 import { UPGRADE_EVENT } from "@/api/client/axios.client";
 import { useSubscription } from "@/contexts/SubscriptionContext";
+import { useUsageLimits } from "@/contexts/UsageLimitsContext";
 
 export default function MainApp() { // Renamed from App to MainApp
   const { checkPermission } = useSubscription();
+  const { checkCanCreateNotebook, checkCanCreateNote, checkCanUseAiChat, checkCanUseSemanticSearch } = useUsageLimits();
   const [notebooks, setNotebooks] = useState<Notebook[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
   const [selectedNotebook, setSelectedNotebook] = useState<string | null>(null);
@@ -59,8 +61,9 @@ export default function MainApp() { // Renamed from App to MainApp
       `/notebook/v1`
     );
 
+    const notebooksData = data.data.data ?? [];
     setNotebooks(
-      data.data.data.map((notebook) => ({
+      notebooksData.map((notebook) => ({
         id: notebook.id,
         name: notebook.name,
         parentId: notebook.parent_id,
@@ -69,7 +72,7 @@ export default function MainApp() { // Renamed from App to MainApp
       }))
     );
 
-    const notes = data.data.data.reduce<Note[]>((currentNotes, notebook) => {
+    const notes = notebooksData.reduce<Note[]>((currentNotes, notebook) => {
       return [
         ...currentNotes,
         ...notebook.notes.map<Note>((n) => ({
@@ -212,6 +215,10 @@ export default function MainApp() { // Renamed from App to MainApp
   const handleCreateNote = async () => {
     if (!selectedNotebook || isCreatingNote) return;
 
+    // Check usage limit before creating
+    const canCreate = await checkCanCreateNote();
+    if (!canCreate) return; // Modal auto-shows if limit exceeded
+
     setIsCreatingNote(true);
 
     const request: CreateNoteRequest = {
@@ -236,6 +243,10 @@ export default function MainApp() { // Renamed from App to MainApp
 
   const handleCreateNotebook = async () => {
     if (isCreatingNotebook) return;
+
+    // Check usage limit before creating
+    const canCreate = await checkCanCreateNotebook();
+    if (!canCreate) return; // Modal auto-shows if limit exceeded
 
     setIsCreatingNotebook(true);
 
@@ -265,7 +276,12 @@ export default function MainApp() { // Renamed from App to MainApp
     setSelectedNote(null);
   };
 
-  const handleSearchClick = () => {
+  const handleSearchClick = async () => {
+    // First check daily limit for semantic search
+    const canUse = await checkCanUseSemanticSearch();
+    if (!canUse) return; // Modal auto-shows if limit exceeded
+
+    // Then check if feature is enabled for plan
     if (checkPermission('semantic_search')) {
       setSearchOpen(true);
     } else {
@@ -273,7 +289,12 @@ export default function MainApp() { // Renamed from App to MainApp
     }
   };
 
-  const handleChatClick = () => {
+  const handleChatClick = async () => {
+    // First check daily limit for AI chat
+    const canUse = await checkCanUseAiChat();
+    if (!canUse) return; // Modal auto-shows if limit exceeded
+
+    // Then check if feature is enabled for plan
     if (checkPermission('ai_chat')) {
       setChatOpen(true);
     } else {

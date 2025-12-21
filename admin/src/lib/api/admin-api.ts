@@ -22,6 +22,12 @@ import type {
     TransactionListParams,
     UpgradeSubscriptionRequest,
     UpgradeSubscriptionResponse,
+    PlanDisplayFeature,
+    CreatePlanDisplayFeatureRequest,
+    UpdatePlanDisplayFeatureRequest,
+    Feature,
+    CreateFeatureRequest,
+    UpdateFeatureRequest,
 } from '../types/admin-api'
 import { ADMIN_ENDPOINTS } from '../../config/admin-endpoints'
 
@@ -120,6 +126,37 @@ export const adminPlansApi = {
      */
     async deletePlan(id: string): Promise<void> {
         await apiClient.delete(ADMIN_ENDPOINTS.PLANS.DELETE(id))
+    },
+}
+
+// Plan Features API (Assignment)
+export const adminPlanFeaturesApi = {
+    /**
+     * Get all features assigned to a plan
+     */
+    async getFeatures(planId: string): Promise<Feature[]> {
+        const response = await apiClient.get<ApiSuccessResponse<Feature[]>>(
+            ADMIN_ENDPOINTS.PLANS.FEATURES(planId)
+        )
+        return response.data.data ?? []
+    },
+
+    /**
+     * Assign a feature to a plan
+     */
+    async assignFeature(planId: string, featureKey: string): Promise<Feature> {
+        const response = await apiClient.post<ApiSuccessResponse<Feature>>(
+            ADMIN_ENDPOINTS.PLANS.FEATURES(planId),
+            { feature_key: featureKey }
+        )
+        return response.data.data
+    },
+
+    /**
+     * Remove a feature from a plan
+     */
+    async removeFeature(planId: string, featureId: string): Promise<void> {
+        await apiClient.delete(ADMIN_ENDPOINTS.PLANS.FEATURE_DELETE(planId, featureId))
     },
 }
 
@@ -241,6 +278,46 @@ export const adminRefundsApi = {
             data
         )
         return response.data.data
+    },
+}
+
+// Master Feature Management API
+export const adminFeaturesApi = {
+    /**
+     * Get all master features
+     */
+    async getFeatures(): Promise<Feature[]> {
+        const response = await apiClient.get<ApiSuccessResponse<Feature[]>>(ADMIN_ENDPOINTS.FEATURES.LIST)
+        return response.data.data
+    },
+
+    /**
+     * Create a new master feature
+     */
+    async createFeature(data: CreateFeatureRequest): Promise<Feature> {
+        const response = await apiClient.post<ApiSuccessResponse<Feature>>(
+            ADMIN_ENDPOINTS.FEATURES.CREATE,
+            data
+        )
+        return response.data.data
+    },
+
+    /**
+     * Update a master feature
+     */
+    async updateFeature(id: string, data: UpdateFeatureRequest): Promise<Feature> {
+        const response = await apiClient.put<ApiSuccessResponse<Feature>>(
+            ADMIN_ENDPOINTS.FEATURES.UPDATE(id),
+            data
+        )
+        return response.data.data
+    },
+
+    /**
+     * Delete a master feature
+     */
+    async deleteFeature(id: string): Promise<void> {
+        await apiClient.delete(ADMIN_ENDPOINTS.FEATURES.DELETE(id))
     },
 }
 

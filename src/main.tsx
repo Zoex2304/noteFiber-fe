@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { RouterProvider, createRouter } from '@tanstack/react-router';
 import { QueryProvider, queryClient } from './contexts/QueryClientProvider';
 import { AuthProvider } from './contexts/AuthContext';
+import { UsageLimitsProvider } from './contexts/UsageLimitsContext';
 import { TooltipProvider } from '@/components/shadui/tooltip';
 import './index.css';
 
@@ -30,9 +31,11 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryProvider>
       <AuthProvider>
-        <TooltipProvider>
-          <RouterProvider router={router} />
-        </TooltipProvider>
+        <UsageLimitsProvider>
+          <TooltipProvider>
+            <RouterProvider router={router} />
+          </TooltipProvider>
+        </UsageLimitsProvider>
       </AuthProvider>
     </QueryProvider>
   </StrictMode>

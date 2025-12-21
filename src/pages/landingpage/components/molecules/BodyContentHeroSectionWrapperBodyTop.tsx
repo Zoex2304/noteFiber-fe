@@ -8,18 +8,14 @@ interface BodyContentHeroSectionWrapperBodyTopProps {
   description?: string;
 }
 
-/**
- * Komponen Body Top
- *
- * DIPERBAIKI: Streamline text di desktop diperkecil agar hanya 2 baris.
- */
+
 export function BodyContentHeroSectionWrapperBodyTop({
   tagText = "Best Productivity Management",
   title,
   description,
 }: BodyContentHeroSectionWrapperBodyTopProps) {
   const defaultDescription =
-    "Streamline your business's productivity management with our intuitive, scalable SaaS platform. Designed for U.S. enterprises, our solutions simplify complex processes.";
+    "Streamline your note-taking and workflows with our AI-integrated SaaS platform. Designed to scale, our solution turns complex information into actionable knowledge.";
 
   return (
     <div className="flex w-full flex-col items-center gap-4 lg:gap-7">

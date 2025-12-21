@@ -26,18 +26,24 @@ export type RecentTransaction = DashboardStats['recent_transactions'][number]
 
 // Subscription Plan Types
 export const planFeaturesSchema = z.object({
-    max_notes: z.number(),
+    max_notebooks: z.number(),
+    max_notes_per_notebook: z.number(),
     semantic_search: z.boolean(),
     ai_chat: z.boolean(),
-    daily_token_limit: z.number(),
+    ai_chat_daily_limit: z.number(),
+    semantic_search_daily_limit: z.number(),
 })
 
 export const subscriptionPlanSchema = z.object({
     id: z.string(),
     name: z.string(),
     slug: z.string(),
+    tagline: z.string().nullable().optional(),
     price: z.number(),
     billing_period: z.enum(['monthly', 'yearly']),
+    is_most_popular: z.boolean().optional(),
+    is_active: z.boolean().optional(),
+    sort_order: z.number().optional(),
     features: planFeaturesSchema,
 })
 
@@ -46,25 +52,63 @@ export const subscriptionPlansSchema = z.array(subscriptionPlanSchema)
 export type PlanFeatures = z.infer<typeof planFeaturesSchema>
 export type SubscriptionPlan = z.infer<typeof subscriptionPlanSchema>
 
+// Plan Display Feature Types (for pricing modal configuration)
+export const planDisplayFeatureSchema = z.object({
+    id: z.string(),
+    plan_id: z.string(),
+    feature_key: z.string(),
+    display_text: z.string(),
+    is_enabled: z.boolean(),
+    sort_order: z.number(),
+})
+
+export type PlanDisplayFeature = z.infer<typeof planDisplayFeatureSchema>
+
+export const createPlanDisplayFeatureRequestSchema = z.object({
+    feature_key: z.string().min(1),
+    display_text: z.string().min(1),
+    is_enabled: z.boolean(),
+    sort_order: z.number().optional(),
+})
+
+export type CreatePlanDisplayFeatureRequest = z.infer<typeof createPlanDisplayFeatureRequestSchema>
+
+export const updatePlanDisplayFeatureRequestSchema = z.object({
+    display_text: z.string().optional(),
+    is_enabled: z.boolean().optional(),
+    sort_order: z.number().optional(),
+})
+
+export type UpdatePlanDisplayFeatureRequest = z.infer<typeof updatePlanDisplayFeatureRequestSchema>
+
 // Create/Update Plan Request Types
 export const createPlanRequestSchema = z.object({
     name: z.string().min(1),
     slug: z.string().min(1),
+    tagline: z.string().optional(),
     price: z.number().min(0),
     tax_rate: z.number().optional(),
     billing_period: z.enum(['monthly', 'yearly']),
+    is_most_popular: z.boolean().optional(),
+    is_active: z.boolean().optional(),
+    sort_order: z.number().optional(),
     features: planFeaturesSchema,
 })
 
 export const updatePlanRequestSchema = z.object({
     name: z.string().optional(),
+    tagline: z.string().nullable().optional(),
     price: z.number().min(0).optional(),
     tax_rate: z.number().optional(),
+    is_most_popular: z.boolean().optional(),
+    is_active: z.boolean().optional(),
+    sort_order: z.number().optional(),
     features: planFeaturesSchema.partial().optional(),
 })
 
 export type CreatePlanRequest = z.infer<typeof createPlanRequestSchema>
 export type UpdatePlanRequest = z.infer<typeof updatePlanRequestSchema>
+
 
 // User Detail with Token Usage Types
 export const userDetailSchema = z.object({
@@ -268,3 +312,39 @@ export const upgradeSubscriptionResponseSchema = z.object({
 
 export type UpgradeSubscriptionRequest = z.infer<typeof upgradeSubscriptionRequestSchema>
 export type UpgradeSubscriptionResponse = z.infer<typeof upgradeSubscriptionResponseSchema>
+
+// Master Feature Types
+export const featureSchema = z.object({
+    id: z.string(),
+    key: z.string(),
+    name: z.string(),
+    description: z.string().optional(),
+    category: z.string().optional(),
+    is_active: z.boolean(),
+    sort_order: z.number(),
+    created_at: z.string().optional(),
+    updated_at: z.string().optional(),
+})
+
+export type Feature = z.infer<typeof featureSchema>
+
+export const createFeatureRequestSchema = z.object({
+    key: z.string().min(1, 'Key is required'),
+    name: z.string().min(1, 'Name is required'),
+    description: z.string().optional(),
+    category: z.string().optional(),
+    is_active: z.boolean().optional(),
+    sort_order: z.number().int().optional(),
+})
+
+export type CreateFeatureRequest = z.infer<typeof createFeatureRequestSchema>
+
+export const updateFeatureRequestSchema = z.object({
+    name: z.string().min(1, 'Name is required').optional(),
+    description: z.string().optional(),
+    category: z.string().optional(),
+    is_active: z.boolean().optional(),
+    sort_order: z.number().int().optional(),
+})
+
+export type UpdateFeatureRequest = z.infer<typeof updateFeatureRequestSchema>

@@ -12,6 +12,10 @@ export interface PricingCardData {
   features: string[];
   isPopular?: boolean;
   slug?: string; // Added slug property
+  // Optional button customization (for modal usage)
+  onClick?: () => void;
+  buttonText?: string;
+  isDisabled?: boolean;
 }
 
 interface PricingCardProps {
@@ -27,9 +31,10 @@ interface PricingCardProps {
  * Fitur:
  * 1. Deskripsi <p> diberi 'min-h-[8rem]' untuk meratakan tombol.
  * 2. Auto-wrap menggunakan max-width CSS (lebih natural dan responsive).
+ * 3. Optional onClick prop untuk custom button behavior (e.g., in modals)
  */
 export function PricingCard({ data, className }: PricingCardProps) {
-  const { title, price, period, description, features, isPopular, slug } = data;
+  const { title, price, period, description, features, isPopular, slug, onClick, buttonText, isDisabled } = data;
 
   // Determine the target URL
   // If slug is explicitly 'free' or price indicates free, redirect to dashboard
@@ -102,8 +107,19 @@ export function PricingCard({ data, className }: PricingCardProps) {
         {description}
       </p>
 
-      {/* 4. Tombol */}
-      {isFree ? (
+      {/* 4. Tombol - Use custom onClick if provided, otherwise use Link */}
+      {onClick ? (
+        <Button
+          variant="custom-outline"
+          size="card-outline"
+          className="relative overflow-hidden group transition-all duration-300 hover:border-royal-violet-base hover:shadow-[0_0_20px_rgba(112,80,240,0.3)] w-full"
+          onClick={onClick}
+          disabled={isDisabled}
+        >
+          <span className="relative z-10">{buttonText || "Get Started"}</span>
+          <div className="absolute inset-0 -translate-x-full group-hover:animate-shimmer bg-gradient-to-r from-transparent via-royal-violet-base/20 to-transparent z-0" />
+        </Button>
+      ) : isFree ? (
         <Link to="/app" className="w-full">
           <Button
             variant="custom-outline"
