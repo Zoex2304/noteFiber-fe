@@ -163,6 +163,9 @@ export function useAdminNotifications(): UseAdminNotificationsResult {
                 onClick: () => navigate({ to: actionUrl }),
             } : undefined,
         });
+
+        // Dispatch global event for other components to react (e.g., table updates)
+        window.dispatchEvent(new CustomEvent('admin:notification', { detail: message }));
     }, [navigate]);
 
     // ========== WebSocket Lifecycle ==========

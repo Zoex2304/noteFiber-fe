@@ -47,16 +47,25 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
 
     const fetchSubscriptionStatus = async () => {
         try {
-            const response = await paymentService.getSubscriptionStatus();
+            // Fetch both endpoints:
+            // 1. Subscription Status (Plan info, Features)
+            // 2. Usage Status (REAL-TIME usage count, critical for consistency with Modals)
+            const [subResponse, usageResponse] = await Promise.all([
+                paymentService.getSubscriptionStatus(),
+                paymentService.getUsageStatus().catch(e => {
+                    console.warn("Usage status fetch failed silently:", e);
+                    return { success: false, data: null };
+                })
+            ]);
+
+            const response = subResponse; // Keep variable name for minimal diff if wanted, or refactor below
 
             if (response.success && response.data) {
                 setPlanName(response.data.plan_name);
                 setIsActive(response.data.is_active);
                 // Set subscription_id if available from response
                 const responseData = response.data as Record<string, unknown>;
-                console.log('Subscription Response Data:', responseData); // DEBUG LOG
                 const subId = (responseData.subscription_id || responseData.id) as string | undefined;
-                console.log('Extracted subscriptionId:', subId); // DEBUG LOG
                 setSubscriptionId(subId || null);
 
                 const rawFeatures = response.data.features;
@@ -94,9 +103,41 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
 
                 setFeatures(normalizedFeatures);
 
-                // Update token usage from response
-                const dailyUsed = (response.data.ai_daily_usage as number) || 0;
-                const dailyLimit = normalizedFeatures.daily_token_limit;
+                // Update token usage
+                // Priority: Usage Status API > Subscription Status API
+                let dailyUsed = 0;
+
+                // Allow type assertion for usage response as strict types might not be exported here
+                const usageData = usageResponse.data as any;
+
+                if (usageResponse.success && usageData && usageData.daily?.ai_chat?.used !== undefined) {
+                    dailyUsed = usageData.daily.ai_chat.used;
+                } else {
+                    // Fallback to subscription status fields
+                    dailyUsed = response.data.ai_daily_usage ??
+                        (response.data as any).ai_chat_daily_usage ??
+                        (response.data as any).daily_usage ??
+                        0;
+                }
+
+                // Robust Limit Calculation:
+                // 1. Try explicit credit limit (new)
+                // 2. Try explicit chat limit (old)
+                // 3. Try to infer from usage + remaining (if available)
+                // 4. Fallback to feature flags
+                let dailyLimit = (response.data.ai_daily_credit_limit as number)
+                    ?? (response.data.ai_chat_daily_limit as number);
+
+                if ((dailyLimit === undefined || dailyLimit === 0) && typeof (response.data as any).ai_daily_remaining === 'number') {
+                    dailyLimit = dailyUsed + ((response.data as any).ai_daily_remaining as number);
+                }
+
+                if (dailyLimit === undefined || dailyLimit === 0) {
+                    dailyLimit = normalizedFeatures.daily_token_limit ?? 0;
+                }
+
+                // Ensure -1 is handled correctly (as infinity, usually passed as -1)
+
                 const percentage = dailyLimit > 0 ? Math.min((dailyUsed / dailyLimit) * 100, 100) : 0;
 
                 setTokenUsage({

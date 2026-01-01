@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { MessageSquare, Search } from "lucide-react";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { PlanStatusPill } from "@/components/common/PlanStatusPill";
-import { TokenUsageIndicator } from "@/components/common/TokenUsageIndicator";
+import { TokenUsagePill } from "@/components/common/TokenUsagePill";
 import { NotificationDropdown } from "@/components/organisms/NotificationDropdown";
 
 interface TopBarProps {
@@ -14,7 +14,7 @@ interface TopBarProps {
 }
 
 export const TopBar = ({ onSearchClick, onChatClick }: TopBarProps) => {
-    const { checkPermission, tokenUsage } = useSubscription();
+    const { checkPermission } = useSubscription();
 
     const showSearch = checkPermission('semantic_search');
     const showChat = checkPermission('ai_chat');
@@ -28,6 +28,9 @@ export const TopBar = ({ onSearchClick, onChatClick }: TopBarProps) => {
 
             {/* Right: Actions & Profile */}
             <div className="flex items-center gap-2">
+                {/* Token Usage Pill (Left of Plan) */}
+                <TokenUsagePill className="mr-2" />
+
                 {/* Plan Status Pill */}
                 <PlanStatusPill className="mr-2" />
 
@@ -56,19 +59,6 @@ export const TopBar = ({ onSearchClick, onChatClick }: TopBarProps) => {
                                 <MessageSquare className="h-5 w-5" />
                             </Button>
                         </ActionTooltip>
-                        {tokenUsage.dailyLimit > 0 && (
-                            <div className="w-32">
-                                <TokenUsageIndicator
-                                    dailyUsed={tokenUsage.dailyUsed}
-                                    dailyLimit={tokenUsage.dailyLimit}
-                                    percentage={tokenUsage.percentage}
-                                    showLabel={false}
-                                />
-                                <p className="text-[10px] text-muted-foreground mt-0.5 text-center">
-                                    {tokenUsage.dailyUsed}/{tokenUsage.dailyLimit}
-                                </p>
-                            </div>
-                        )}
                     </div>
                 )}
 

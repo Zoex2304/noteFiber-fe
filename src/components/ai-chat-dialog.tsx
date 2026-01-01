@@ -13,9 +13,9 @@ import { apiClient } from "@/api/client/axios.client";
 import type { BaseResponse } from "../dto/base-response";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useUsageLimits, handleLimitExceededError } from "@/contexts/UsageLimitsContext";
-import { TokenUsageIndicator } from "@/components/common/TokenUsageIndicator";
 import { TokenLimitDialog } from "@/components/common/TokenLimitDialog";
 import { ChatBubble, PixelLoader } from "@/components/molecules";
+import { TokenUsagePill } from "@/components/common/TokenUsagePill";
 import { useNavigate } from "@tanstack/react-router";
 import type {
   SendChatResponse,
@@ -267,19 +267,7 @@ export function AIChatDialog({ open, onOpenChange }: AIChatDialogProps) {
               Ask AI
             </DialogTitle>
             <div className="flex items-center gap-4">
-              {tokenUsage.dailyLimit > 0 && (
-                <div className="w-48">
-                  <TokenUsageIndicator
-                    dailyUsed={tokenUsage.dailyUsed}
-                    dailyLimit={tokenUsage.dailyLimit}
-                    percentage={tokenUsage.percentage}
-                    showLabel={false}
-                  />
-                  <p className="text-xs text-muted-foreground mt-1 text-center">
-                    {tokenUsage.dailyUsed}/{tokenUsage.dailyLimit} requests
-                  </p>
-                </div>
-              )}
+              <TokenUsagePill />
               <Button
                 variant="outline"
                 size="sm"

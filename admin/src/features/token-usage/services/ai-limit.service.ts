@@ -53,12 +53,15 @@ export const aiLimitService = {
     },
 
     /**
-     * Update a single user's AI daily limit
+     * Update a single user's AI usage count
      * @param userId - User UUID
-     * @param aiDailyLimit - -1 = unlimited, 0 = disabled, 1+ = specific
+     * @param usage - Chat and/or Search usage to update
      */
-    async updateUserLimit(userId: string, aiDailyLimit: number): Promise<UpdateAiLimitResponse> {
-        const payload: UpdateAiLimitRequest = { ai_daily_limit: aiDailyLimit };
+    async updateUserUsage(userId: string, usage: { chat?: number; search?: number }): Promise<UpdateAiLimitResponse> {
+        const payload: UpdateAiLimitRequest = {
+            ai_chat_daily_usage: usage.chat,
+            semantic_search_daily_usage: usage.search
+        };
         const response = await apiClient.put<TokenUsageApiResponse<UpdateAiLimitResponse>>(
             `${ENDPOINT}/${userId}`,
             payload
@@ -67,22 +70,26 @@ export const aiLimitService = {
     },
 
     /**
-     * Reset a single user's limit to plan default
+     * Reset a single user's usage to 0
      * @param userId - User UUID
      */
-    async resetUserLimit(userId: string): Promise<void> {
-        await apiClient.delete(`${ENDPOINT}/${userId}`);
+    async resetUserUsage(userId: string): Promise<UpdateAiLimitResponse> {
+        const response = await apiClient.delete<TokenUsageApiResponse<UpdateAiLimitResponse>>(
+            `${ENDPOINT}/${userId}`
+        );
+        return response.data.data;
     },
 
     /**
-     * Bulk update AI limits for multiple users
+     * Bulk update AI usage for multiple users
      * @param userIds - Array of user UUIDs
-     * @param aiDailyLimit - -1 = unlimited, 0 = disabled, 1+ = specific
+     * @param usage - Chat and/or Search usage
      */
-    async bulkUpdateLimits(userIds: string[], aiDailyLimit: number): Promise<BulkAiLimitResponse> {
+    async bulkUpdateUsage(userIds: string[], usage: { chat?: number; search?: number }): Promise<BulkAiLimitResponse> {
         const payload: BulkUpdateAiLimitRequest = {
             user_ids: userIds,
-            ai_daily_limit: aiDailyLimit,
+            ai_chat_daily_usage: usage.chat,
+            semantic_search_daily_usage: usage.search,
         };
         const response = await apiClient.post<TokenUsageApiResponse<BulkAiLimitResponse>>(
             `${ENDPOINT}/bulk`,
@@ -92,10 +99,10 @@ export const aiLimitService = {
     },
 
     /**
-     * Bulk reset AI limits to plan defaults for multiple users
+     * Bulk reset AI usage to 0 for multiple users
      * @param userIds - Array of user UUIDs
      */
-    async bulkResetLimits(userIds: string[]): Promise<BulkAiLimitResponse> {
+    async bulkResetUsage(userIds: string[]): Promise<BulkAiLimitResponse> {
         const payload: BulkResetAiLimitRequest = { user_ids: userIds };
         const response = await apiClient.delete<TokenUsageApiResponse<BulkAiLimitResponse>>(
             `${ENDPOINT}/bulk`,

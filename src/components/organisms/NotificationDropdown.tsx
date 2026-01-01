@@ -40,7 +40,9 @@ export function NotificationDropdown() {
         // Navigate if action_url exists in metadata
         const actionUrl = notification.metadata?.action_url as string | undefined;
         if (actionUrl) {
-            navigate({ to: actionUrl });
+            // Normalize specific backend paths to frontend routes
+            const targetUrl = actionUrl === '/settings' ? '/app/settings' : actionUrl;
+            navigate({ to: targetUrl });
         }
 
         // Close popover

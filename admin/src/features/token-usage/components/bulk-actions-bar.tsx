@@ -38,7 +38,7 @@ export function BulkActionsBar({
                 disabled={isLoading}
             >
                 <Pencil className="h-4 w-4 mr-1" />
-                Set Limit
+                Set Usage
             </Button>
             <Button
                 variant="outline"
@@ -47,7 +47,7 @@ export function BulkActionsBar({
                 disabled={isLoading}
             >
                 <RotateCcw className="h-4 w-4 mr-1" />
-                Reset to Default
+                Reset (Set to 0)
             </Button>
             <Button
                 variant="ghost"

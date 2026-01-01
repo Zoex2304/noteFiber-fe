@@ -1,7 +1,7 @@
 /**
- * EditLimitDialog Component
+ * EditUsageDialog Component
  * 
- * Dialog for editing a single user's AI daily limit.
+ * Dialog for editing a single user's AI daily usage.
  * Pure UI component - receives state via props.
  */
 
@@ -17,131 +17,166 @@ import {
 import { Button } from '@admin/components/ui/button';
 import { Input } from '@admin/components/ui/input';
 import { Label } from '@admin/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@admin/components/ui/radio-group';
-import { Loader2 } from 'lucide-react';
-import type { TokenUsageItem, LimitType } from '../types';
-import { getLimitType } from '../types';
+import { Loader2, AlertTriangle } from 'lucide-react';
+import type { TokenUsageItem } from '../types';
 
-interface EditLimitDialogProps {
+interface EditUsageDialogProps {
     open: boolean;
     onClose: () => void;
     user: TokenUsageItem | null;
-    onSave: (userId: string, limit: number) => Promise<void>;
+    onSave: (userId: string, usage: { chat?: number; search?: number }) => Promise<void>;
     onReset: (userId: string) => Promise<void>;
     isLoading: boolean;
 }
 
-export function EditLimitDialog({
+export function EditUsageDialog({
     open,
     onClose,
     user,
     onSave,
     onReset,
     isLoading,
-}: EditLimitDialogProps) {
-    const [limitType, setLimitType] = useState<LimitType>('plan_default');
-    const [customLimit, setCustomLimit] = useState('50');
+}: EditUsageDialogProps) {
+    const [chatUsage, setChatUsage] = useState('0');
+    const [searchUsage, setSearchUsage] = useState('0');
+    const [error, setError] = useState<string | null>(null);
 
-    // Initialize from user's current limit
+    // Initialize from user's current usage
     useEffect(() => {
         if (user) {
-            const currentType = getLimitType(user.ai_daily_credit_limit);
-            setLimitType(currentType);
-            if (currentType === 'custom') {
-                setCustomLimit(String(user.ai_daily_credit_limit));
-            }
+            setChatUsage(String(user.ai_chat_daily_usage ?? 0));
+            setSearchUsage(String(user.semantic_search_daily_usage ?? 0));
+            setError(null);
         }
-    }, [user]);
+    }, [user, open]);
+
+    const validate = (chatVal: number, searchVal: number): boolean => {
+        if (!user) return false;
+
+        if (isNaN(chatVal) || chatVal < 0) {
+            setError("Chat usage must be a positive number");
+            return false;
+        }
+        if (isNaN(searchVal) || searchVal < 0) {
+            setError("Search usage must be a positive number");
+            return false;
+        }
+
+        // Limit Checks
+        if (user.ai_chat_daily_limit !== -1 && chatVal > user.ai_chat_daily_limit) {
+            setError(`Chat usage exceeds limit of ${user.ai_chat_daily_limit}`);
+            return false;
+        }
+
+        if (user.semantic_search_daily_limit !== -1 && searchVal > user.semantic_search_daily_limit) {
+            setError(`Search usage exceeds limit of ${user.semantic_search_daily_limit}`);
+            return false;
+        }
+
+        setError(null);
+        return true;
+    };
 
     const handleSave = async () => {
         if (!user) return;
+        const cVal = parseInt(chatUsage, 10);
+        const sVal = parseInt(searchUsage, 10);
 
-        let limitValue: number;
-        switch (limitType) {
-            case 'unlimited':
-                limitValue = -1;
-                break;
-            case 'disabled':
-                limitValue = 0;
-                break;
-            case 'plan_default':
-                // Reset to plan default
-                await onReset(user.user_id);
-                return;
-            case 'custom':
-                limitValue = parseInt(customLimit, 10);
-                if (isNaN(limitValue) || limitValue < 1) {
-                    return; // Invalid input
-                }
-                break;
-            default:
-                return;
-        }
+        if (!validate(cVal, sVal)) return;
 
-        await onSave(user.user_id, limitValue);
+        // Send both
+        await onSave(user.user_id, { chat: cVal, search: sVal });
+    };
+
+    const handleReset = async () => {
+        if (!user) return;
+        await onReset(user.user_id);
     };
 
     if (!user) return null;
 
     return (
         <Dialog open={open} onOpenChange={onClose}>
-            <DialogContent>
+            <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                    <DialogTitle>Edit AI Limit</DialogTitle>
+                    <DialogTitle>Edit AI Usage</DialogTitle>
                     <DialogDescription>
-                        Set AI daily limit for <strong>{user.email}</strong>
+                        Adjust usage counters for <strong>{user.email}</strong>
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="py-4 space-y-4">
-                    <div className="text-sm text-muted-foreground">
-                        Current plan: <strong>{user.plan_name}</strong>
-                        <br />
-                        Current usage: <strong>{user.ai_daily_usage}</strong> / {user.ai_daily_credit_limit === -1 ? '∞' : user.ai_daily_credit_limit}
-                    </div>
-
-                    <RadioGroup value={limitType} onValueChange={(v) => setLimitType(v as LimitType)}>
-                        <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="plan_default" id="plan_default" />
-                            <Label htmlFor="plan_default">Plan Default</Label>
+                <div className="py-4 space-y-6">
+                    {/* Chat Usage Section */}
+                    <div className="space-y-3">
+                        <Label className="text-base font-semibold">Chat Usage</Label>
+                        <div className="p-3 bg-muted rounded-md text-sm flex justify-between">
+                            <span>Limit: <strong>{user.ai_chat_daily_limit === -1 ? 'Unlimited' : user.ai_chat_daily_limit}</strong></span>
+                            <span>Current: <strong>{user.ai_chat_daily_usage}</strong></span>
                         </div>
-                        <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="unlimited" id="unlimited" />
-                            <Label htmlFor="unlimited">Unlimited</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="disabled" id="disabled" />
-                            <Label htmlFor="disabled">Disabled (0)</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="custom" id="custom" />
-                            <Label htmlFor="custom">Custom Limit</Label>
-                        </div>
-                    </RadioGroup>
-
-                    {limitType === 'custom' && (
-                        <div className="space-y-2">
-                            <Label htmlFor="customLimit">Daily Limit</Label>
+                        <div className="grid w-full items-center gap-1.5">
+                            <Label htmlFor="chatUsage">Set Chat Count</Label>
                             <Input
-                                id="customLimit"
+                                id="chatUsage"
                                 type="number"
-                                min="1"
-                                value={customLimit}
-                                onChange={(e) => setCustomLimit(e.target.value)}
-                                placeholder="e.g., 100"
+                                min="0"
+                                value={chatUsage}
+                                onChange={(e) => {
+                                    setChatUsage(e.target.value);
+                                    setError(null);
+                                }}
                             />
                         </div>
+                    </div>
+
+                    {/* Search Usage Section */}
+                    <div className="space-y-3 pt-2 border-t">
+                        <Label className="text-base font-semibold">Semantic Search Usage</Label>
+                        <div className="p-3 bg-muted rounded-md text-sm flex justify-between">
+                            <span>Limit: <strong>{user.semantic_search_daily_limit === -1 ? 'Unlimited' : user.semantic_search_daily_limit}</strong></span>
+                            <span>Current: <strong>{user.semantic_search_daily_usage}</strong></span>
+                        </div>
+                        <div className="grid w-full items-center gap-1.5">
+                            <Label htmlFor="searchUsage">Set Search Count</Label>
+                            <Input
+                                id="searchUsage"
+                                type="number"
+                                min="0"
+                                value={searchUsage}
+                                onChange={(e) => {
+                                    setSearchUsage(e.target.value);
+                                    setError(null);
+                                }}
+                            />
+                        </div>
+                    </div>
+
+                    {error && (
+                        <p className="text-sm text-destructive flex items-center mt-1">
+                            <AlertTriangle className="h-3 w-3 mr-1" />
+                            {error}
+                        </p>
                     )}
                 </div>
 
-                <DialogFooter>
-                    <Button variant="outline" onClick={onClose} disabled={isLoading}>
-                        Cancel
+                <DialogFooter className="flex justify-between sm:justify-between">
+                    <Button
+                        variant="secondary"
+                        onClick={handleReset}
+                        disabled={isLoading}
+                        className="mr-auto"
+                        type="button"
+                    >
+                        Reset All (0)
                     </Button>
-                    <Button onClick={handleSave} disabled={isLoading}>
-                        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        Save
-                    </Button>
+                    <div className="flex gap-2">
+                        <Button variant="outline" onClick={onClose} disabled={isLoading} type="button">
+                            Cancel
+                        </Button>
+                        <Button onClick={handleSave} disabled={isLoading || !!error} type="button">
+                            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            Update
+                        </Button>
+                    </div>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

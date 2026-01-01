@@ -5,47 +5,28 @@
  * Single responsibility: Orchestrates API calls and UI state.
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { aiLimitService } from '../services/ai-limit.service';
-import type { TokenUsageItem } from '../types';
+import type { TokenUsageItem, UpdateAiLimitResponse } from '../types';
+import type { WebSocketMessage } from '@admin/lib/api/websocket-client';
 
 interface UseAiLimitManagementResult {
-    /** Currently selected users for bulk operations */
     selectedUsers: string[];
-    /** Toggle user selection */
     toggleUserSelection: (userId: string) => void;
-    /** Select all users */
     selectAll: (users: TokenUsageItem[]) => void;
-    /** Clear selection */
     clearSelection: () => void;
-    /** Update single user limit */
-    updateLimit: (userId: string, limit: number) => Promise<void>;
-    /** Reset single user to plan default */
-    resetLimit: (userId: string) => Promise<void>;
-    /** Bulk update selected users */
-    bulkUpdateLimits: (limit: number) => Promise<void>;
-    /** Bulk reset selected users to plan default */
-    bulkResetLimits: () => Promise<void>;
-    /** Whether any mutation is in progress */
+    updateUsage: (userId: string, usage: { chat?: number; search?: number }) => Promise<void>;
+    resetUsage: (userId: string) => Promise<void>;
+    bulkUpdateUsage: (usage: { chat?: number; search?: number }) => Promise<void>;
+    bulkResetUsage: () => Promise<void>;
     isUpdating: boolean;
-    /** Edit dialog state */
-    editDialog: {
-        open: boolean;
-        user: TokenUsageItem | null;
-    };
-    /** Open edit dialog for user */
+    editDialog: { open: boolean; user: TokenUsageItem | null };
     openEditDialog: (user: TokenUsageItem) => void;
-    /** Close edit dialog */
     closeEditDialog: () => void;
-    /** Bulk edit dialog state */
-    bulkDialog: {
-        open: boolean;
-    };
-    /** Open bulk edit dialog */
+    bulkDialog: { open: boolean };
     openBulkDialog: () => void;
-    /** Close bulk edit dialog */
     closeBulkDialog: () => void;
 }
 
@@ -62,16 +43,40 @@ export function useAiLimitManagement(): UseAiLimitManagementResult {
     });
     const [bulkDialog, setBulkDialog] = useState({ open: false });
 
-    // Query key for invalidation
-    const queryKey = ['admin', 'token-usage'];
+    // Query key prefix for all token usage queries
+    const queryKeyPrefix = ['admin', 'token-usage'];
+
+    // ========== Helper: Update Cache ==========
+    const updateUserInCache = useCallback((
+        userId: string,
+        updates: { chat?: number; search?: number },
+        remaining?: number
+    ) => {
+        // Update all queries starting with the prefix (handles pagination keys)
+        queryClient.setQueriesData({ queryKey: queryKeyPrefix }, (oldData: TokenUsageItem[] | undefined) => {
+            if (!oldData) return oldData;
+
+            return oldData.map(user => {
+                if (user.user_id === userId) {
+                    const updatedUser = { ...user };
+
+                    if (updates.chat !== undefined) updatedUser.ai_chat_daily_usage = updates.chat;
+                    if (updates.search !== undefined) updatedUser.semantic_search_daily_usage = updates.search;
+
+                    // Update remaining based on backend response or local calc
+                    if (remaining !== undefined) {
+                        updatedUser.ai_daily_remaining = remaining;
+                    }
+                    return updatedUser;
+                }
+                return user;
+            });
+        });
+    }, [queryClient]);
 
     // ========== Selection Handlers ==========
     const toggleUserSelection = useCallback((userId: string) => {
-        setSelectedUsers(prev =>
-            prev.includes(userId)
-                ? prev.filter(id => id !== userId)
-                : [...prev, userId]
-        );
+        setSelectedUsers(prev => prev.includes(userId) ? prev.filter(id => id !== userId) : [...prev, userId]);
     }, []);
 
     const selectAll = useCallback((users: TokenUsageItem[]) => {
@@ -101,37 +106,51 @@ export function useAiLimitManagement(): UseAiLimitManagementResult {
 
     // ========== Mutations ==========
     const updateMutation = useMutation({
-        mutationFn: ({ userId, limit }: { userId: string; limit: number }) =>
-            aiLimitService.updateUserLimit(userId, limit),
+        mutationFn: ({ userId, usage }: { userId: string; usage: { chat?: number; search?: number } }) =>
+            aiLimitService.updateUserUsage(userId, usage),
         onSuccess: (data) => {
-            toast.success(`AI limit updated for ${data.user_email}`);
-            queryClient.invalidateQueries({ queryKey });
+            toast.success(`AI usage updated for ${data.user_email}`);
+            // Optimistic update
+            updateUserInCache(
+                data.user_id,
+                { chat: data.new_chat_usage, search: data.new_semantic_search_usage },
+                data.ai_daily_remaining
+            );
             closeEditDialog();
         },
         onError: () => {
-            toast.error('Failed to update AI limit');
+            toast.error('Failed to update AI usage');
         },
     });
 
     const resetMutation = useMutation({
-        mutationFn: (userId: string) => aiLimitService.resetUserLimit(userId),
-        onSuccess: () => {
-            toast.success('AI limit reset to plan default');
-            queryClient.invalidateQueries({ queryKey });
+        mutationFn: (userId: string) => aiLimitService.resetUserUsage(userId),
+        onSuccess: (data) => {
+            toast.success('AI usage reset to 0');
+            // Assuming reset sets both to 0 if 0 is not provided
+            // Or response contains strict new values.
+            // If new_chat_usage is undefined, it might mean unchanged?
+            // But reset typically resets ALL.
+            // I'll rely on response data.
+            updateUserInCache(
+                data.user_id,
+                { chat: data.new_chat_usage, search: data.new_semantic_search_usage },
+                data.ai_daily_remaining
+            );
         },
         onError: () => {
-            toast.error('Failed to reset AI limit');
+            toast.error('Failed to reset AI usage');
         },
     });
 
     const bulkUpdateMutation = useMutation({
-        mutationFn: (limit: number) => aiLimitService.bulkUpdateLimits(selectedUsers, limit),
+        mutationFn: (usage: { chat?: number; search?: number }) => aiLimitService.bulkUpdateUsage(selectedUsers, usage),
         onSuccess: (data) => {
-            toast.success(`Updated ${data.total_updated} users`);
+            toast.success(`Updated usage for ${data.total_updated} users`);
             if (data.failed_user_ids.length > 0) {
                 toast.warning(`Failed for ${data.failed_user_ids.length} users`);
             }
-            queryClient.invalidateQueries({ queryKey });
+            queryClient.invalidateQueries({ queryKey: queryKeyPrefix });
             clearSelection();
             closeBulkDialog();
         },
@@ -141,10 +160,10 @@ export function useAiLimitManagement(): UseAiLimitManagementResult {
     });
 
     const bulkResetMutation = useMutation({
-        mutationFn: () => aiLimitService.bulkResetLimits(selectedUsers),
+        mutationFn: () => aiLimitService.bulkResetUsage(selectedUsers),
         onSuccess: (data) => {
-            toast.success(`Reset ${data.total_updated} users to plan default`);
-            queryClient.invalidateQueries({ queryKey });
+            toast.success(`Reset usage for ${data.total_updated} users`);
+            queryClient.invalidateQueries({ queryKey: queryKeyPrefix });
             clearSelection();
         },
         onError: () => {
@@ -152,20 +171,53 @@ export function useAiLimitManagement(): UseAiLimitManagementResult {
         },
     });
 
+    // ========== WebSocket Sync ==========
+    useEffect(() => {
+        const handleAdminNotification = (event: Event) => {
+            const customEvent = event as CustomEvent<WebSocketMessage>;
+            const message = customEvent.detail;
+
+            if (message.data.type_code === 'AI_LIMIT_UPDATED' && message.data.metadata) {
+                // Parse new schema
+                const metadata = message.data.metadata as Record<string, unknown>;
+                const {
+                    user_id,
+                    new_chat_usage,
+                    new_semantic_search_usage,
+                    ai_daily_remaining
+                } = metadata;
+
+                if (typeof user_id === 'string') {
+                    updateUserInCache(
+                        user_id,
+                        {
+                            chat: typeof new_chat_usage === 'number' ? new_chat_usage : undefined,
+                            search: typeof new_semantic_search_usage === 'number' ? new_semantic_search_usage : undefined
+                        },
+                        typeof ai_daily_remaining === 'number' ? ai_daily_remaining : undefined
+                    );
+                }
+            }
+        };
+
+        window.addEventListener('admin:notification', handleAdminNotification);
+        return () => window.removeEventListener('admin:notification', handleAdminNotification);
+    }, [updateUserInCache]);
+
     // ========== Action Wrappers ==========
-    const updateLimit = useCallback(async (userId: string, limit: number) => {
-        await updateMutation.mutateAsync({ userId, limit });
+    const updateUsage = useCallback(async (userId: string, usage: { chat?: number; search?: number }) => {
+        await updateMutation.mutateAsync({ userId, usage });
     }, [updateMutation]);
 
-    const resetLimit = useCallback(async (userId: string) => {
+    const resetUsage = useCallback(async (userId: string) => {
         await resetMutation.mutateAsync(userId);
     }, [resetMutation]);
 
-    const bulkUpdateLimits = useCallback(async (limit: number) => {
-        await bulkUpdateMutation.mutateAsync(limit);
+    const bulkUpdateUsage = useCallback(async (usage: { chat?: number; search?: number }) => {
+        await bulkUpdateMutation.mutateAsync(usage);
     }, [bulkUpdateMutation]);
 
-    const bulkResetLimits = useCallback(async () => {
+    const bulkResetUsage = useCallback(async () => {
         await bulkResetMutation.mutateAsync();
     }, [bulkResetMutation]);
 
@@ -180,10 +232,10 @@ export function useAiLimitManagement(): UseAiLimitManagementResult {
         toggleUserSelection,
         selectAll,
         clearSelection,
-        updateLimit,
-        resetLimit,
-        bulkUpdateLimits,
-        bulkResetLimits,
+        updateUsage,
+        resetUsage,
+        bulkUpdateUsage,
+        bulkResetUsage,
         isUpdating,
         editDialog,
         openEditDialog,

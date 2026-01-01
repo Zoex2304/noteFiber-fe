@@ -23,6 +23,7 @@ import { Route as authSigninRouteImport } from './routes/(auth)/signin'
 import { Route as authResetPasswordRouteImport } from './routes/(auth)/reset-password'
 import { Route as authForgotPasswordRouteImport } from './routes/(auth)/forgot-password'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
+import { Route as AuthenticatedUsersUserIdRouteImport } from './routes/_authenticated/users.$userId'
 import { Route as AuthenticatedRefundsRefundIdRouteImport } from './routes/_authenticated/refunds.$refundId'
 import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/app.settings'
 import { Route as AuthenticatedAppNoteNoteIdRouteImport } from './routes/_authenticated/app.note.$noteId'
@@ -97,6 +98,12 @@ const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedUsersUserIdRoute =
+  AuthenticatedUsersUserIdRouteImport.update({
+    id: '/users/$userId',
+    path: '/users/$userId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedRefundsRefundIdRoute =
   AuthenticatedRefundsRefundIdRouteImport.update({
     id: '/refunds/$refundId',
@@ -131,6 +138,7 @@ export interface FileRoutesByFullPath {
   '/admin/$': typeof AdminSplatRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
   '/refunds/$refundId': typeof AuthenticatedRefundsRefundIdRoute
+  '/users/$userId': typeof AuthenticatedUsersUserIdRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/note/$noteId': typeof AuthenticatedAppNoteNoteIdRoute
 }
@@ -148,6 +156,7 @@ export interface FileRoutesByTo {
   '/admin/$': typeof AdminSplatRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
   '/refunds/$refundId': typeof AuthenticatedRefundsRefundIdRoute
+  '/users/$userId': typeof AuthenticatedUsersUserIdRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/note/$noteId': typeof AuthenticatedAppNoteNoteIdRoute
 }
@@ -168,6 +177,7 @@ export interface FileRoutesById {
   '/admin/$': typeof AdminSplatRoute
   '/_authenticated/app/settings': typeof AuthenticatedAppSettingsRoute
   '/_authenticated/refunds/$refundId': typeof AuthenticatedRefundsRefundIdRoute
+  '/_authenticated/users/$userId': typeof AuthenticatedUsersUserIdRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/note/$noteId': typeof AuthenticatedAppNoteNoteIdRoute
 }
@@ -188,6 +198,7 @@ export interface FileRouteTypes {
     | '/admin/$'
     | '/app/settings'
     | '/refunds/$refundId'
+    | '/users/$userId'
     | '/app/'
     | '/app/note/$noteId'
   fileRoutesByTo: FileRoutesByTo
@@ -205,6 +216,7 @@ export interface FileRouteTypes {
     | '/admin/$'
     | '/app/settings'
     | '/refunds/$refundId'
+    | '/users/$userId'
     | '/app'
     | '/app/note/$noteId'
   id:
@@ -224,6 +236,7 @@ export interface FileRouteTypes {
     | '/admin/$'
     | '/_authenticated/app/settings'
     | '/_authenticated/refunds/$refundId'
+    | '/_authenticated/users/$userId'
     | '/_authenticated/app/'
     | '/_authenticated/app/note/$noteId'
   fileRoutesById: FileRoutesById
@@ -340,6 +353,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/users/$userId': {
+      id: '/_authenticated/users/$userId'
+      path: '/users/$userId'
+      fullPath: '/users/$userId'
+      preLoaderRoute: typeof AuthenticatedUsersUserIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/refunds/$refundId': {
       id: '/_authenticated/refunds/$refundId'
       path: '/refunds/$refundId'
@@ -385,6 +405,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedPricingRoute: typeof AuthenticatedPricingRoute
   AuthenticatedSubscriptionRoute: typeof AuthenticatedSubscriptionRoute
   AuthenticatedRefundsRefundIdRoute: typeof AuthenticatedRefundsRefundIdRoute
+  AuthenticatedUsersUserIdRoute: typeof AuthenticatedUsersUserIdRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -393,6 +414,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedPricingRoute: AuthenticatedPricingRoute,
   AuthenticatedSubscriptionRoute: AuthenticatedSubscriptionRoute,
   AuthenticatedRefundsRefundIdRoute: AuthenticatedRefundsRefundIdRoute,
+  AuthenticatedUsersUserIdRoute: AuthenticatedUsersUserIdRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

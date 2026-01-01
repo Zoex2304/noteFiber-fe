@@ -67,7 +67,7 @@ const NotificationContext = createContext<NotificationContextType | undefined>(u
 export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     const navigate = useNavigate();
     const { isAuthenticated, user, isLoading: isAuthLoading } = useAuth();
-    const { isActive: isSubscribed } = useSubscription();
+    const { isActive: isSubscribed, refreshSubscription } = useSubscription();
 
     // State
     const [unreadCount, setUnreadCount] = useState(0);
@@ -95,9 +95,19 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
         setIsLoading(true);
         try {
             const response = await notificationService.getNotifications(20, 0);
-            if (response.success && response.data) {
-                setNotifications(response.data.data);
+
+            // Handle both wrapped (ApiResponse) and unwrapped (PaginationResponse) formats
+            let items: Notification[] = [];
+
+            if (response.success && response.data?.data) {
+                // Wrapped: { success: true, data: { data: [...] } }
+                items = response.data.data;
+            } else if (Array.isArray((response as any).data)) {
+                // Unwrapped: { data: [...], limit: ... }
+                items = (response as any).data;
             }
+
+            setNotifications(items);
         } catch (error) {
             console.error('Failed to fetch notifications:', error);
         } finally {
@@ -196,20 +206,29 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
             // Handle special notification types
             if (message.data.type_code === NotificationTypeCode.SOCIAL_PROOF) {
                 handleSocialProof(message);
-            } else {
-                // Regular toast notification with action_url support
-                const actionUrl = message.data.metadata?.action_url as string | undefined;
-                toast(message.data.title, {
-                    description: message.data.message,
-                    duration: 5000,
-                    action: actionUrl ? {
-                        label: 'View',
-                        onClick: () => navigate({ to: actionUrl }),
-                    } : undefined,
-                });
+                return;
             }
+
+            if (message.data.type_code === NotificationTypeCode.AI_LIMIT_UPDATED) {
+                refreshSubscription();
+            }
+
+            // Regular toast notification with action_url support
+            const actionUrl = message.data.metadata?.action_url as string | undefined;
+            toast(message.data.title, {
+                description: message.data.message,
+                duration: 5000,
+                action: actionUrl ? {
+                    label: 'View',
+                    onClick: () => {
+                        // Normalize specific backend paths to frontend routes
+                        const targetUrl = actionUrl === '/settings' ? '/app/settings' : actionUrl;
+                        navigate({ to: targetUrl });
+                    },
+                } : undefined,
+            });
         },
-        [handleSocialProof, navigate]
+        [handleSocialProof, navigate, refreshSubscription]
     );
 
     // ========== WebSocket Lifecycle ==========
