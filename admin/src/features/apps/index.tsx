@@ -11,12 +11,7 @@ import {
   SelectValue,
 } from '@admin/components/ui/select'
 import { Separator } from '@admin/components/ui/separator'
-import { ConfigDrawer } from '@admin/components/config-drawer'
-import { Header } from '@admin/components/layout/header'
 import { Main } from '@admin/components/layout/main'
-import { ProfileDropdown } from '@admin/components/profile-dropdown'
-import { Search } from '@admin/components/search'
-import { ThemeSwitch } from '@admin/components/theme-switch'
 import { apps } from './data/apps'
 
 const route = getRouteApi('/_authenticated/apps/')
@@ -83,16 +78,6 @@ export function Apps() {
 
   return (
     <>
-      {/* ===== Top Heading ===== */}
-      <Header>
-        <Search />
-        <div className='ms-auto flex items-center gap-4'>
-          <ThemeSwitch />
-          <ConfigDrawer />
-          <ProfileDropdown />
-        </div>
-      </Header>
-
       {/* ===== Content ===== */}
       <Main fixed>
         <div>

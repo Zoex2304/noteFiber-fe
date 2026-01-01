@@ -44,18 +44,15 @@ export class WebSocketClient {
      */
     connect(): void {
         if (this.ws?.readyState === WebSocket.OPEN) {
-            console.log('[WS] Already connected');
             return;
         }
 
         this.isIntentionalClose = false;
         const url = `${this.options.baseUrl}?token=${this.options.token}`;
 
-        console.log('[WS] Connecting to:', url);
         this.ws = new WebSocket(url);
 
         this.ws.onopen = () => {
-            console.log('[WS] Connected');
             this.reconnectAttempts = 0;
             this.options.onOpen?.();
         };
@@ -64,8 +61,7 @@ export class WebSocketClient {
             this.handleMessage(event.data);
         };
 
-        this.ws.onclose = (event) => {
-            console.log('[WS] Closed:', event.code, event.reason);
+        this.ws.onclose = () => {
             this.options.onClose?.();
 
             if (!this.isIntentionalClose) {
@@ -137,8 +133,6 @@ export class WebSocketClient {
         this.reconnectAttempts++;
 
         const delay = this.options.reconnectDelay! * Math.min(this.reconnectAttempts, 5);
-        console.log(`[WS] Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts})`);
-
         this.reconnectTimer = setTimeout(() => {
             this.connect();
         }, delay);

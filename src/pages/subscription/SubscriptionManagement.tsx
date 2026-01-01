@@ -16,27 +16,56 @@ import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useNavigate, useRouter } from '@tanstack/react-router';
 import { Check, CreditCard, Calendar, Zap, MoveLeft } from 'lucide-react';
 import { toast } from 'sonner';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { RefundRequestModal } from './RefundRequestModal';
 import { ActionTooltip } from '@/components/common/ActionTooltip';
+import { refundService } from '@/api/services/refund/refund.service';
 
 export function SubscriptionManagement() {
     const { planName, isActive, features, tokenUsage, subscriptionId, refreshSubscription } = useSubscription();
     const navigate = useNavigate();
     const router = useRouter();
     const [refundModalOpen, setRefundModalOpen] = useState(false);
+    const [hasPendingRefund, setHasPendingRefund] = useState(false);
+
+    // Check for pending refund on mount
+    useEffect(() => {
+        const checkPendingRefund = async () => {
+            try {
+                const response = await refundService.getMyRefunds();
+                if (response.success && response.data) {
+                    const pending = response.data.some(r => r.status === 'pending');
+                    setHasPendingRefund(pending);
+                }
+            } catch {
+                // Silent error - non-critical
+            }
+        };
+        if (subscriptionId) {
+            checkPendingRefund();
+        }
+    }, [subscriptionId]);
 
     const handleCancelSubscription = async () => {
         try {
             // TODO: Implement cancel subscription API call
             // await paymentService.cancelSubscription();
             toast.success('Cancellation request submitted. Our team will process it shortly.');
-        } catch (error) {
+        } catch {
             toast.error('Failed to submit cancellation request. Please contact support.');
         }
     };
 
+    const handleRefundClick = () => {
+        if (hasPendingRefund) {
+            toast.info('You already have a pending refund request. Please wait for admin approval.');
+            return;
+        }
+        setRefundModalOpen(true);
+    };
+
     const handleRefundSuccess = () => {
+        setHasPendingRefund(true);
         refreshSubscription();
     };
 
@@ -156,9 +185,9 @@ export function SubscriptionManagement() {
                                 <Button
                                     variant="outline"
                                     className="w-full sm:w-auto"
-                                    onClick={() => setRefundModalOpen(true)}
+                                    onClick={handleRefundClick}
                                 >
-                                    Request Refund
+                                    {hasPendingRefund ? 'Refund Pending...' : 'Request Refund'}
                                 </Button>
 
                                 <RefundRequestModal
@@ -217,13 +246,6 @@ export function SubscriptionManagement() {
                         </p>
                     </CardContent>
                 </Card>
-            </div>
-
-            {/* DEBUG OVERLAY */}
-            <div className="fixed bottom-4 right-4 bg-black/80 text-white p-4 rounded-lg text-xs z-50 font-mono">
-                <p>Plan: {planName}</p>
-                <p>Active: {String(isActive)}</p>
-                <p>Sub ID: {subscriptionId || 'NULL'}</p>
             </div>
         </div>
     );

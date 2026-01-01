@@ -120,26 +120,18 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
         (message: WebSocketMessage) => {
             // Don't show to subscribed users
             if (isSubscribed) {
-                console.log('[Notification] Skipping social proof: user is subscribed');
                 return;
             }
 
             // Rate limit: max 1 per 5 minutes
             const now = Date.now();
             if (now - lastSocialProofTimeRef.current < SOCIAL_PROOF_COOLDOWN_MS) {
-                console.log('[Notification] Skipping social proof: rate limited');
                 return;
             }
 
             lastSocialProofTimeRef.current = now;
 
             const metadata = message.data.metadata as SocialProofMetadata | undefined;
-
-            // Analytics: Track shown
-            console.log('[Analytics] social_proof_shown', {
-                notification_id: message.data.id,
-                plan_name: metadata?.plan_name,
-            });
 
             toast.custom(
                 (t) => (
@@ -149,12 +141,6 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
                         avatarUrl={metadata?.avatar_url}
                         planName={metadata?.plan_name}
                         onUpgradeClick={() => {
-                            // Analytics: Track click
-                            console.log('[Analytics] social_proof_clicked', {
-                                notification_id: message.data.id,
-                                time_shown: Date.now() - now,
-                            });
-
                             toast.dismiss(t);
                             navigate({ to: '/pricing' });
                         }}
@@ -173,8 +159,6 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     // ========== WebSocket Message Handler ==========
     const handleNotification = useCallback(
         (message: WebSocketMessage) => {
-            console.log('[Notification] Received:', message.data.type_code);
-
             // Increment unread count
             setUnreadCount(prev => prev + 1);
 

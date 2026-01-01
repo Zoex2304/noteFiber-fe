@@ -37,7 +37,6 @@ export class WebSocketClient {
 
     connect(): void {
         if (this.ws?.readyState === WebSocket.OPEN) {
-            console.log('[Admin WS] Already connected');
             return;
         }
 
@@ -45,37 +44,26 @@ export class WebSocketClient {
         // Append token as query param
         const url = `${this.options.baseUrl}?token=${this.options.token}`;
 
-        console.log('[Admin WS] Connecting to:', url.replace(/token=.*$/, 'token=***'));
-        console.log('[Admin WS] Token length:', this.options.token?.length || 0);
         this.ws = new WebSocket(url);
 
         this.ws.onopen = () => {
-            console.log('[Admin WS] Connected');
             this.reconnectAttempts = 0;
             this.options.onOpen?.();
         };
 
         this.ws.onmessage = (event) => {
-            console.log('[Admin WS] Raw message received:', event.data);
             try {
                 const parsed = JSON.parse(event.data);
-                console.log('[Admin WS] Parsed message:', parsed);
-                // Handle both {type, data} format and direct notification format
                 if (parsed && (parsed.data || parsed.type_code)) {
-                    // If it's wrapped in {type, data}, use parsed directly
-                    // If it's a direct notification object, wrap it
                     const message = parsed.data ? parsed : { type: 'notification', data: parsed };
                     this.options.onNotification(message);
-                } else {
-                    console.warn('[Admin WS] Message missing expected fields:', parsed);
                 }
             } catch (err) {
-                console.error('[Admin WS] Parse error:', err, 'Raw:', event.data);
+                console.error('[Admin WS] Parse error:', err);
             }
         };
 
-        this.ws.onclose = (event) => {
-            console.log('[Admin WS] Closed:', event.code, event.reason);
+        this.ws.onclose = () => {
             this.options.onClose?.();
 
             if (!this.isIntentionalClose) {
@@ -84,7 +72,6 @@ export class WebSocketClient {
         };
 
         this.ws.onerror = (error) => {
-            console.error('[Admin WS] Error:', error);
             this.options.onError?.(error);
         };
     }
@@ -113,7 +100,6 @@ export class WebSocketClient {
         this.reconnectAttempts++;
         const delay = this.options.reconnectDelay! * Math.min(this.reconnectAttempts, 5);
 
-        console.log(`[Admin WS] Reconnecting in ${delay}ms...`);
         this.reconnectTimer = setTimeout(() => this.connect(), delay);
     }
 

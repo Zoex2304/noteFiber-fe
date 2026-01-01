@@ -8,7 +8,7 @@ export const tokenUsageColumns: ColumnDef<TokenUsageItem>[] = [
         accessorKey: 'email',
         header: 'User',
         cell: ({ row }) => (
-            <div>
+            <div className="min-w-[180px]">
                 <p className="font-medium">{row.original.full_name || 'N/A'}</p>
                 <p className="text-sm text-muted-foreground">{row.original.email}</p>
             </div>
@@ -18,27 +18,42 @@ export const tokenUsageColumns: ColumnDef<TokenUsageItem>[] = [
         accessorKey: 'plan_name',
         header: 'Plan',
         cell: ({ row }) => (
-            <Badge variant="outline">{row.original.plan_name}</Badge>
+            <Badge variant="outline" className="whitespace-nowrap">
+                {row.original.plan_name}
+            </Badge>
         ),
     },
     {
-        accessorKey: 'used_today',
+        accessorKey: 'ai_daily_usage',
         header: 'Usage Today',
         cell: ({ row }) => {
-            const { used_today, daily_limit } = row.original;
-            const percentage = daily_limit > 0 ? (used_today / daily_limit) * 100 : 0;
-            const isOverLimit = used_today >= daily_limit;
+            const used = row.original.ai_daily_usage;
+            const limit = row.original.ai_daily_credit_limit;
+            const percentage = limit > 0 ? (used / limit) * 100 : 0;
+            const isHigh = percentage >= 80;
+            const isOverLimit = used >= limit;
 
             return (
-                <div className="w-32">
-                    <div className="flex justify-between text-sm mb-1">
-                        <span>{used_today}</span>
-                        <span className="text-muted-foreground">/ {daily_limit === -1 ? '∞' : daily_limit}</span>
+                <div className="min-w-[140px]">
+                    <div className="flex items-center justify-between text-sm mb-1.5">
+                        <span className={isOverLimit ? 'text-red-500 font-medium' : ''}>
+                            {used.toLocaleString()}
+                        </span>
+                        <span className="text-muted-foreground">
+                            / {limit === -1 || limit === 0 ? '∞' : limit.toLocaleString()}
+                        </span>
                     </div>
-                    {daily_limit > 0 && (
+                    {limit > 0 && (
                         <Progress
                             value={Math.min(percentage, 100)}
-                            className={isOverLimit ? 'bg-red-100' : ''}
+                            className="h-2"
+                            indicatorClassName={
+                                isOverLimit
+                                    ? 'bg-red-500'
+                                    : isHigh
+                                        ? 'bg-yellow-500'
+                                        : 'bg-green-500'
+                            }
                         />
                     )}
                 </div>
@@ -49,20 +64,35 @@ export const tokenUsageColumns: ColumnDef<TokenUsageItem>[] = [
         accessorKey: 'remaining',
         header: 'Remaining',
         cell: ({ row }) => {
-            const remaining = row.original.remaining;
-            const isUnlimited = row.original.daily_limit === -1;
+            const limit = row.original.ai_daily_credit_limit;
+            const used = row.original.ai_daily_usage;
+            const remaining = limit - used;
 
-            if (isUnlimited) return <span className="text-green-600">Unlimited</span>;
-            if (remaining <= 0) return <span className="text-red-600">0</span>;
-            return <span>{remaining}</span>;
+            if (limit === -1 || limit === 0) {
+                return <span className="text-green-500 font-medium">Unlimited</span>;
+            }
+            if (remaining <= 0) {
+                return <span className="text-red-500 font-medium">0</span>;
+            }
+            if (remaining < 100) {
+                return <span className="text-yellow-500 font-medium">{remaining.toLocaleString()}</span>;
+            }
+            return <span className="text-muted-foreground">{remaining.toLocaleString()}</span>;
         },
     },
     {
-        accessorKey: 'last_reset',
+        accessorKey: 'ai_daily_usage_last_reset',
         header: 'Last Reset',
         cell: ({ row }) => {
-            const date = new Date(row.original.last_reset);
-            return <span className="text-sm text-muted-foreground">{date.toLocaleString()}</span>;
+            const dateStr = row.original.ai_daily_usage_last_reset;
+            if (!dateStr) return <span className="text-muted-foreground">—</span>;
+
+            const date = new Date(dateStr);
+            return (
+                <span className="text-sm text-muted-foreground whitespace-nowrap">
+                    {date.toLocaleDateString()} {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </span>
+            );
         },
     },
 ];

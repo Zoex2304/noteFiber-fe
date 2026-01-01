@@ -4,11 +4,7 @@ import { useTokenUsage } from './hooks/use-token-usage';
 import { Activity } from 'lucide-react';
 
 export function TokenUsage() {
-    const { data: tokenUsage = [], isLoading, error } = useTokenUsage();
-
-    if (error) {
-        console.error('Failed to fetch token usage:', error);
-    }
+    const { data: tokenUsage = [], isLoading } = useTokenUsage();
 
     return (
         <Main className="flex flex-1 flex-col gap-4 sm:gap-6">

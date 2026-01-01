@@ -62,9 +62,9 @@ export function LogOverlay() {
                 {logs.map((log, i) => (
                     <div key={i} className={`border-l-2 pl-2 ${log.level === 'error' ? 'border-red-500 text-red-300' : 'border-green-500'}`}>
                         <span className="text-gray-500">[{log.timestamp}]</span> <span className="font-bold">{log.message}</span>
-                        {log.data && (
+                        {log.data !== undefined && (
                             <pre className="ml-4 mt-1 text-gray-400 overflow-x-auto">
-                                {String(typeof log.data === 'object' ? JSON.stringify(log.data, null, 2) : log.data)}
+                                {typeof log.data === 'object' ? JSON.stringify(log.data, null, 2) : String(log.data)}
                             </pre>
                         )}
                     </div>

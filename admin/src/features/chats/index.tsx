@@ -19,12 +19,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@admin/components/ui/avatar
 import { Button } from '@admin/components/ui/button'
 import { ScrollArea } from '@admin/components/ui/scroll-area'
 import { Separator } from '@admin/components/ui/separator'
-import { ConfigDrawer } from '@admin/components/config-drawer'
-import { Header } from '@admin/components/layout/header'
 import { Main } from '@admin/components/layout/main'
-import { ProfileDropdown } from '@admin/components/profile-dropdown'
-import { Search } from '@admin/components/search'
-import { ThemeSwitch } from '@admin/components/theme-switch'
 import { NewChat } from './components/new-chat'
 import { type ChatUser, type Convo } from './data/chat-types'
 // Fake Data
@@ -66,16 +61,6 @@ export function Chats() {
 
   return (
     <>
-      {/* ===== Top Heading ===== */}
-      <Header>
-        <Search />
-        <div className='ms-auto flex items-center space-x-4'>
-          <ThemeSwitch />
-          <ConfigDrawer />
-          <ProfileDropdown />
-        </div>
-      </Header>
-
       <Main fixed>
         <section className='flex h-full gap-6'>
           {/* Left Side */}
