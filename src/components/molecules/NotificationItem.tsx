@@ -23,6 +23,8 @@ function getNotificationIcon(typeCode: string): string {
             return '💸';
         case NotificationTypeCode.REFUND_REQUESTED:
             return '📋';
+        case NotificationTypeCode.AI_LIMIT_UPDATED:
+            return '🤖';
         case NotificationTypeCode.SYSTEM_BROADCAST:
             return '📢';
         case NotificationTypeCode.SOCIAL_PROOF:

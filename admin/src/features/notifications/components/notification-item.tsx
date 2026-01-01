@@ -2,7 +2,7 @@
  * NotificationItem Component
  * 
  * Pure presentational component for rendering a single notification.
- * No business logic - receives all data and handlers via props.
+ * Supports click-to-navigate via action_url in metadata.
  * Follows Atomic Design as a molecule component.
  */
 
@@ -13,13 +13,20 @@ import { getNotificationIcon } from '@admin/lib/types/notification.types';
 /**
  * Renders a single notification item with icon, content, and read status
  */
-export function NotificationItem({ notification, onMarkAsRead }: NotificationItemProps) {
+export function NotificationItem({ notification, onMarkAsRead, onNavigate }: NotificationItemProps) {
     const icon = getNotificationIcon(notification.type_code);
     const isRefundRequest = notification.type_code === 'REFUND_REQUESTED';
+    const actionUrl = notification.metadata?.action_url;
 
     const handleClick = () => {
+        // Mark as read first
         if (!notification.is_read) {
             onMarkAsRead(notification.id);
+        }
+
+        // Navigate if action_url exists
+        if (actionUrl && onNavigate) {
+            onNavigate(actionUrl);
         }
     };
 
@@ -32,7 +39,8 @@ export function NotificationItem({ notification, onMarkAsRead }: NotificationIte
                 !notification.is_read && 'bg-muted/30',
                 isRefundRequest
                     ? 'border-l-red-500 bg-red-50/50 dark:bg-red-900/10'
-                    : 'border-l-transparent'
+                    : 'border-l-transparent',
+                actionUrl && 'cursor-pointer'
             )}
         >
             <div className="flex gap-2">

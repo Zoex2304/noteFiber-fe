@@ -44,6 +44,7 @@ import { Route as AuthenticatedSettingsNotificationsRouteImport } from './routes
 import { Route as AuthenticatedSettingsDisplayRouteImport } from './routes/_authenticated/settings/display'
 import { Route as AuthenticatedSettingsAppearanceRouteImport } from './routes/_authenticated/settings/appearance'
 import { Route as AuthenticatedSettingsAccountRouteImport } from './routes/_authenticated/settings/account'
+import { Route as AuthenticatedRefundsRefundIdRouteImport } from './routes/_authenticated/refunds.$refundId'
 import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenticated/errors/$error'
 
 const ClerkRouteRoute = ClerkRouteRouteImport.update({
@@ -227,6 +228,12 @@ const AuthenticatedSettingsAccountRoute =
     path: '/account',
     getParentRoute: () => AuthenticatedSettingsRouteRoute,
   } as any)
+const AuthenticatedRefundsRefundIdRoute =
+  AuthenticatedRefundsRefundIdRouteImport.update({
+    id: '/$refundId',
+    path: '/$refundId',
+    getParentRoute: () => AuthenticatedRefundsRoute,
+  } as any)
 const AuthenticatedErrorsErrorRoute =
   AuthenticatedErrorsErrorRouteImport.update({
     id: '/errors/$error',
@@ -250,10 +257,11 @@ export interface FileRoutesByFullPath {
   '/logs': typeof AuthenticatedLogsRoute
   '/payments': typeof AuthenticatedPaymentsRoute
   '/plans': typeof AuthenticatedPlansRoute
-  '/refunds': typeof AuthenticatedRefundsRoute
+  '/refunds': typeof AuthenticatedRefundsRouteWithChildren
   '/token-usage': typeof AuthenticatedTokenUsageRoute
   '/': typeof AuthenticatedIndexRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
+  '/refunds/$refundId': typeof AuthenticatedRefundsRefundIdRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
@@ -284,10 +292,11 @@ export interface FileRoutesByTo {
   '/logs': typeof AuthenticatedLogsRoute
   '/payments': typeof AuthenticatedPaymentsRoute
   '/plans': typeof AuthenticatedPlansRoute
-  '/refunds': typeof AuthenticatedRefundsRoute
+  '/refunds': typeof AuthenticatedRefundsRouteWithChildren
   '/token-usage': typeof AuthenticatedTokenUsageRoute
   '/': typeof AuthenticatedIndexRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
+  '/refunds/$refundId': typeof AuthenticatedRefundsRefundIdRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
@@ -323,10 +332,11 @@ export interface FileRoutesById {
   '/_authenticated/logs': typeof AuthenticatedLogsRoute
   '/_authenticated/payments': typeof AuthenticatedPaymentsRoute
   '/_authenticated/plans': typeof AuthenticatedPlansRoute
-  '/_authenticated/refunds': typeof AuthenticatedRefundsRoute
+  '/_authenticated/refunds': typeof AuthenticatedRefundsRouteWithChildren
   '/_authenticated/token-usage': typeof AuthenticatedTokenUsageRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/errors/$error': typeof AuthenticatedErrorsErrorRoute
+  '/_authenticated/refunds/$refundId': typeof AuthenticatedRefundsRefundIdRoute
   '/_authenticated/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/_authenticated/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/_authenticated/settings/display': typeof AuthenticatedSettingsDisplayRoute
@@ -364,6 +374,7 @@ export interface FileRouteTypes {
     | '/token-usage'
     | '/'
     | '/errors/$error'
+    | '/refunds/$refundId'
     | '/settings/account'
     | '/settings/appearance'
     | '/settings/display'
@@ -398,6 +409,7 @@ export interface FileRouteTypes {
     | '/token-usage'
     | '/'
     | '/errors/$error'
+    | '/refunds/$refundId'
     | '/settings/account'
     | '/settings/appearance'
     | '/settings/display'
@@ -436,6 +448,7 @@ export interface FileRouteTypes {
     | '/_authenticated/token-usage'
     | '/_authenticated/'
     | '/_authenticated/errors/$error'
+    | '/_authenticated/refunds/$refundId'
     | '/_authenticated/settings/account'
     | '/_authenticated/settings/appearance'
     | '/_authenticated/settings/display'
@@ -714,6 +727,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsAccountRouteImport
       parentRoute: typeof AuthenticatedSettingsRouteRoute
     }
+    '/_authenticated/refunds/$refundId': {
+      id: '/_authenticated/refunds/$refundId'
+      path: '/$refundId'
+      fullPath: '/refunds/$refundId'
+      preLoaderRoute: typeof AuthenticatedRefundsRefundIdRouteImport
+      parentRoute: typeof AuthenticatedRefundsRoute
+    }
     '/_authenticated/errors/$error': {
       id: '/_authenticated/errors/$error'
       path: '/errors/$error'
@@ -747,12 +767,23 @@ const AuthenticatedSettingsRouteRouteWithChildren =
     AuthenticatedSettingsRouteRouteChildren,
   )
 
+interface AuthenticatedRefundsRouteChildren {
+  AuthenticatedRefundsRefundIdRoute: typeof AuthenticatedRefundsRefundIdRoute
+}
+
+const AuthenticatedRefundsRouteChildren: AuthenticatedRefundsRouteChildren = {
+  AuthenticatedRefundsRefundIdRoute: AuthenticatedRefundsRefundIdRoute,
+}
+
+const AuthenticatedRefundsRouteWithChildren =
+  AuthenticatedRefundsRoute._addFileChildren(AuthenticatedRefundsRouteChildren)
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRouteRoute: typeof AuthenticatedSettingsRouteRouteWithChildren
   AuthenticatedLogsRoute: typeof AuthenticatedLogsRoute
   AuthenticatedPaymentsRoute: typeof AuthenticatedPaymentsRoute
   AuthenticatedPlansRoute: typeof AuthenticatedPlansRoute
-  AuthenticatedRefundsRoute: typeof AuthenticatedRefundsRoute
+  AuthenticatedRefundsRoute: typeof AuthenticatedRefundsRouteWithChildren
   AuthenticatedTokenUsageRoute: typeof AuthenticatedTokenUsageRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedErrorsErrorRoute: typeof AuthenticatedErrorsErrorRoute
@@ -769,7 +800,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedLogsRoute: AuthenticatedLogsRoute,
   AuthenticatedPaymentsRoute: AuthenticatedPaymentsRoute,
   AuthenticatedPlansRoute: AuthenticatedPlansRoute,
-  AuthenticatedRefundsRoute: AuthenticatedRefundsRoute,
+  AuthenticatedRefundsRoute: AuthenticatedRefundsRouteWithChildren,
   AuthenticatedTokenUsageRoute: AuthenticatedTokenUsageRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedErrorsErrorRoute: AuthenticatedErrorsErrorRoute,

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Check, Loader2 } from 'lucide-react';
+import { useNavigate } from '@tanstack/react-router';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { NotificationBell } from '@/components/molecules/NotificationBell';
 import { NotificationItem } from '@/components/molecules/NotificationItem';
@@ -11,19 +12,16 @@ import {
 import { Button } from '@/components/shadui/button';
 import type { Notification } from '@/api/services/notification/notification.types';
 
-interface NotificationDropdownProps {
-    /** Callback when a notification is clicked */
-    onNotificationClick?: (notification: Notification) => void;
-}
-
 /**
  * NotificationDropdown - Notification list popover
  * 
  * Displays the notification bell with a dropdown containing
  * the list of notifications with mark-all-read functionality.
+ * Supports deep linking via action_url in notification metadata.
  */
-export function NotificationDropdown({ onNotificationClick }: NotificationDropdownProps) {
+export function NotificationDropdown() {
     const [open, setOpen] = useState(false);
+    const navigate = useNavigate();
     const {
         notifications,
         unreadCount,
@@ -38,8 +36,13 @@ export function NotificationDropdown({ onNotificationClick }: NotificationDropdo
         if (!notification.is_read) {
             await markAsRead(notification.id);
         }
-        // Call external handler
-        onNotificationClick?.(notification);
+
+        // Navigate if action_url exists in metadata
+        const actionUrl = notification.metadata?.action_url as string | undefined;
+        if (actionUrl) {
+            navigate({ to: actionUrl });
+        }
+
         // Close popover
         setOpen(false);
     };

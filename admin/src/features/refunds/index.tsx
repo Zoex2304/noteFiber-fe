@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearch } from '@tanstack/react-router'
 import { Main } from '@admin/components/layout/main'
 import { RefundsProvider } from './components/refunds-provider'
 import { RefundsTable } from './components/refunds-table'
@@ -8,6 +9,19 @@ import type { RefundStatus } from '@admin/lib/types/admin-api'
 
 export default function RefundsPage() {
     const [statusFilter, setStatusFilter] = useState<RefundStatus | 'all'>('pending')
+    const [highlightId, setHighlightId] = useState<string | undefined>()
+
+    // Get highlight param from URL (e.g., /refunds?highlight=uuid)
+    const searchParams = useSearch({ strict: false }) as { highlight?: string }
+
+    useEffect(() => {
+        if (searchParams?.highlight) {
+            setHighlightId(searchParams.highlight)
+            // Clear highlight after 3 seconds
+            const timer = setTimeout(() => setHighlightId(undefined), 3000)
+            return () => clearTimeout(timer)
+        }
+    }, [searchParams?.highlight])
 
     const queryParams = statusFilter === 'all' ? undefined : { page: 1, limit: 20, status: statusFilter }
     const { data: refunds = [], isLoading } = useRefunds(queryParams)
@@ -29,6 +43,7 @@ export default function RefundsPage() {
                     isLoading={isLoading}
                     statusFilter={statusFilter}
                     onStatusFilterChange={setStatusFilter}
+                    highlightId={highlightId}
                 />
             </Main>
 

@@ -24,6 +24,22 @@ import { SocialProofToast } from '@/components/molecules';
 
 // ========== Constants ==========
 const SOCIAL_PROOF_COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes
+const NOTIFICATION_SOUND_URL = '/sounds/notif.mp3';
+
+/**
+ * Play notification sound
+ */
+function playNotificationSound(): void {
+    try {
+        const audio = new Audio(NOTIFICATION_SOUND_URL);
+        audio.volume = 0.5;
+        audio.play().catch(() => {
+            // Autoplay may be blocked - silent fail
+        });
+    } catch {
+        // Audio not supported - silent fail
+    }
+}
 
 // ========== Context Type ==========
 interface NotificationContextType {
@@ -159,6 +175,9 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     // ========== WebSocket Message Handler ==========
     const handleNotification = useCallback(
         (message: WebSocketMessage) => {
+            // Play notification sound
+            playNotificationSound();
+
             // Increment unread count
             setUnreadCount(prev => prev + 1);
 
@@ -178,14 +197,19 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
             if (message.data.type_code === NotificationTypeCode.SOCIAL_PROOF) {
                 handleSocialProof(message);
             } else {
-                // Regular toast notification
+                // Regular toast notification with action_url support
+                const actionUrl = message.data.metadata?.action_url as string | undefined;
                 toast(message.data.title, {
                     description: message.data.message,
                     duration: 5000,
+                    action: actionUrl ? {
+                        label: 'View',
+                        onClick: () => navigate({ to: actionUrl }),
+                    } : undefined,
                 });
             }
         },
-        [handleSocialProof]
+        [handleSocialProof, navigate]
     );
 
     // ========== WebSocket Lifecycle ==========

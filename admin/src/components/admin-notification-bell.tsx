@@ -30,6 +30,7 @@ export function AdminNotificationBell() {
         setIsOpen,
         markAsRead,
         markAllAsRead,
+        handleNavigate,
     } = useAdminNotifications();
 
     return (
@@ -80,6 +81,7 @@ export function AdminNotificationBell() {
                                     key={notification.id}
                                     notification={notification}
                                     onMarkAsRead={markAsRead}
+                                    onNavigate={handleNavigate}
                                 />
                             ))}
                         </div>

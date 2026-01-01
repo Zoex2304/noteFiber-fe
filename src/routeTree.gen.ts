@@ -23,6 +23,7 @@ import { Route as authSigninRouteImport } from './routes/(auth)/signin'
 import { Route as authResetPasswordRouteImport } from './routes/(auth)/reset-password'
 import { Route as authForgotPasswordRouteImport } from './routes/(auth)/forgot-password'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
+import { Route as AuthenticatedRefundsRefundIdRouteImport } from './routes/_authenticated/refunds.$refundId'
 import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/app.settings'
 import { Route as AuthenticatedAppNoteNoteIdRouteImport } from './routes/_authenticated/app.note.$noteId'
 
@@ -96,6 +97,12 @@ const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedRefundsRefundIdRoute =
+  AuthenticatedRefundsRefundIdRouteImport.update({
+    id: '/refunds/$refundId',
+    path: '/refunds/$refundId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedAppSettingsRoute =
   AuthenticatedAppSettingsRouteImport.update({
     id: '/settings',
@@ -123,6 +130,7 @@ export interface FileRoutesByFullPath {
   '/subscription': typeof AuthenticatedSubscriptionRoute
   '/admin/$': typeof AdminSplatRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
+  '/refunds/$refundId': typeof AuthenticatedRefundsRefundIdRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/note/$noteId': typeof AuthenticatedAppNoteNoteIdRoute
 }
@@ -139,6 +147,7 @@ export interface FileRoutesByTo {
   '/subscription': typeof AuthenticatedSubscriptionRoute
   '/admin/$': typeof AdminSplatRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
+  '/refunds/$refundId': typeof AuthenticatedRefundsRefundIdRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/note/$noteId': typeof AuthenticatedAppNoteNoteIdRoute
 }
@@ -158,6 +167,7 @@ export interface FileRoutesById {
   '/_authenticated/subscription': typeof AuthenticatedSubscriptionRoute
   '/admin/$': typeof AdminSplatRoute
   '/_authenticated/app/settings': typeof AuthenticatedAppSettingsRoute
+  '/_authenticated/refunds/$refundId': typeof AuthenticatedRefundsRefundIdRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/note/$noteId': typeof AuthenticatedAppNoteNoteIdRoute
 }
@@ -177,6 +187,7 @@ export interface FileRouteTypes {
     | '/subscription'
     | '/admin/$'
     | '/app/settings'
+    | '/refunds/$refundId'
     | '/app/'
     | '/app/note/$noteId'
   fileRoutesByTo: FileRoutesByTo
@@ -193,6 +204,7 @@ export interface FileRouteTypes {
     | '/subscription'
     | '/admin/$'
     | '/app/settings'
+    | '/refunds/$refundId'
     | '/app'
     | '/app/note/$noteId'
   id:
@@ -211,6 +223,7 @@ export interface FileRouteTypes {
     | '/_authenticated/subscription'
     | '/admin/$'
     | '/_authenticated/app/settings'
+    | '/_authenticated/refunds/$refundId'
     | '/_authenticated/app/'
     | '/_authenticated/app/note/$noteId'
   fileRoutesById: FileRoutesById
@@ -327,6 +340,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/refunds/$refundId': {
+      id: '/_authenticated/refunds/$refundId'
+      path: '/refunds/$refundId'
+      fullPath: '/refunds/$refundId'
+      preLoaderRoute: typeof AuthenticatedRefundsRefundIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/app/settings': {
       id: '/_authenticated/app/settings'
       path: '/settings'
@@ -364,6 +384,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedCheckoutRoute: typeof AuthenticatedCheckoutRoute
   AuthenticatedPricingRoute: typeof AuthenticatedPricingRoute
   AuthenticatedSubscriptionRoute: typeof AuthenticatedSubscriptionRoute
+  AuthenticatedRefundsRefundIdRoute: typeof AuthenticatedRefundsRefundIdRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -371,6 +392,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCheckoutRoute: AuthenticatedCheckoutRoute,
   AuthenticatedPricingRoute: AuthenticatedPricingRoute,
   AuthenticatedSubscriptionRoute: AuthenticatedSubscriptionRoute,
+  AuthenticatedRefundsRefundIdRoute: AuthenticatedRefundsRefundIdRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

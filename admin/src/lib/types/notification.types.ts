@@ -6,16 +6,28 @@
  */
 
 /**
+ * Notification metadata with optional action_url for deep linking
+ */
+export interface NotificationMetadata {
+    action_url?: string;
+    [key: string]: unknown;
+}
+
+/**
  * Individual notification item from the API
  */
 export interface AdminNotification {
     id: string;
+    user_id?: string;
     type_code: AdminNotificationTypeCode;
     title: string;
     message: string;
     is_read: boolean;
     created_at: string;
-    metadata?: Record<string, unknown>;
+    read_at?: string | null;
+    metadata?: NotificationMetadata;
+    entity_type?: string;
+    entity_id?: string;
 }
 
 /**
@@ -23,11 +35,13 @@ export interface AdminNotification {
  */
 export type AdminNotificationTypeCode =
     | 'USER_REGISTERED'
+    | 'USER_DELETED'
     | 'SUBSCRIPTION_CREATED'
     | 'REFUND_REQUESTED'
     | 'REFUND_APPROVED'
     | 'REFUND_REJECTED'
-    | 'USER_DELETED'
+    | 'AI_LIMIT_UPDATED'
+    | 'SYSTEM_BROADCAST'
     | string; // Allow unknown types for forward compatibility
 
 /**
@@ -36,6 +50,8 @@ export type AdminNotificationTypeCode =
 export interface AdminNotificationListResponse {
     data: AdminNotification[];
     total: number;
+    page?: number;
+    limit?: number;
 }
 
 /**
@@ -51,6 +67,7 @@ export interface AdminUnreadCountResponse {
 export interface NotificationItemProps {
     notification: AdminNotification;
     onMarkAsRead: (id: string) => void;
+    onNavigate?: (url: string) => void;
 }
 
 /**
@@ -58,11 +75,13 @@ export interface NotificationItemProps {
  */
 export const NOTIFICATION_TYPE_ICONS: Record<string, string> = {
     USER_REGISTERED: '👤',
+    USER_DELETED: '🗑️',
     SUBSCRIPTION_CREATED: '💳',
     REFUND_REQUESTED: '↩️',
     REFUND_APPROVED: '✅',
     REFUND_REJECTED: '❌',
-    USER_DELETED: '🗑️',
+    AI_LIMIT_UPDATED: '🤖',
+    SYSTEM_BROADCAST: '📢',
 } as const;
 
 /**

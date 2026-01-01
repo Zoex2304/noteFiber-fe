@@ -35,6 +35,7 @@ interface RefundsTableProps {
     isLoading: boolean
     statusFilter: RefundStatus | 'all'
     onStatusFilterChange: (status: RefundStatus | 'all') => void
+    highlightId?: string
 }
 
 function formatCurrency(amount: number): string {
@@ -51,7 +52,7 @@ const statusBadgeVariant: Record<RefundStatus, 'default' | 'secondary' | 'destru
     rejected: 'destructive',
 }
 
-export function RefundsTable({ data, isLoading, statusFilter, onStatusFilterChange }: RefundsTableProps) {
+export function RefundsTable({ data, isLoading, statusFilter, onStatusFilterChange, highlightId }: RefundsTableProps) {
     const { setSelectedRefund, setApprovalDialogOpen, setDetailDialogOpen, setRejectionDialogOpen } = useRefundsContext()
 
     const handleViewDetails = (refund: RefundListItem) => {
@@ -218,15 +219,22 @@ export function RefundsTable({ data, isLoading, statusFilter, onStatusFilterChan
                     </TableHeader>
                     <TableBody>
                         {table.getRowModel().rows?.length ? (
-                            table.getRowModel().rows.map((row) => (
-                                <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
-                                    {row.getVisibleCells().map((cell) => (
-                                        <TableCell key={cell.id}>
-                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                        </TableCell>
-                                    ))}
-                                </TableRow>
-                            ))
+                            table.getRowModel().rows.map((row) => {
+                                const isHighlighted = highlightId && row.original.id === highlightId
+                                return (
+                                    <TableRow
+                                        key={row.id}
+                                        data-state={row.getIsSelected() && 'selected'}
+                                        className={isHighlighted ? 'bg-yellow-100 dark:bg-yellow-900/30 animate-pulse' : ''}
+                                    >
+                                        {row.getVisibleCells().map((cell) => (
+                                            <TableCell key={cell.id}>
+                                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                            </TableCell>
+                                        ))}
+                                    </TableRow>
+                                )
+                            })
                         ) : (
                             <TableRow>
                                 <TableCell colSpan={columns.length} className="h-24 text-center">

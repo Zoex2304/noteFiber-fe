@@ -2,15 +2,19 @@
  * useAdminNotifications Hook
  * 
  * Custom hook for admin notification state and actions.
- * Encapsulates all business logic: WebSocket, API calls, and state management.
+ * Encapsulates all business logic: WebSocket, API calls, state management, and sound.
  * UI components should consume this hook and remain pure.
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
+import { useNavigate } from '@tanstack/react-router';
 import { WebSocketClient, getWebSocketUrl, type WebSocketMessage } from '@admin/lib/api/websocket-client';
 import { adminNotificationService } from '../services/admin-notification.service';
 import type { AdminNotification } from '@admin/lib/types/notification.types';
+
+// Sound configuration
+const NOTIFICATION_SOUND_URL = '/sounds/notif.mp3';
 
 interface UseAdminNotificationsResult {
     /** List of notifications */
@@ -27,6 +31,23 @@ interface UseAdminNotificationsResult {
     markAsRead: (id: string) => Promise<void>;
     /** Mark all notifications as read */
     markAllAsRead: () => Promise<void>;
+    /** Navigate to a URL (for notification clicks) */
+    handleNavigate: (url: string) => void;
+}
+
+/**
+ * Play notification sound
+ */
+function playNotificationSound(): void {
+    try {
+        const audio = new Audio(NOTIFICATION_SOUND_URL);
+        audio.volume = 0.5;
+        audio.play().catch(() => {
+            // Autoplay may be blocked - silent fail
+        });
+    } catch {
+        // Audio not supported - silent fail
+    }
 }
 
 /**
@@ -36,7 +57,8 @@ interface UseAdminNotificationsResult {
  * - WebSocket connection for real-time updates
  * - REST API calls for fetching and updating notifications
  * - State management for notifications list and unread count
- * - Toast notifications for new messages
+ * - Toast notifications and sound for new messages
+ * - Deep linking navigation via action_url
  */
 export function useAdminNotifications(): UseAdminNotificationsResult {
     // State
@@ -47,6 +69,22 @@ export function useAdminNotifications(): UseAdminNotificationsResult {
 
     // Refs
     const wsClientRef = useRef<WebSocketClient | null>(null);
+
+    // Router
+    const navigate = useNavigate();
+
+    // ========== Navigation Handler ==========
+    const handleNavigate = useCallback((url: string) => {
+        setIsOpen(false); // Close dropdown
+
+        // Convert /refunds/:id to /refunds?highlight=:id for table highlighting
+        const refundMatch = url.match(/^\/refunds\/([a-f0-9-]+)$/i);
+        if (refundMatch) {
+            navigate({ to: '/refunds', search: { highlight: refundMatch[1] } });
+        } else {
+            navigate({ to: url });
+        }
+    }, [navigate]);
 
     // ========== API Methods ==========
     const fetchNotifications = useCallback(async () => {
@@ -94,6 +132,9 @@ export function useAdminNotifications(): UseAdminNotificationsResult {
 
     // ========== WebSocket Handler ==========
     const handleNotification = useCallback((message: WebSocketMessage) => {
+        // Play notification sound
+        playNotificationSound();
+
         // Increment unread count
         setUnreadCount(prev => prev + 1);
 
@@ -106,16 +147,23 @@ export function useAdminNotifications(): UseAdminNotificationsResult {
             is_read: false,
             created_at: new Date().toISOString(),
             metadata: message.data.metadata,
+            entity_type: message.data.metadata?.entity_type as string | undefined,
+            entity_id: message.data.metadata?.entity_id as string | undefined,
         };
 
         setNotifications(prev => [newNotification, ...prev.slice(0, 49)]);
 
-        // Show toast notification
+        // Show toast notification with click action
+        const actionUrl = message.data.metadata?.action_url as string | undefined;
         toast(message.data.title, {
             description: message.data.message,
             duration: 5000,
+            action: actionUrl ? {
+                label: 'View',
+                onClick: () => navigate({ to: actionUrl }),
+            } : undefined,
         });
-    }, []);
+    }, [navigate]);
 
     // ========== WebSocket Lifecycle ==========
     useEffect(() => {
@@ -161,5 +209,6 @@ export function useAdminNotifications(): UseAdminNotificationsResult {
         setIsOpen,
         markAsRead,
         markAllAsRead,
+        handleNavigate,
     };
 }
