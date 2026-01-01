@@ -10,6 +10,7 @@ export interface GetChatHistoryResponse {
     role: string;
     chat: string;
     created_at: Date;
+    citations?: CitationResponse[];
 }
 
 export interface CreateSessionResponse {
@@ -25,11 +26,17 @@ export interface SendChatRequest {
     chat: string;
 }
 
+export interface CitationResponse {
+    note_id: string;
+    title: string;
+}
+
 export interface SendChatResponseChat {
     id: string;
     chat: string;
     role: string;
     created_at: Date;
+    citations?: CitationResponse[];
 }
 
 export interface SendChatResponse {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { Sidebar } from "@/components/sidebar"; // Updated path
 import { NoteEditor } from "@/components/note-editor"; // Updated path
 import { SearchDialog } from "@/components/search-dialog"; // Updated path
@@ -35,6 +36,7 @@ import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useUsageLimits } from "@/contexts/UsageLimitsContext";
 
 export default function MainApp() { // Renamed from App to MainApp
+  const navigate = useNavigate();
   const { checkPermission } = useSubscription();
   const { checkCanCreateNotebook, checkCanCreateNote, checkCanUseAiChat, checkCanUseSemanticSearch } = useUsageLimits();
   const [notebooks, setNotebooks] = useState<Notebook[]>([]);
@@ -381,7 +383,9 @@ export default function MainApp() { // Renamed from App to MainApp
             selectedNotebook={selectedNotebook}
             selectedNote={selectedNote}
             onNotebookSelect={setSelectedNotebook}
-            onNoteSelect={setSelectedNote}
+            onNoteSelect={(noteId) => {
+              navigate({ to: '/app/note/$noteId', params: { noteId } });
+            }}
             onNotebookUpdate={handleNotebookUpdate}
             onDeleteNotebook={handleDeleteNotebook}
             onDeleteNote={handleDeleteNote}
@@ -421,11 +425,7 @@ export default function MainApp() { // Renamed from App to MainApp
         onOpenChange={setSearchOpen}
         notes={notes}
         onNoteSelect={(noteId) => {
-          setSelectedNote(noteId);
-          const note = notes.find((n) => n.id === noteId);
-          if (note) {
-            setSelectedNotebook(note.notebookId);
-          }
+          navigate({ to: '/app/note/$noteId', params: { noteId } });
           setSearchOpen(false);
         }}
       />

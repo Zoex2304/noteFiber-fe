@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import { Eye, Edit, Save } from "lucide-react"
@@ -20,21 +20,38 @@ export function NoteEditor({ note, onUpdate }: NoteEditorProps) {
     const [hasChanges, setHasChanges] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
 
+    // Track last saved values to prevent race condition
+    const lastSavedRef = useRef({ content: note.content, title: note.title })
+
     useEffect(() => {
         setContent(note.content)
         setTitle(note.title)
         setHasChanges(false)
+        // Update ref when note changes from external source
+        lastSavedRef.current = { content: note.content, title: note.title }
     }, [note.id, note.content, note.title])
 
     useEffect(() => {
-        setHasChanges(content !== note.content || title !== note.title)
-    }, [content, title, note.content, note.title])
+        // Compare against last saved values, not note props (which may be stale during refetch)
+        const saved = lastSavedRef.current
+        setHasChanges(content !== saved.content || title !== saved.title)
+    }, [content, title])
 
     const handleSave = async () => {
+        // Prevent double-clicks
+        if (isSaving) return
+
         setIsSaving(true)
         try {
-            await onUpdate(note.id, { content, title })
+            // Update the ref BEFORE the API call to prevent race condition
+            lastSavedRef.current = { content, title }
             setHasChanges(false)
+
+            await onUpdate(note.id, { content, title })
+        } catch (error) {
+            // Restore hasChanges if save failed
+            setHasChanges(true)
+            console.error("Failed to save note:", error)
         } finally {
             setIsSaving(false)
         }

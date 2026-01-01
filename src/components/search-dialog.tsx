@@ -32,20 +32,27 @@ function SearchDialog({ open, onOpenChange, notes, onNoteSelect }: SearchDialogP
 
         // Simulate semantic search with a delay
         const searchTimeout = setTimeout(async () => {
-            const res = await apiClient.get<BaseResponse<GetSemanticSearchResponse[]>>(
-                `/note/v1/semantic-search?q=${query}`
-            )
-            const data: Note[] = res.data.data.map(note => ({
-                id: note.id,
-                content: note.content,
-                notebookId: note.notebook_id,
-                title: note.title,
-                createdAt: new Date(note.created_at),
-                updatedAt: new Date(note.updated_at ?? note.created_at)
-            }))
+            try {
+                const res = await apiClient.get<BaseResponse<GetSemanticSearchResponse[]>>(
+                    `/note/v1/semantic-search?q=${query}`
+                )
+                const apiData = res.data.data ?? []
+                const data: Note[] = apiData.map(note => ({
+                    id: note.id,
+                    content: note.content,
+                    notebookId: note.notebook_id,
+                    title: note.title,
+                    createdAt: new Date(note.created_at),
+                    updatedAt: new Date(note.updated_at ?? note.created_at)
+                }))
 
-            setResults(data)
-            setIsSearching(false)
+                setResults(data)
+            } catch (error) {
+                console.error("Search failed:", error)
+                setResults([])
+            } finally {
+                setIsSearching(false)
+            }
         }, 300)
 
         return () => clearTimeout(searchTimeout)

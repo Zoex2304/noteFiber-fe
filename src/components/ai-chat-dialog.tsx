@@ -1,13 +1,12 @@
 "use client";
 
 import type React from "react";
-import ReactMarkdown from "react-markdown";
 import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
 import { ScrollArea } from "./ui/scroll-area";
-import { Send, Bot, User, Plus, Trash2 } from "lucide-react";
+import { Send, Plus, Trash2, Bot } from "lucide-react";
 import type { Note } from "../types/note";
 import type { ChatSession, Message } from "@/types/ai-chat";
 import { apiClient } from "@/api/client/axios.client";
@@ -16,6 +15,8 @@ import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useUsageLimits, handleLimitExceededError } from "@/contexts/UsageLimitsContext";
 import { TokenUsageIndicator } from "@/components/common/TokenUsageIndicator";
 import { TokenLimitDialog } from "@/components/common/TokenLimitDialog";
+import { ChatBubble, PixelLoader } from "@/components/molecules";
+import { useNavigate } from "@tanstack/react-router";
 import type {
   SendChatResponse,
   CreateSessionResponse,
@@ -32,6 +33,7 @@ interface AIChatDialogProps {
 }
 
 export function AIChatDialog({ open, onOpenChange }: AIChatDialogProps) {
+  const navigate = useNavigate();
   const [input, setInput] = useState("");
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [activeSessionId, setActiveSessionId] = useState("");
@@ -98,6 +100,10 @@ export function AIChatDialog({ open, onOpenChange }: AIChatDialogProps) {
               content: data.chat,
               role: data.role === "model" ? "assistant" : "user",
               timestamp: new Date(data.created_at),
+              citations: data.citations?.map((c) => ({
+                noteId: c.note_id,
+                title: c.title,
+              })),
             })),
           };
         }
@@ -192,6 +198,10 @@ export function AIChatDialog({ open, onOpenChange }: AIChatDialogProps) {
                   role:
                     res.data.data.reply.role === "model" ? "assistant" : "user",
                   timestamp: new Date(res.data.data.reply.created_at),
+                  citations: res.data.data.reply.citations?.map((c) => ({
+                    noteId: c.note_id,
+                    title: c.title,
+                  })),
                 },
               ],
             };
@@ -329,59 +339,18 @@ export function AIChatDialog({ open, onOpenChange }: AIChatDialogProps) {
             </ScrollArea>
           </div>
 
-          <div className="flex-1 flex flex-col min-w-0 bg-gradient-to-b from-white to-gray-50">
+          <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-gradient-to-b from-white to-gray-50">
             <ScrollArea className="flex-1 pr-4">
-              <div className="space-y-4 p-4">
+              <div className="space-y-4 p-4 overflow-hidden">
                 {messages.map((message) => (
-                  <div
+                  <ChatBubble
                     key={message.id}
-                    className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"
-                      }`}
-                  >
-                    <div
-                      className={`flex gap-3 max-w-[80%] ${message.role === "user"
-                        ? "flex-row-reverse"
-                        : "flex-row"
-                        }`}
-                    >
-                      <div className="flex-shrink-0">
-                        {message.role === "user" ? (
-                          <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-sm">
-                            <User className="h-4 w-4 text-white" />
-                          </div>
-                        ) : (
-                          <div className="w-8 h-8 bg-gradient-to-r from-gray-500 to-gray-600 rounded-full flex items-center justify-center shadow-sm">
-                            <Bot className="h-4 w-4 text-white" />
-                          </div>
-                        )}
-                      </div>
-                      <div
-                        className={`rounded-lg p-3 shadow-sm ${message.role === "user"
-                          ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white"
-                          : "bg-gradient-to-r from-gray-50 to-gray-100 text-gray-900 border border-gray-200"
-                          }`}
-                      >
-                        {message.role === "assistant" && (
-                          <ReactMarkdown className={"prose prose-sm"}>
-                            {message.content}
-                          </ReactMarkdown>
-                        )}
-                        {message.role === "user" && (
-                          <div className="text-sm whitespace-pre-wrap">
-                            {message.content}
-                          </div>
-                        )}
-                        <div
-                          className={`text-xs mt-1 ${message.role === "user"
-                            ? "opacity-70"
-                            : "opacity-60"
-                            }`}
-                        >
-                          {message.timestamp.toLocaleTimeString()}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                    message={message}
+                    onCitationClick={(noteId) => {
+                      onOpenChange(false);
+                      navigate({ to: '/app/note/$noteId', params: { noteId } });
+                    }}
+                  />
                 ))}
 
                 {isLoading && (
@@ -390,12 +359,7 @@ export function AIChatDialog({ open, onOpenChange }: AIChatDialogProps) {
                       <Bot className="h-4 w-4 text-white" />
                     </div>
                     <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg p-3 border border-gray-200 shadow-sm">
-                      <div className="flex items-center gap-2">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                        <span className="text-sm text-gray-600">
-                          AI is thinking...
-                        </span>
-                      </div>
+                      <PixelLoader />
                     </div>
                   </div>
                 )}
