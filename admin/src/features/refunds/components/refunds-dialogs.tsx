@@ -1,5 +1,6 @@
 import { RefundDetailDialog } from './refund-detail-dialog'
 import { RefundApprovalDialog } from './refund-approval-dialog'
+import { RefundRejectionDialog } from './refund-rejection-dialog'
 import { useRefundsContext } from './refunds-provider'
 
 export function RefundsDialogs() {
@@ -9,6 +10,8 @@ export function RefundsDialogs() {
         setDetailDialogOpen,
         approvalDialogOpen,
         setApprovalDialogOpen,
+        rejectionDialogOpen,
+        setRejectionDialogOpen,
     } = useRefundsContext()
 
     return (
@@ -21,6 +24,11 @@ export function RefundsDialogs() {
             <RefundApprovalDialog
                 open={approvalDialogOpen}
                 onOpenChange={setApprovalDialogOpen}
+                refund={selectedRefund}
+            />
+            <RefundRejectionDialog
+                open={rejectionDialogOpen}
+                onOpenChange={setRejectionDialogOpen}
                 refund={selectedRefund}
             />
         </>

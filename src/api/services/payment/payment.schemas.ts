@@ -91,6 +91,7 @@ export const subscriptionStatusSchema = z.object({
     ai_chat_daily_limit: z.number(),
     semantic_search_daily_limit: z.number(),
     is_active: z.boolean(),
+    has_pending_refund: z.boolean().optional(),
     features: subscriptionFeaturesSchema,
 });
 

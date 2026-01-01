@@ -15,6 +15,7 @@ import {
   ScrollText,
   CreditCard,
   RotateCcw,
+  Activity,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -59,6 +60,11 @@ export const sidebarData: SidebarData = {
           title: 'Users',
           url: '/users',
           icon: Users,
+        },
+        {
+          title: 'Token Usage',
+          url: '/token-usage',
+          icon: Activity,
         },
         {
           title: 'Payments',

@@ -6,7 +6,9 @@ import { Toaster } from 'sonner'
 import { TopLoader } from '@/components/shadui/TopLoader'
 import { useState, useEffect } from 'react'
 import { SubscriptionProvider } from '@/contexts/SubscriptionContext'
+import { NotificationProvider } from '@/contexts/NotificationContext'
 import { UpgradeModal } from '@/components/modals/UpgradeModal'
+import { LogOverlay } from '@/utils/debug/LogOverlay'
 
 import { type User } from '@/api/services/auth/auth.types';
 
@@ -38,22 +40,25 @@ function RootComponent() {
 
     return (
         <SubscriptionProvider>
-            <div className="min-h-screen bg-background font-sans antialiased">
-                <Outlet />
-                <Toaster position="top-right" richColors duration={5000} />
-                <TopLoader color={isAdmin ? "#E5E7EB" : undefined} />
-                <UpgradeModal
-                    isOpen={showUpgradeModal}
-                    onClose={() => setShowUpgradeModal(false)}
-                    featureName="This pro feature"
-                />
-                {import.meta.env.DEV && (
-                    <>
-                        <ReactQueryDevtools buttonPosition="bottom-left" />
-                        <TanStackRouterDevtools position="bottom-right" />
-                    </>
-                )}
-            </div>
+            <NotificationProvider>
+                <div className="min-h-screen bg-background font-sans antialiased">
+                    <Outlet />
+                    <Toaster position="top-right" richColors duration={5000} />
+                    <TopLoader color={isAdmin ? "#E5E7EB" : undefined} />
+                    <UpgradeModal
+                        isOpen={showUpgradeModal}
+                        onClose={() => setShowUpgradeModal(false)}
+                        featureName="This pro feature"
+                    />
+                    {import.meta.env.DEV && (
+                        <>
+                            <LogOverlay />
+                            <ReactQueryDevtools buttonPosition="bottom-left" />
+                            <TanStackRouterDevtools position="bottom-right" />
+                        </>
+                    )}
+                </div>
+            </NotificationProvider>
         </SubscriptionProvider>
     )
 }

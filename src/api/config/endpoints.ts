@@ -36,6 +36,13 @@ export const ENDPOINTS = {
         CHECKOUT: '/payment/checkout',
         SUMMARY: '/payment/summary',
         STATUS: '/payment/status',
+        CANCEL: '/payment/cancel',
+    },
+    NOTIFICATIONS: {
+        LIST: '/notifications',
+        UNREAD_COUNT: '/notifications/unread-count',
+        MARK_READ: '/notifications/:id/read',
+        MARK_ALL_READ: '/notifications/read-all',
     },
     REFUND: {
         REQUEST: '/user/refund/request',

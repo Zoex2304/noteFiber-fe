@@ -180,6 +180,13 @@ export const refundApprovalResponseSchema = z.object({
 })
 export type RefundApprovalResponse = z.infer<typeof refundApprovalResponseSchema>
 
+export const refundRejectionResponseSchema = z.object({
+    refund_id: z.string(),
+    status: z.literal('rejected'),
+    processed_at: z.string(),
+})
+export type RefundRejectionResponse = z.infer<typeof refundRejectionResponseSchema>
+
 
 // User Management Types
 export const userListParamsSchema = z.object({

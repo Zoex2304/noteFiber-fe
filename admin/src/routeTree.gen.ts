@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ClerkRouteRouteImport } from './routes/clerk/route'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedTokenUsageRouteImport } from './routes/_authenticated/token-usage'
 import { Route as AuthenticatedRefundsRouteImport } from './routes/_authenticated/refunds'
 import { Route as AuthenticatedPlansRouteImport } from './routes/_authenticated/plans'
 import { Route as AuthenticatedPaymentsRouteImport } from './routes/_authenticated/payments'
@@ -57,6 +58,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedTokenUsageRoute = AuthenticatedTokenUsageRouteImport.update({
+  id: '/token-usage',
+  path: '/token-usage',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedRefundsRoute = AuthenticatedRefundsRouteImport.update({
@@ -245,6 +251,7 @@ export interface FileRoutesByFullPath {
   '/payments': typeof AuthenticatedPaymentsRoute
   '/plans': typeof AuthenticatedPlansRoute
   '/refunds': typeof AuthenticatedRefundsRoute
+  '/token-usage': typeof AuthenticatedTokenUsageRoute
   '/': typeof AuthenticatedIndexRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
@@ -278,6 +285,7 @@ export interface FileRoutesByTo {
   '/payments': typeof AuthenticatedPaymentsRoute
   '/plans': typeof AuthenticatedPlansRoute
   '/refunds': typeof AuthenticatedRefundsRoute
+  '/token-usage': typeof AuthenticatedTokenUsageRoute
   '/': typeof AuthenticatedIndexRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
@@ -316,6 +324,7 @@ export interface FileRoutesById {
   '/_authenticated/payments': typeof AuthenticatedPaymentsRoute
   '/_authenticated/plans': typeof AuthenticatedPlansRoute
   '/_authenticated/refunds': typeof AuthenticatedRefundsRoute
+  '/_authenticated/token-usage': typeof AuthenticatedTokenUsageRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/_authenticated/settings/account': typeof AuthenticatedSettingsAccountRoute
@@ -352,6 +361,7 @@ export interface FileRouteTypes {
     | '/payments'
     | '/plans'
     | '/refunds'
+    | '/token-usage'
     | '/'
     | '/errors/$error'
     | '/settings/account'
@@ -385,6 +395,7 @@ export interface FileRouteTypes {
     | '/payments'
     | '/plans'
     | '/refunds'
+    | '/token-usage'
     | '/'
     | '/errors/$error'
     | '/settings/account'
@@ -422,6 +433,7 @@ export interface FileRouteTypes {
     | '/_authenticated/payments'
     | '/_authenticated/plans'
     | '/_authenticated/refunds'
+    | '/_authenticated/token-usage'
     | '/_authenticated/'
     | '/_authenticated/errors/$error'
     | '/_authenticated/settings/account'
@@ -476,6 +488,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/token-usage': {
+      id: '/_authenticated/token-usage'
+      path: '/token-usage'
+      fullPath: '/token-usage'
+      preLoaderRoute: typeof AuthenticatedTokenUsageRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/refunds': {
@@ -734,6 +753,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPaymentsRoute: typeof AuthenticatedPaymentsRoute
   AuthenticatedPlansRoute: typeof AuthenticatedPlansRoute
   AuthenticatedRefundsRoute: typeof AuthenticatedRefundsRoute
+  AuthenticatedTokenUsageRoute: typeof AuthenticatedTokenUsageRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedErrorsErrorRoute: typeof AuthenticatedErrorsErrorRoute
   AuthenticatedUsersUserIdRoute: typeof AuthenticatedUsersUserIdRoute
@@ -750,6 +770,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPaymentsRoute: AuthenticatedPaymentsRoute,
   AuthenticatedPlansRoute: AuthenticatedPlansRoute,
   AuthenticatedRefundsRoute: AuthenticatedRefundsRoute,
+  AuthenticatedTokenUsageRoute: AuthenticatedTokenUsageRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedErrorsErrorRoute: AuthenticatedErrorsErrorRoute,
   AuthenticatedUsersUserIdRoute: AuthenticatedUsersUserIdRoute,

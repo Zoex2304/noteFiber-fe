@@ -6,6 +6,7 @@ import { MessageSquare, Search } from "lucide-react";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { PlanStatusPill } from "@/components/common/PlanStatusPill";
 import { TokenUsageIndicator } from "@/components/common/TokenUsageIndicator";
+import { NotificationDropdown } from "@/components/organisms/NotificationDropdown";
 
 interface TopBarProps {
     onSearchClick: () => void;
@@ -73,8 +74,14 @@ export const TopBar = ({ onSearchClick, onChatClick }: TopBarProps) => {
 
                 {(showSearch || showChat) && <div className="h-6 w-px bg-gray-200 mx-2" />}
 
+                {/* Notification Bell */}
+                <NotificationDropdown />
+
+                <div className="h-6 w-px bg-gray-200 mx-2" />
+
                 <UserProfileMenu />
             </div>
         </div>
     );
 };
+

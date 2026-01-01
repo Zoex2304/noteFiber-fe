@@ -8,6 +8,8 @@ interface RefundsContextType {
     setApprovalDialogOpen: (open: boolean) => void
     detailDialogOpen: boolean
     setDetailDialogOpen: (open: boolean) => void
+    rejectionDialogOpen: boolean
+    setRejectionDialogOpen: (open: boolean) => void
 }
 
 const RefundsContext = createContext<RefundsContextType | undefined>(undefined)
@@ -16,6 +18,7 @@ export function RefundsProvider({ children }: { children: ReactNode }) {
     const [selectedRefund, setSelectedRefund] = useState<RefundListItem | null>(null)
     const [approvalDialogOpen, setApprovalDialogOpen] = useState(false)
     const [detailDialogOpen, setDetailDialogOpen] = useState(false)
+    const [rejectionDialogOpen, setRejectionDialogOpen] = useState(false)
 
     return (
         <RefundsContext.Provider
@@ -26,6 +29,8 @@ export function RefundsProvider({ children }: { children: ReactNode }) {
                 setApprovalDialogOpen,
                 detailDialogOpen,
                 setDetailDialogOpen,
+                rejectionDialogOpen,
+                setRejectionDialogOpen,
             }}
         >
             {children}

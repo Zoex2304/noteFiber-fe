@@ -1,0 +1,281 @@
+/* eslint-disable react-refresh/only-export-components */
+import {
+    createContext,
+    useContext,
+    useEffect,
+    useState,
+    useCallback,
+    useRef,
+    type ReactNode,
+} from 'react';
+import { toast } from 'sonner';
+import { useNavigate } from '@tanstack/react-router';
+import { useAuth } from '@/hooks/auth/useAuth';
+import { useSubscription } from '@/contexts/SubscriptionContext';
+import { notificationService } from '@/api/services/notification/notification.service';
+import { WebSocketClient, getWebSocketUrl } from '@/api/client/websocket.client';
+import { NotificationTypeCode } from '@/api/services/notification/notification.schemas';
+import type {
+    Notification,
+    WebSocketMessage,
+    SocialProofMetadata,
+} from '@/api/services/notification/notification.types';
+import { SocialProofToast } from '@/components/molecules';
+
+// ========== Constants ==========
+const SOCIAL_PROOF_COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes
+
+// ========== Context Type ==========
+interface NotificationContextType {
+    /** Total unread notification count */
+    unreadCount: number;
+    /** List of notifications for dropdown */
+    notifications: Notification[];
+    /** Loading state for notifications */
+    isLoading: boolean;
+    /** WebSocket connection status */
+    isConnected: boolean;
+    /** Mark a single notification as read */
+    markAsRead: (id: string) => Promise<void>;
+    /** Mark all notifications as read */
+    markAllAsRead: () => Promise<void>;
+    /** Refresh notifications from server */
+    refreshNotifications: () => Promise<void>;
+    /** Refresh unread count */
+    refreshUnreadCount: () => Promise<void>;
+}
+
+const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
+
+// ========== Provider Component ==========
+export const NotificationProvider = ({ children }: { children: ReactNode }) => {
+    const navigate = useNavigate();
+    const { isAuthenticated, user, isLoading: isAuthLoading } = useAuth();
+    const { isActive: isSubscribed } = useSubscription();
+
+    // State
+    const [unreadCount, setUnreadCount] = useState(0);
+    const [notifications, setNotifications] = useState<Notification[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isConnected, setIsConnected] = useState(false);
+
+    // Refs
+    const wsClientRef = useRef<WebSocketClient | null>(null);
+    const lastSocialProofTimeRef = useRef<number>(0);
+
+    // ========== REST API Methods ==========
+    const refreshUnreadCount = useCallback(async () => {
+        try {
+            const response = await notificationService.getUnreadCount();
+            if (response.success && response.data) {
+                setUnreadCount(response.data.count);
+            }
+        } catch (error) {
+            console.error('Failed to fetch unread count:', error);
+        }
+    }, []);
+
+    const refreshNotifications = useCallback(async () => {
+        setIsLoading(true);
+        try {
+            const response = await notificationService.getNotifications(20, 0);
+            if (response.success && response.data) {
+                setNotifications(response.data.data);
+            }
+        } catch (error) {
+            console.error('Failed to fetch notifications:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
+    const markAsRead = useCallback(async (id: string) => {
+        try {
+            const response = await notificationService.markAsRead(id);
+            if (response.success) {
+                setNotifications(prev =>
+                    prev.map(n => (n.id === id ? { ...n, is_read: true } : n))
+                );
+                setUnreadCount(prev => Math.max(0, prev - 1));
+            }
+        } catch (error) {
+            console.error('Failed to mark notification as read:', error);
+        }
+    }, []);
+
+    const markAllAsRead = useCallback(async () => {
+        try {
+            const response = await notificationService.markAllAsRead();
+            if (response.success) {
+                setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+                setUnreadCount(0);
+            }
+        } catch (error) {
+            console.error('Failed to mark all notifications as read:', error);
+        }
+    }, []);
+
+    // ========== Social Proof Handler ==========
+    const handleSocialProof = useCallback(
+        (message: WebSocketMessage) => {
+            // Don't show to subscribed users
+            if (isSubscribed) {
+                console.log('[Notification] Skipping social proof: user is subscribed');
+                return;
+            }
+
+            // Rate limit: max 1 per 5 minutes
+            const now = Date.now();
+            if (now - lastSocialProofTimeRef.current < SOCIAL_PROOF_COOLDOWN_MS) {
+                console.log('[Notification] Skipping social proof: rate limited');
+                return;
+            }
+
+            lastSocialProofTimeRef.current = now;
+
+            const metadata = message.data.metadata as SocialProofMetadata | undefined;
+
+            // Analytics: Track shown
+            console.log('[Analytics] social_proof_shown', {
+                notification_id: message.data.id,
+                plan_name: metadata?.plan_name,
+            });
+
+            toast.custom(
+                (t) => (
+                    <SocialProofToast
+                        title={message.data.title}
+                        message={message.data.message}
+                        avatarUrl={metadata?.avatar_url}
+                        planName={metadata?.plan_name}
+                        onUpgradeClick={() => {
+                            // Analytics: Track click
+                            console.log('[Analytics] social_proof_clicked', {
+                                notification_id: message.data.id,
+                                time_shown: Date.now() - now,
+                            });
+
+                            toast.dismiss(t);
+                            navigate({ to: '/pricing' });
+                        }}
+                        onDismiss={() => toast.dismiss(t)}
+                    />
+                ),
+                {
+                    duration: 7000,
+                    position: 'bottom-right',
+                }
+            );
+        },
+        [isSubscribed, navigate]
+    );
+
+    // ========== WebSocket Message Handler ==========
+    const handleNotification = useCallback(
+        (message: WebSocketMessage) => {
+            console.log('[Notification] Received:', message.data.type_code);
+
+            // Increment unread count
+            setUnreadCount(prev => prev + 1);
+
+            // Prepend to notifications list
+            const newNotification: Notification = {
+                id: message.data.id,
+                type_code: message.data.type_code,
+                title: message.data.title,
+                message: message.data.message,
+                is_read: false,
+                created_at: new Date().toISOString(),
+                metadata: message.data.metadata,
+            };
+            setNotifications(prev => [newNotification, ...prev.slice(0, 49)]);
+
+            // Handle special notification types
+            if (message.data.type_code === NotificationTypeCode.SOCIAL_PROOF) {
+                handleSocialProof(message);
+            } else {
+                // Regular toast notification
+                toast(message.data.title, {
+                    description: message.data.message,
+                    duration: 5000,
+                });
+            }
+        },
+        [handleSocialProof]
+    );
+
+    // ========== WebSocket Lifecycle ==========
+    useEffect(() => {
+        // Wait for auth to finish loading before connecting
+        if (isAuthLoading) {
+            return;
+        }
+
+        if (!isAuthenticated || !user?.id) {
+            // Disconnect if logged out
+            if (wsClientRef.current) {
+                wsClientRef.current.disconnect();
+                wsClientRef.current = null;
+                setIsConnected(false);
+            }
+            return;
+        }
+
+        // Get JWT token for WebSocket auth
+        const accessToken = localStorage.getItem('access_token');
+        if (!accessToken) {
+            console.error('[NotificationContext] No access token for WebSocket');
+            return;
+        }
+
+        // Connect WebSocket
+        const wsUrl = getWebSocketUrl();
+        wsClientRef.current = new WebSocketClient({
+            baseUrl: wsUrl,
+            token: accessToken,
+            onNotification: handleNotification,
+            onOpen: () => setIsConnected(true),
+            onClose: () => setIsConnected(false),
+        });
+
+        wsClientRef.current.connect();
+
+        // Fetch initial data
+        refreshUnreadCount();
+        refreshNotifications();
+
+        // Cleanup on unmount
+        return () => {
+            if (wsClientRef.current) {
+                wsClientRef.current.disconnect();
+                wsClientRef.current = null;
+            }
+        };
+    }, [isAuthLoading, isAuthenticated, user?.id, handleNotification, refreshUnreadCount, refreshNotifications]);
+
+    return (
+        <NotificationContext.Provider
+            value={{
+                unreadCount,
+                notifications,
+                isLoading,
+                isConnected,
+                markAsRead,
+                markAllAsRead,
+                refreshNotifications,
+                refreshUnreadCount,
+            }}
+        >
+            {children}
+        </NotificationContext.Provider>
+    );
+};
+
+// ========== Hook ==========
+export const useNotifications = () => {
+    const context = useContext(NotificationContext);
+    if (context === undefined) {
+        throw new Error('useNotifications must be used within a NotificationProvider');
+    }
+    return context;
+};

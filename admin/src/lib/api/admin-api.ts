@@ -11,6 +11,7 @@ import type {
     RefundListParams,
     RefundListItem,
     RefundApprovalResponse,
+    RefundRejectionResponse,
     User,
     UserListParams,
     UpdateUserRequest,
@@ -229,7 +230,7 @@ export const adminRefundsApi = {
      */
     async getRefunds(params?: RefundListParams): Promise<RefundListItem[]> {
         const response = await apiClient.get<ApiSuccessResponse<RefundListItem[]>>(ADMIN_ENDPOINTS.REFUNDS.LIST, { params })
-        return response.data.data
+        return response.data.data ?? []
     },
 
     /**
@@ -252,10 +253,14 @@ export const adminRefundsApi = {
     },
 
     /**
-     * Reject a pending refund request (optional future feature)
+     * Reject a pending refund request
      */
-    async rejectRefund(id: string, reason: string): Promise<void> {
-        await apiClient.post(ADMIN_ENDPOINTS.REFUNDS.REJECT(id), { rejection_reason: reason })
+    async rejectRefund(id: string, reason: string): Promise<RefundRejectionResponse> {
+        const response = await apiClient.post<ApiSuccessResponse<RefundRejectionResponse>>(
+            ADMIN_ENDPOINTS.REFUNDS.REJECT(id),
+            { rejection_reason: reason }
+        )
+        return response.data.data
     },
 
     /**

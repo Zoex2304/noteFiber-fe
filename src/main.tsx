@@ -1,4 +1,4 @@
-import { StrictMode } from 'react';
+// import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { RouterProvider, createRouter } from '@tanstack/react-router';
 import { QueryProvider, queryClient } from './contexts/QueryClientProvider';
@@ -28,15 +28,13 @@ declare module '@tanstack/react-router' {
 }
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <QueryProvider>
-      <AuthProvider>
-        <UsageLimitsProvider>
-          <TooltipProvider>
-            <RouterProvider router={router} />
-          </TooltipProvider>
-        </UsageLimitsProvider>
-      </AuthProvider>
-    </QueryProvider>
-  </StrictMode>
+  <QueryProvider>
+    <AuthProvider>
+      <UsageLimitsProvider>
+        <TooltipProvider>
+          <RouterProvider router={router} />
+        </TooltipProvider>
+      </UsageLimitsProvider>
+    </AuthProvider>
+  </QueryProvider>
 );

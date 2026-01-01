@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import {
     ColumnDef,
     flexRender,
@@ -6,7 +6,7 @@ import {
     useReactTable,
     getPaginationRowModel,
 } from '@tanstack/react-table'
-import { MoreHorizontal, Eye, CheckCircle } from 'lucide-react'
+import { MoreHorizontal, Eye, CheckCircle, XCircle } from 'lucide-react'
 import { formatDistanceToNow, format } from 'date-fns'
 import { Button } from '@admin/components/ui/button'
 import { Badge } from '@admin/components/ui/badge'
@@ -52,7 +52,7 @@ const statusBadgeVariant: Record<RefundStatus, 'default' | 'secondary' | 'destru
 }
 
 export function RefundsTable({ data, isLoading, statusFilter, onStatusFilterChange }: RefundsTableProps) {
-    const { setSelectedRefund, setApprovalDialogOpen, setDetailDialogOpen } = useRefundsContext()
+    const { setSelectedRefund, setApprovalDialogOpen, setDetailDialogOpen, setRejectionDialogOpen } = useRefundsContext()
 
     const handleViewDetails = (refund: RefundListItem) => {
         setSelectedRefund(refund)
@@ -62,6 +62,11 @@ export function RefundsTable({ data, isLoading, statusFilter, onStatusFilterChan
     const handleApprove = (refund: RefundListItem) => {
         setSelectedRefund(refund)
         setApprovalDialogOpen(true)
+    }
+
+    const handleReject = (refund: RefundListItem) => {
+        setSelectedRefund(refund)
+        setRejectionDialogOpen(true)
     }
 
     const columns: ColumnDef<RefundListItem>[] = useMemo(
@@ -132,10 +137,16 @@ export function RefundsTable({ data, isLoading, statusFilter, onStatusFilterChan
                                 View Details
                             </DropdownMenuItem>
                             {row.original.status === 'pending' && (
-                                <DropdownMenuItem onClick={() => handleApprove(row.original)}>
-                                    <CheckCircle className="mr-2 h-4 w-4" />
-                                    Approve Refund
-                                </DropdownMenuItem>
+                                <>
+                                    <DropdownMenuItem onClick={() => handleApprove(row.original)}>
+                                        <CheckCircle className="mr-2 h-4 w-4" />
+                                        Approve Refund
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => handleReject(row.original)} className="text-destructive focus:text-destructive">
+                                        <XCircle className="mr-2 h-4 w-4" />
+                                        Reject Refund
+                                    </DropdownMenuItem>
+                                </>
                             )}
                         </DropdownMenuContent>
                     </DropdownMenu>

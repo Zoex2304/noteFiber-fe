@@ -1,4 +1,4 @@
-import { StrictMode } from 'react'
+// import { StrictMode } from 'react'
 import { AxiosError } from 'axios'
 import {
   QueryCache,
@@ -91,18 +91,16 @@ declare module '@tanstack/react-router' {
 // Export AdminApp component to be used in main router
 export default function AdminApp() {
   return (
-    <StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <AdminAuthProvider>
-          <ThemeProvider>
-            <FontProvider>
-              <DirectionProvider>
-                <RouterProvider router={router} />
-              </DirectionProvider>
-            </FontProvider>
-          </ThemeProvider>
-        </AdminAuthProvider>
-      </QueryClientProvider>
-    </StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <AdminAuthProvider>
+        <ThemeProvider>
+          <FontProvider>
+            <DirectionProvider>
+              <RouterProvider router={router} />
+            </DirectionProvider>
+          </FontProvider>
+        </ThemeProvider>
+      </AdminAuthProvider>
+    </QueryClientProvider>
   )
 }

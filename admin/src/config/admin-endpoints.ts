@@ -39,4 +39,7 @@ export const ADMIN_ENDPOINTS = {
         PROCESS_LEGACY: '/admin/subscriptions/refund',
         UPGRADE_SUBSCRIPTION: '/admin/subscriptions/upgrade',
     },
+    TOKEN_USAGE: {
+        LIST: '/admin/token-usage',
+    },
 } as const;
