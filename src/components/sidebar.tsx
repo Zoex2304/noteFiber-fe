@@ -195,9 +195,10 @@ export function Sidebar({
                     <ContextMenuTrigger asChild>
                         <div
                             className={cn(
-                                "flex items-center group",
-                                isDragOver && "bg-blue-100 border-2 border-blue-300 border-dashed rounded",
+                                "flex items-center group min-w-fit",
+                                isDragOver && "bg-royal-violet-base/10 border-2 border-royal-violet-base border-dashed rounded",
                             )}
+                            style={{ paddingLeft: `${level * 16}px` }}
                             draggable={!isEditing && !isProcessingMove && !isThisNotebookDeleting}
                             onDragStart={(e) => handleDragStart(e, "notebook", notebook.id)}
                             onDragOver={(e) => handleDragOver(e, "notebook", notebook.id)}
@@ -207,13 +208,12 @@ export function Sidebar({
                             <Button
                                 variant="ghost"
                                 className={cn(
-                                    "flex-1 justify-start h-9 px-2 font-normal transition-all duration-200",
+                                    "flex-1 justify-start h-9 px-2 font-normal transition-all duration-200 whitespace-nowrap shrink-0",
                                     isSelected &&
-                                    "bg-gradient-to-r from-blue-50 to-blue-100 text-blue-800 shadow-sm border-l-2 border-blue-500",
+                                    "bg-royal-violet-base/10 text-royal-violet-base shadow-sm border-l-2 border-royal-violet-base", // Updated to royal-violet
                                     !isSelected && "hover:bg-gray-50 hover:shadow-sm",
-                                    level > 0 && "bg-gray-25",
+                                    level > 0 && !isSelected && "bg-gray-25",
                                 )}
-                                style={{ paddingLeft: `${level * 16 + 8}px` }}
                                 onClick={() => {
                                     if (!isEditing && !isProcessingMove && !isThisNotebookDeleting) {
                                         onNotebookSelect(notebook.id)
@@ -233,9 +233,9 @@ export function Sidebar({
                                         ))}
                                 </div>
                                 {isExpanded ? (
-                                    <FolderOpen className="h-4 w-4 mr-2 text-blue-600" />
+                                    <FolderOpen className="h-4 w-4 mr-2 text-royal-violet-base" /> // Updated icon color
                                 ) : (
-                                    <Folder className="h-4 w-4 mr-2 text-blue-600" />
+                                    <Folder className="h-4 w-4 mr-2 text-royal-violet-base" /> // Updated icon color
                                 )}
                                 {isEditing ? (
                                     <div className="flex items-center flex-1">
@@ -251,17 +251,17 @@ export function Sidebar({
                                                     cancelEditingNotebook()
                                                 }
                                             }}
-                                            className="h-6 text-sm border-none p-0 focus-visible:ring-1 focus-visible:ring-blue-500 flex-1"
+                                            className="h-6 text-sm border-none p-0 focus-visible:ring-1 focus-visible:ring-royal-violet-base flex-1" // Updated focus ring
                                             autoFocus
                                             onClick={(e) => e.stopPropagation()}
                                             disabled={isSavingNotebookName}
                                         />
                                         {isSavingNotebookName && (
-                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 ml-2"></div>
+                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-royal-violet-base ml-2"></div> // Updated spinner
                                         )}
                                     </div>
                                 ) : (
-                                    <span className="truncate flex-1 text-left">{notebook.name}</span>
+                                    <span className="flex-1 text-left whitespace-nowrap">{notebook.name}</span>
                                 )}
                             </Button>
                         </div>
@@ -311,9 +311,10 @@ export function Sidebar({
                                     <ContextMenuTrigger asChild>
                                         <div
                                             className={cn(
-                                                "flex items-center group",
-                                                isDragOverNote && "bg-blue-100 border-2 border-blue-300 border-dashed rounded",
+                                                "flex items-center group min-w-fit",
+                                                isDragOverNote && "bg-royal-violet-base/10 border-2 border-royal-violet-base border-dashed rounded", // Updated drag state
                                             )}
+                                            style={{ paddingLeft: `${(level + 1) * 16}px` }}
                                             draggable={!isProcessingMove && !isThisNoteDeleting}
                                             onDragStart={(e) => handleDragStart(e, "note", note.id)}
                                             onDragOver={(e) => handleDragOver(e, "note", note.id)}
@@ -323,12 +324,10 @@ export function Sidebar({
                                             <Button
                                                 variant="ghost"
                                                 className={cn(
-                                                    "flex-1 justify-start h-8 px-2 font-normal text-gray-600 transition-all duration-200",
-                                                    selectedNote === note.id &&
-                                                    "bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-800 shadow-sm border-l-2 border-indigo-500",
+                                                    "flex-1 justify-start h-8 px-2 font-normal text-gray-600 transition-all duration-200 whitespace-nowrap shrink-0",
+                                                    selectedNote === note.id && "text-royal-violet-base font-medium", // Removed background background, only text color
                                                     selectedNote !== note.id && "hover:bg-gray-50 text-gray-700",
                                                 )}
-                                                style={{ paddingLeft: `${(level + 1) * 16 + 8}px` }}
                                                 onClick={() => {
                                                     if (!isProcessingMove && !isThisNoteDeleting) {
                                                         onNoteSelect(note.id)
@@ -339,7 +338,7 @@ export function Sidebar({
                                             >
                                                 <div className="w-4 mr-1"></div>
                                                 <FileText className="h-3.5 w-3.5 mr-2 text-gray-500" />
-                                                <span className="truncate text-sm flex-1 text-left">{note.title}</span>
+                                                <span className="text-sm flex-1 text-left whitespace-nowrap">{note.title}</span>
                                             </Button>
                                         </div>
                                     </ContextMenuTrigger>

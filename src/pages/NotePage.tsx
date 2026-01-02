@@ -397,7 +397,30 @@ export default function NotePage() {
                         </div>
                     ) : currentNote ? (
                         <>
-                            <NoteBreadcrumb note={currentNote} />
+                            <NoteBreadcrumb
+                                note={currentNote}
+                                onFolderClick={(folderId) => setExpandedNotebooks(prev => {
+                                    const next = new Set(prev);
+
+                                    // 1. Find ancestors to ensure they are visible
+                                    const crumbIndex = currentNote.breadcrumb?.findIndex(b => b.id === folderId) ?? -1;
+                                    if (crumbIndex > 0) {
+                                        // Add all parents (items before this one)
+                                        currentNote.breadcrumb?.slice(0, crumbIndex).forEach(crumb => {
+                                            next.add(crumb.id);
+                                        });
+                                    }
+
+                                    // 2. Toggle the clicked folder itself
+                                    if (next.has(folderId)) {
+                                        next.delete(folderId);
+                                    } else {
+                                        next.add(folderId);
+                                    }
+
+                                    return next;
+                                })}
+                            />
                             <NoteEditor note={currentNote} onUpdate={handleNoteUpdate} />
                         </>
                     ) : (

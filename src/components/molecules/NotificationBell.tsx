@@ -24,7 +24,7 @@ export function NotificationBell({ onClick, className }: NotificationBellProps) 
             onClick={onClick}
             className={cn(
                 'relative inline-flex items-center justify-center',
-                'p-2 rounded-full',
+                'h-8 w-8 rounded-full', // Fixed size to match TopBar icons
                 'text-muted-foreground hover:text-foreground',
                 'hover:bg-accent transition-colors',
                 'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring',
@@ -32,7 +32,7 @@ export function NotificationBell({ onClick, className }: NotificationBellProps) 
             )}
             aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
         >
-            <Bell className="h-5 w-5" />
+            <Bell className="h-4 w-4" /> {/* Standard icon size */}
 
             {/* Unread badge */}
             {unreadCount > 0 && (

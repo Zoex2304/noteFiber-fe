@@ -34,10 +34,10 @@ export function UserProfileMenu() {
         <DropdownMenu>
             <ActionTooltip label="Profile & Settings">
                 <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                        <Avatar className="h-10 w-10 border border-gray-200">
+                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                        <Avatar className="h-8 w-8 border border-gray-200">
                             <AvatarImage src={user?.avatar_url || ""} alt={user?.full_name || "User"} referrerPolicy="no-referrer" />
-                            <AvatarFallback className="bg-royal-violet-light text-royal-violet-base font-medium">
+                            <AvatarFallback className="bg-royal-violet-light text-royal-violet-base font-medium flex items-center justify-center">
                                 {initials}
                             </AvatarFallback>
                         </Avatar>
