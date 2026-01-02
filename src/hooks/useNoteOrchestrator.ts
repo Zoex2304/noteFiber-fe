@@ -9,12 +9,12 @@ import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useUsageLimits } from "@/contexts/UsageLimitsContext";
 
 export function useNoteOrchestrator() {
-    const { noteId } = useParams({ from: "/_authenticated/app/note/$noteId" });
+    // strict: false allows usage outside of the explicit route (e.g. in MainApp dashboard)
+    const { noteId } = useParams({ strict: false });
     const navigate = useNavigate();
 
     // -- Contexts --
     const { checkPermission } = useSubscription();
-    // @ts-ignore
     const { checkCanCreateNotebook, checkCanCreateNote, checkCanUseAiChat, checkCanUseSemanticSearch } = useUsageLimits();
 
     // -- Hooks --
@@ -22,9 +22,9 @@ export function useNoteOrchestrator() {
     const noteSystem = useNoteSystem();
     const activeNote = useActiveNote(noteId);
 
-    // -- Dialog State --
+    // -- Dialog/Sidebar State --
     const [searchOpen, setSearchOpen] = useState(false);
-    const [chatOpen, setChatOpen] = useState(false);
+    const [isChatOpen, setIsChatOpen] = useState(false); // Changed from chatOpen (dialog) to sidebar toggle
 
     // -- Synchronization Effects --
 
@@ -168,22 +168,36 @@ export function useNoteOrchestrator() {
         sidebar.setIsProcessingMove(false);
     };
 
-    // -- Dialog Handlers --
-    const checkAndOpenDialog = async (permission: "semantic_search" | "ai_chat", openFn: (v: boolean) => void) => {
-        // Map permission to usage check
-        const checker = permission === "semantic_search" ? checkCanUseSemanticSearch : checkCanUseAiChat;
-        const canUse = await checker();
+    // -- Dialog/Sidebar Handlers --
+    const checkAndToggleChat = async () => {
+        // Toggle off instantly if open
+        if (isChatOpen) {
+            setIsChatOpen(false);
+            return;
+        }
+
+        // Check permission before opening
+        const canUse = await checkCanUseAiChat();
         if (!canUse) return;
 
-        // Dispatch event string matches the one in NotePage original
-        if (checkPermission(permission)) {
-            openFn(true);
+        // @ts-ignore
+        if (checkPermission("ai_chat")) {
+            setIsChatOpen(true);
         } else {
-            // We need to import the UPGRADE_EVENT string or hardcode it if we don't want to export it from client
-            // Assuming "UPGRADE_PLAN" based on context, but let's check imports.
-            // It was imported from client. We will return a callback instead of dispatching inside here? 
-            // Or better, return the handlers.
-            const UPGRADE_EVENT = "upgrade-plan"; // Hardcoded or imported
+            const UPGRADE_EVENT = "upgrade-plan";
+            window.dispatchEvent(new Event(UPGRADE_EVENT));
+        }
+    };
+
+    const checkAndOpenSearch = async () => {
+        const canUse = await checkCanUseSemanticSearch();
+        if (!canUse) return;
+
+        // @ts-ignore
+        if (checkPermission("semantic_search")) {
+            setSearchOpen(true);
+        } else {
+            const UPGRADE_EVENT = "upgrade-plan";
             window.dispatchEvent(new Event(UPGRADE_EVENT));
         }
     };
@@ -219,16 +233,20 @@ export function useNoteOrchestrator() {
 
     return {
         appSidebarProps,
-        noteSystem,      // Exposed for search/chat dialogs which need 'notes' list
-        activeNote,      // Exposed for Editor
-        sidebar,         // Exposed if needed
-        handleNoteUpdate, // Exposed for Editor
-        navigateToNote,   // Exposed for Dialogs
-        // specific dialog handlers
+        noteSystem,
+        activeNote,
+        sidebar,
+        handleNoteUpdate,
+        navigateToNote,
+
+        // Search
         searchOpen,
         setSearchOpen,
-        chatOpen,
-        setChatOpen,
-        checkAndOpenDialog,
+        checkAndOpenSearch,
+
+        // Chat Sidebar
+        isChatOpen,
+        setIsChatOpen,
+        checkAndToggleChat,
     };
 }

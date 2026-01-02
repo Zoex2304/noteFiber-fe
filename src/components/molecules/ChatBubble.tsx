@@ -1,6 +1,7 @@
-import ReactMarkdown from "react-markdown";
-import { Bot, User } from "lucide-react";
+import { User, Bot } from "lucide-react";
+import ReactMarkdown from 'react-markdown';
 import type { Message } from "@/types/ai-chat";
+import { cn } from "@/lib/utils";
 import { Citation } from "./Citation";
 
 export interface ChatBubbleProps {
@@ -8,39 +9,34 @@ export interface ChatBubbleProps {
     message: Message;
     /** Handler for citation clicks - navigates to the referenced note */
     onCitationClick?: (noteId: string) => void;
+    /** Whether to render in a compact mode (e.g. for sidebar) */
+    compact?: boolean;
 }
 
-/**
- * ChatBubble - Single source of truth for chat message display
- * 
- * Supports both user and assistant roles with:
- * - Role-based styling (gradient backgrounds)
- * - Avatar icons
- * - Markdown rendering for assistant messages
- * - Optional citations for assistant messages
- * - Fixed width with overflow handling
- */
-export function ChatBubble({ message, onCitationClick }: ChatBubbleProps) {
+export function ChatBubble({ message, onCitationClick, compact }: ChatBubbleProps) {
     const isUser = message.role === "user";
     const isAssistant = message.role === "assistant";
     const hasCitations = isAssistant && message.citations && message.citations.length > 0;
 
     return (
         <div
-            className={`flex gap-3 ${isUser ? "justify-end" : "justify-start"}`}
+            className={cn("flex gap-3", isUser ? "justify-end" : "justify-start", compact && "gap-2")}
         >
             <div
-                className={`flex gap-3 max-w-[80%] min-w-0 ${isUser ? "flex-row-reverse" : "flex-row"
-                    }`}
+                className={cn(
+                    "flex gap-3 max-w-[80%] min-w-0",
+                    isUser ? "flex-row-reverse" : "flex-row",
+                    compact && "gap-2"
+                )}
             >
                 {/* Avatar */}
                 <div className="flex-shrink-0">
                     {isUser ? (
-                        <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-sm">
+                        <div className="w-8 h-8 bg-gradient-primary-violet rounded-full flex items-center justify-center shadow-sm">
                             <User className="h-4 w-4 text-white" />
                         </div>
                     ) : (
-                        <div className="w-8 h-8 bg-gradient-to-r from-gray-500 to-gray-600 rounded-full flex items-center justify-center shadow-sm">
+                        <div className="w-8 h-8 bg-gradient-primary-violet rounded-full flex items-center justify-center shadow-sm">
                             <Bot className="h-4 w-4 text-white" />
                         </div>
                     )}
@@ -48,10 +44,12 @@ export function ChatBubble({ message, onCitationClick }: ChatBubbleProps) {
 
                 {/* Message Content */}
                 <div
-                    className={`rounded-lg p-3 shadow-sm min-w-0 overflow-hidden ${isUser
-                            ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white"
-                            : "bg-gradient-to-r from-gray-50 to-gray-100 text-gray-900 border border-gray-200"
-                        }`}
+                    className={cn(
+                        "rounded-lg p-3 shadow-sm min-w-0 overflow-hidden",
+                        isUser
+                            ? "bg-gradient-primary-violet text-white"
+                            : "bg-white border border-gray-200 text-gray-900 shadow-sm"
+                    )}
                 >
                     {/* Message Text */}
                     {isAssistant ? (
@@ -86,8 +84,10 @@ export function ChatBubble({ message, onCitationClick }: ChatBubbleProps) {
 
                     {/* Timestamp */}
                     <div
-                        className={`text-xs mt-2 ${isUser ? "opacity-70" : "opacity-60"
-                            }`}
+                        className={cn(
+                            "text-xs mt-2",
+                            isUser ? "opacity-70" : "opacity-60"
+                        )}
                     >
                         {message.timestamp.toLocaleTimeString()}
                     </div>

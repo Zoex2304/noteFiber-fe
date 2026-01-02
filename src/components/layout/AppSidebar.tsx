@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
-import { Plus, FolderPlus, ChevronLeft, ChevronRight, ChevronsDown, ChevronsUp } from "lucide-react";
+import { useRef, useEffect } from "react";
+import { Plus, FolderPlus, ChevronsDown, ChevronsUp } from "lucide-react";
 import { Button } from "@/components/shadui/button";
 import { ActionTooltip } from "@/components/common/ActionTooltip";
 import { PlanStatusPill } from "@/components/common/PlanStatusPill";
@@ -10,10 +10,10 @@ import { Sidebar } from "@/components/sidebar";
 import { cn } from "@/lib/utils";
 import type { Note } from "@/types/note";
 import type { Notebook } from "@/types/notebook";
+import { SidebarLayout } from "./SidebarLayout";
+import { useSidebarState } from "@/hooks/useSidebarState";
 
 // Constants
-const SIDEBAR_WIDTH = 280;
-const SIDEBAR_COLLAPSED_WIDTH = 64;
 const SIDEBAR_COOKIE_NAME = "sidebar_collapsed";
 
 export interface AppSidebarProps {
@@ -63,30 +63,19 @@ export function AppSidebar({
     isCreatingNote,
     onClearSelection,
 }: AppSidebarProps) {
-    // Collapse state with cookie persistence
-    const [isCollapsed, setIsCollapsed] = useState(() => {
-        if (typeof document !== "undefined") {
-            return document.cookie.includes(`${SIDEBAR_COOKIE_NAME}=true`);
-        }
-        return false;
+    // Shared sidebar state logic with cookie persistence
+    const { isCollapsed, toggle: toggleCollapse, expand } = useSidebarState({
+        cookieName: SIDEBAR_COOKIE_NAME,
+        defaultCollapsed: false
     });
 
     const sidebarRef = useRef<HTMLDivElement>(null);
-
-    // Toggle collapse
-    const toggleCollapse = useCallback(() => {
-        setIsCollapsed((prev) => {
-            const newState = !prev;
-            document.cookie = `${SIDEBAR_COOKIE_NAME}=${newState}; path=/; max-age=${60 * 60 * 24 * 365}`;
-            return newState;
-        });
-    }, []);
 
     // Click outside to clear selection
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             const target = event.target as HTMLElement;
-            // Only clear if clicking on the sidebar background, not on items
+            // Only clear if calling on the sidebar background, not on items
             if (
                 sidebarRef.current &&
                 sidebarRef.current.contains(target) &&
@@ -113,24 +102,23 @@ export function AppSidebar({
     }, [toggleCollapse]);
 
     return (
-        <aside
-            className={cn(
-                "relative flex flex-col bg-white border-r border-gray-200 transition-[width] duration-200 ease-in-out",
-                isCollapsed ? "w-16" : "w-72"
-            )}
-            style={{ width: isCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH }}
+        <SidebarLayout
+            side="left"
+            isCollapsed={isCollapsed}
+            onToggle={toggleCollapse}
+            className="border-r border-gray-200"
         >
             {/* Header: Logo + Actions on SAME row - h-12 to match TopBar */}
-            <div className="h-12 px-3 border-b border-gray-200 flex items-center">
-                <div className="flex items-center justify-between w-full">
+            <div className="h-12 px-4 border-b border-gray-200 flex items-center shrink-0">
+                <div className="flex items-center justify-between w-full gap-2">
                     {/* Logo */}
                     {isCollapsed ? (
                         <Logo variant="symbol" className="h-7 w-7 mx-auto" />
                     ) : (
                         <>
-                            <Logo variant="horizontal" className="h-6" />
+                            <Logo variant="horizontal" className="h-7 shrink-0" />
                             {/* Action Buttons (Icon-only like VS Code) */}
-                            <div className="flex gap-1">
+                            <div className="flex gap-1 shrink-0">
                                 <ActionTooltip label="New Notebook" side="bottom">
                                     <Button
                                         variant="ghost"
@@ -208,7 +196,51 @@ export function AppSidebar({
                     isCollapsed && "overflow-hidden"
                 )}
             >
-                {!isCollapsed && (
+                {/* Content: File Tree or Collapsed Actions */}
+                {isCollapsed ? (
+                    <div className="flex flex-col items-center py-4 gap-2">
+                        <ActionTooltip label="New Notebook" side="right">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => {
+                                    expand(); // Auto-expand on click
+                                    onCreateNotebook();
+                                }}
+                                disabled={isCreatingNotebook}
+                                className="h-8 w-8"
+                            >
+                                {isCreatingNotebook ? (
+                                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-gray-600" />
+                                ) : (
+                                    <FolderPlus className="h-4 w-4" />
+                                )}
+                            </Button>
+                        </ActionTooltip>
+
+                        <ActionTooltip
+                            label={!selectedNotebook ? "Select a notebook first" : "New Note"}
+                            side="right"
+                        >
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => {
+                                    expand(); // Auto-expand on click
+                                    onCreateNote();
+                                }}
+                                disabled={!selectedNotebook || isCreatingNote}
+                                className="h-8 w-8"
+                            >
+                                {isCreatingNote ? (
+                                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-gray-600" />
+                                ) : (
+                                    <Plus className="h-4 w-4" />
+                                )}
+                            </Button>
+                        </ActionTooltip>
+                    </div>
+                ) : (
                     <Sidebar
                         notebooks={notebooks}
                         notes={notes}
@@ -231,7 +263,7 @@ export function AppSidebar({
             </div>
 
             {/* Footer: Plan Status Pill (like Mistral AI) */}
-            <div className="p-3 border-t border-gray-200">
+            <div className="p-3 border-t border-gray-200 shrink-0">
                 {isCollapsed ? (
                     <ActionTooltip label="Your Plan" side="right">
                         <div className="flex justify-center">
@@ -242,24 +274,6 @@ export function AppSidebar({
                     <PlanStatusPill />
                 )}
             </div>
-
-            {/* Collapse Rail Button */}
-            <button
-                onClick={toggleCollapse}
-                className={cn(
-                    "absolute -right-3 top-1/2 -translate-y-1/2 z-10",
-                    "flex h-6 w-6 items-center justify-center rounded-full",
-                    "bg-white border border-gray-200 shadow-sm",
-                    "hover:bg-gray-50 transition-colors"
-                )}
-                aria-label="Toggle Sidebar"
-            >
-                {isCollapsed ? (
-                    <ChevronRight className="h-3.5 w-3.5 text-gray-600" />
-                ) : (
-                    <ChevronLeft className="h-3.5 w-3.5 text-gray-600" />
-                )}
-            </button>
-        </aside >
+        </SidebarLayout>
     );
 }

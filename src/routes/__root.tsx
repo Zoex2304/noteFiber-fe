@@ -27,12 +27,28 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 
 function RootComponent() {
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+    // Debug visibility state
+    const [showDebug, setShowDebug] = useState(true);
 
     useEffect(() => {
         const UPGRADE_EVENT = 'show-upgrade-modal';
         const handleUpgradeTrigger = () => setShowUpgradeModal(true);
+
+        // Debug toggle handler
+        const handleDebugToggle = (e: KeyboardEvent) => {
+            if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'h') {
+                e.preventDefault();
+                setShowDebug(prev => !prev);
+            }
+        };
+
         window.addEventListener(UPGRADE_EVENT, handleUpgradeTrigger);
-        return () => window.removeEventListener(UPGRADE_EVENT, handleUpgradeTrigger);
+        window.addEventListener('keydown', handleDebugToggle);
+
+        return () => {
+            window.removeEventListener(UPGRADE_EVENT, handleUpgradeTrigger);
+            window.removeEventListener('keydown', handleDebugToggle);
+        };
     }, []);
 
     const router = useRouterState();
@@ -50,7 +66,7 @@ function RootComponent() {
                         onClose={() => setShowUpgradeModal(false)}
                         featureName="This pro feature"
                     />
-                    {import.meta.env.DEV && (
+                    {import.meta.env.DEV && showDebug && (
                         <>
                             <LogOverlay />
                             <ReactQueryDevtools buttonPosition="bottom-left" />

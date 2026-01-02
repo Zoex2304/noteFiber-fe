@@ -18,6 +18,7 @@ import { TableInsertDialog } from "./toolbar/TableInsertDialog";
 import { useState, useRef } from "react";
 import { $createFileNode } from "../nodes/FileNode";
 import { $insertNodeToNearestRoot } from "@lexical/utils";
+import { ResponsiveToolbar } from "./toolbar/ResponsiveToolbar";
 
 function InsertControls() {
     const [editor] = useLexicalComposerContext();
@@ -50,7 +51,7 @@ function InsertControls() {
     };
 
     return (
-        <div className="flex items-center gap-1">
+        <div className="flex flex-wrap items-center gap-1">
             <ToolbarButton
                 onClick={() => editor.dispatchCommand(INSERT_CHECK_LIST_COMMAND, undefined)}
                 icon={CheckSquare}
@@ -104,30 +105,29 @@ function formatBytes(bytes: number, decimals = 2) {
 }
 
 export default function ToolbarPlugin() {
+    const items = [
+        { id: "history", content: <HistoryControls /> },
+        { id: "block", content: <BlockTypeDropdown /> },
+        { id: "font", content: <FontControls /> },
+        {
+            id: "format",
+            content: (
+                <div className="flex flex-wrap items-center gap-1">
+                    <TextFormatControls />
+                    <ColorPickerControls />
+                    <ClearFormatButton />
+                </div>
+            )
+        },
+        { id: "align", content: <AlignmentControls /> },
+        { id: "insert", content: <InsertControls /> },
+        { id: "transform", content: <TransformationControls /> }
+    ];
+
     return (
         <TooltipProvider>
-            <div className="flex items-center gap-1.5 border-b border-gray-200 p-2 bg-white sticky top-0 z-10 flex-wrap">
-                <HistoryControls />
-                <div className="w-[1px] h-6 bg-gray-200" />
-
-                <BlockTypeDropdown />
-                <div className="w-[1px] h-6 bg-gray-200" />
-
-                <FontControls />
-                <div className="w-[1px] h-6 bg-gray-200" />
-
-                <TextFormatControls />
-                <ColorPickerControls />
-                <ClearFormatButton />
-                <div className="w-[1px] h-6 bg-gray-200" />
-
-                <AlignmentControls />
-                <div className="w-[1px] h-6 bg-gray-200" />
-
-                <InsertControls />
-                <div className="w-[1px] h-6 bg-gray-200" />
-
-                <TransformationControls />
+            <div className="border-b border-gray-200 bg-white sticky top-0 z-10">
+                <ResponsiveToolbar items={items} />
             </div>
         </TooltipProvider>
     );
