@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Plus, FolderPlus, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, FolderPlus, ChevronLeft, ChevronRight, ChevronsDown, ChevronsUp } from "lucide-react";
 import { Button } from "@/components/shadui/button";
 import { ActionTooltip } from "@/components/common/ActionTooltip";
 import { PlanStatusPill } from "@/components/common/PlanStatusPill";
@@ -165,6 +165,35 @@ export function AppSidebar({
                                         )}
                                     </Button>
                                 </ActionTooltip>
+
+
+                                <ActionTooltip
+                                    label={expandedNotebooks.size === 0 ? "Expand All" : "Collapse All"}
+                                    side="bottom"
+                                >
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => {
+                                            if (expandedNotebooks.size === 0) {
+                                                // Expand All: Create set with ALL notebook IDs
+                                                setExpandedNotebooks(new Set(notebooks.map(n => n.id)));
+                                            } else {
+                                                // Collapse All: Clear set
+                                                setExpandedNotebooks(new Set());
+                                            }
+                                        }}
+                                        className="h-7 w-7 group"
+                                    >
+                                        <div className="transition-transform duration-200 ease-in-out group-active:scale-90">
+                                            {expandedNotebooks.size === 0 ? (
+                                                <ChevronsDown className="h-4 w-4 transition-all duration-300" />
+                                            ) : (
+                                                <ChevronsUp className="h-4 w-4 transition-all duration-300" />
+                                            )}
+                                        </div>
+                                    </Button>
+                                </ActionTooltip>
                             </div>
                         </>
                     )}
@@ -231,6 +260,6 @@ export function AppSidebar({
                     <ChevronLeft className="h-3.5 w-3.5 text-gray-600" />
                 )}
             </button>
-        </aside>
+        </aside >
     );
 }
