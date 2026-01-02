@@ -1,19 +1,25 @@
 "use client"
 
-
-
 import { useState } from "react"
-import { ChevronRight, ChevronDown, Folder, FolderOpen, FileText, MoreHorizontal, Edit2, Trash2 } from "lucide-react"
+import { ChevronRight, ChevronDown, Folder, FolderOpen, FileText, Edit2, Trash2 } from "lucide-react"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu"
+import {
+    ContextMenu,
+    ContextMenuContent,
+    ContextMenuItem,
+    ContextMenuTrigger,
+} from "./ui/context-menu"
+import {
+    Collapsible,
+    CollapsibleContent,
+} from "./ui/collapsible"
 import { cn } from "../lib/utils"
 import type { Note } from "../types/note"
 import type { Notebook } from "../types/notebook"
 import { apiClient } from "@/api/client/axios.client"
 import type { BaseResponse } from "../dto/base-response"
 import type { UpdateNotebookResponse, UpdateNotebookRequest } from "../dto/notebook"
-import { ActionTooltip } from "@/components/common/ActionTooltip"
 
 interface SidebarProps {
     notebooks: Notebook[]
@@ -185,216 +191,185 @@ export function Sidebar({
 
         return (
             <div key={notebook.id}>
-                <div
-                    className={cn(
-                        "flex items-center group",
-                        isDragOver && "bg-blue-100 border-2 border-blue-300 border-dashed rounded",
-                    )}
-                    draggable={!isEditing && !isProcessingMove && !isThisNotebookDeleting} // Disable drag if editing, move, or deleting
-                    onDragStart={(e) => handleDragStart(e, "notebook", notebook.id)}
-                    onDragOver={(e) => handleDragOver(e, "notebook", notebook.id)}
-                    onDragLeave={handleDragLeave}
-                    onDrop={(e) => handleDrop(e, "notebook", notebook.id)}
-                >
-                    <Button
-                        variant="ghost"
-                        className={cn(
-                            "flex-1 justify-start h-9 px-2 font-normal transition-all duration-200",
-                            isSelected &&
-                            "bg-gradient-to-r from-blue-50 to-blue-100 text-blue-800 shadow-sm border-l-2 border-blue-500",
-                            !isSelected && "hover:bg-gray-50 hover:shadow-sm",
-                            level > 0 && "bg-gray-25",
-                        )}
-                        style={{ paddingLeft: `${level * 16 + 8}px` }}
-                        onClick={() => {
-                            if (!isEditing && !isProcessingMove && !isThisNotebookDeleting) {
-                                onNotebookSelect(notebook.id)
-                                if (hasChildren) {
-                                    toggleNotebook(notebook.id)
-                                }
-                            }
-                        }}
-                        disabled={isProcessingMove || isThisNotebookDeleting} // Disable button if move or delete is processing
-                    >
-                        <div className="w-4 flex justify-center mr-1">
-                            {hasChildren &&
-                                (isExpanded ? (
-                                    <ChevronDown className="h-3 w-3 text-gray-600" />
-                                ) : (
-                                    <ChevronRight className="h-3 w-3 text-gray-600" />
-                                ))}
-                        </div>
-                        {isExpanded ? (
-                            <FolderOpen className="h-4 w-4 mr-2 text-blue-600" />
-                        ) : (
-                            <Folder className="h-4 w-4 mr-2 text-blue-600" />
-                        )}
-                        {isEditing ? (
-                            <div className="flex items-center flex-1">
-                                <Input
-                                    value={editingName}
-                                    onChange={(e) => setEditingName(e.target.value)}
-                                    onBlur={saveNotebookName}
-                                    onKeyDown={(e) => {
-                                        e.stopPropagation() // Prevent button click from firing
-                                        if (e.key === "Enter") {
-                                            saveNotebookName()
-                                        } else if (e.key === "Escape") {
-                                            cancelEditingNotebook()
-                                        }
-                                    }}
-                                    className="h-6 text-sm border-none p-0 focus-visible:ring-1 focus-visible:ring-blue-500 flex-1"
-                                    autoFocus
-                                    onClick={(e) => e.stopPropagation()} // Prevent button click from firing
-                                    disabled={isSavingNotebookName} // Disable input while saving
-                                />
-                                {isSavingNotebookName && (
-                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 ml-2"></div>
+                <ContextMenu>
+                    <ContextMenuTrigger asChild>
+                        <div
+                            className={cn(
+                                "flex items-center group",
+                                isDragOver && "bg-blue-100 border-2 border-blue-300 border-dashed rounded",
+                            )}
+                            draggable={!isEditing && !isProcessingMove && !isThisNotebookDeleting}
+                            onDragStart={(e) => handleDragStart(e, "notebook", notebook.id)}
+                            onDragOver={(e) => handleDragOver(e, "notebook", notebook.id)}
+                            onDragLeave={handleDragLeave}
+                            onDrop={(e) => handleDrop(e, "notebook", notebook.id)}
+                        >
+                            <Button
+                                variant="ghost"
+                                className={cn(
+                                    "flex-1 justify-start h-9 px-2 font-normal transition-all duration-200",
+                                    isSelected &&
+                                    "bg-gradient-to-r from-blue-50 to-blue-100 text-blue-800 shadow-sm border-l-2 border-blue-500",
+                                    !isSelected && "hover:bg-gray-50 hover:shadow-sm",
+                                    level > 0 && "bg-gray-25",
                                 )}
-                            </div>
-                        ) : (
-                            <span className="truncate flex-1 text-left">{notebook.name}</span>
-                        )}
-                    </Button>
+                                style={{ paddingLeft: `${level * 16 + 8}px` }}
+                                onClick={() => {
+                                    if (!isEditing && !isProcessingMove && !isThisNotebookDeleting) {
+                                        onNotebookSelect(notebook.id)
+                                        if (hasChildren) {
+                                            toggleNotebook(notebook.id)
+                                        }
+                                    }
+                                }}
+                                disabled={isProcessingMove || isThisNotebookDeleting}
+                            >
+                                <div className="w-4 flex justify-center mr-1">
+                                    {hasChildren &&
+                                        (isExpanded ? (
+                                            <ChevronDown className="h-3 w-3 text-gray-600" />
+                                        ) : (
+                                            <ChevronRight className="h-3 w-3 text-gray-600" />
+                                        ))}
+                                </div>
+                                {isExpanded ? (
+                                    <FolderOpen className="h-4 w-4 mr-2 text-blue-600" />
+                                ) : (
+                                    <Folder className="h-4 w-4 mr-2 text-blue-600" />
+                                )}
+                                {isEditing ? (
+                                    <div className="flex items-center flex-1">
+                                        <Input
+                                            value={editingName}
+                                            onChange={(e) => setEditingName(e.target.value)}
+                                            onBlur={saveNotebookName}
+                                            onKeyDown={(e) => {
+                                                e.stopPropagation()
+                                                if (e.key === "Enter") {
+                                                    saveNotebookName()
+                                                } else if (e.key === "Escape") {
+                                                    cancelEditingNotebook()
+                                                }
+                                            }}
+                                            className="h-6 text-sm border-none p-0 focus-visible:ring-1 focus-visible:ring-blue-500 flex-1"
+                                            autoFocus
+                                            onClick={(e) => e.stopPropagation()}
+                                            disabled={isSavingNotebookName}
+                                        />
+                                        {isSavingNotebookName && (
+                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 ml-2"></div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <span className="truncate flex-1 text-left">{notebook.name}</span>
+                                )}
+                            </Button>
+                        </div>
+                    </ContextMenuTrigger>
+                    <ContextMenuContent>
+                        <ContextMenuItem
+                            onClick={() => startEditingNotebook(notebook)}
+                            disabled={isSavingNotebookName || isProcessingMove || isThisNotebookDeleting}
+                        >
+                            <Edit2 className="h-3 w-3 mr-2" />
+                            Rename
+                        </ContextMenuItem>
+                        <ContextMenuItem
+                            onClick={() => onDeleteNotebook(notebook.id)}
+                            className="text-red-600 focus:text-red-600"
+                            disabled={isProcessingMove || isThisNotebookDeleting}
+                        >
+                            {isThisNotebookDeleting ? (
+                                <div className="flex items-center">
+                                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-red-600 mr-2"></div>
+                                    Deleting...
+                                </div>
+                            ) : (
+                                <>
+                                    <Trash2 className="h-3 w-3 mr-2" />
+                                    Delete
+                                </>
+                            )}
+                        </ContextMenuItem>
+                    </ContextMenuContent>
+                </ContextMenu>
 
-                    {!isEditing && (
-                        <DropdownMenu>
-                            <ActionTooltip label="More Options">
-                                <DropdownMenuTrigger asChild>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                                        onClick={(e) => e.stopPropagation()} // Prevent button click from firing
-                                        disabled={isProcessingMove || isSavingNotebookName || isThisNotebookDeleting} // Disable dropdown if any operation is processing
-                                    >
-                                        <MoreHorizontal className="h-3 w-3" />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                            </ActionTooltip>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuItem
-                                    onClick={(e) => {
-                                        e.stopPropagation()
-                                        startEditingNotebook(notebook)
-                                    }}
-                                    disabled={isSavingNotebookName || isProcessingMove || isThisNotebookDeleting} // Disable if already saving or other operations
-                                >
-                                    <Edit2 className="h-3 w-3 mr-2" />
-                                    Rename
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                    onClick={(e) => {
-                                        e.stopPropagation()
-                                        onDeleteNotebook(notebook.id)
-                                    }}
-                                    className="text-red-600 focus:text-red-600"
-                                    disabled={isProcessingMove || isThisNotebookDeleting} // Disable if move or delete is processing
-                                >
-                                    {isThisNotebookDeleting ? (
-                                        <div className="flex items-center">
-                                            <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-red-600 mr-2"></div>
-                                            Deleting...
-                                        </div>
-                                    ) : (
-                                        <>
-                                            <Trash2 className="h-3 w-3 mr-2" />
-                                            Delete
-                                        </>
-                                    )}
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    )}
-                </div>
-
-                {isExpanded && (
-                    <div className="bg-gradient-to-r from-gray-25 to-transparent">
+                <Collapsible open={isExpanded}>
+                    <CollapsibleContent className="relative">
+                        {/* Hierarchical left border line */}
+                        <div
+                            className="absolute left-0 top-0 bottom-0 border-l border-gray-200"
+                            style={{ marginLeft: `${level * 16 + 16}px` }}
+                        />
                         {/* Render notes first */}
                         {notebookNotes.map((note) => {
                             const isDragOverNote = dragOverItem?.type === "note" && dragOverItem.id === note.id
                             const isThisNoteDeleting = isDeletingNote === note.id
 
                             return (
-                                <div
-                                    key={note.id}
-                                    className={cn(
-                                        "flex items-center group",
-                                        isDragOverNote && "bg-blue-100 border-2 border-blue-300 border-dashed rounded",
-                                    )}
-                                    draggable={!isProcessingMove && !isThisNoteDeleting} // Disable drag if move or deleting
-                                    onDragStart={(e) => handleDragStart(e, "note", note.id)}
-                                    onDragOver={(e) => handleDragOver(e, "note", note.id)}
-                                    onDragLeave={handleDragLeave}
-                                    onDrop={(e) => handleDrop(e, "note", note.id)}
-                                >
-                                    <Button
-                                        variant="ghost"
-                                        className={cn(
-                                            "flex-1 justify-start h-8 px-2 font-normal transition-all duration-200",
-                                            selectedNote === note.id &&
-                                            "bg-gradient-to-r from-blue-50 to-blue-100 text-blue-800 shadow-sm border-l-2 border-blue-400",
-                                            selectedNote !== note.id && "hover:bg-gray-50 text-gray-700",
-                                        )}
-                                        style={{ paddingLeft: `${(level + 1) * 16 + 8}px` }}
-                                        onClick={() => {
-                                            if (!isProcessingMove && !isThisNoteDeleting) {
-                                                onNoteSelect(note.id)
-                                                onNotebookSelect(notebook.id)
-                                            }
-                                        }}
-                                        disabled={isProcessingMove || isThisNoteDeleting} // Disable button if move or delete is processing
-                                    >
-                                        <div className="w-4 mr-1"></div>
-                                        <FileText className="h-3.5 w-3.5 mr-2 text-gray-500" />
-                                        <span className="truncate text-sm flex-1 text-left">{note.title}</span>
-                                    </Button>
-
-                                    <DropdownMenu>
-                                        <ActionTooltip label="More Options">
-                                            <DropdownMenuTrigger asChild>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                                                    onClick={(e) => e.stopPropagation()} // Prevent button click from firing
-                                                    disabled={isProcessingMove || isThisNoteDeleting} // Disable dropdown if any operation is processing
-                                                >
-                                                    <MoreHorizontal className="h-3 w-3" />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                        </ActionTooltip>
-                                        <DropdownMenuContent align="end">
-                                            <DropdownMenuItem
-                                                onClick={(e) => {
-                                                    e.stopPropagation()
-                                                    onDeleteNote(note.id)
-                                                }}
-                                                className="text-red-600 focus:text-red-600"
-                                                disabled={isProcessingMove || isThisNoteDeleting} // Disable if move or delete is processing
-                                            >
-                                                {isThisNoteDeleting ? (
-                                                    <div className="flex items-center">
-                                                        <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-red-600 mr-2"></div>
-                                                        Deleting...
-                                                    </div>
-                                                ) : (
-                                                    <>
-                                                        <Trash2 className="h-3 w-3 mr-2" />
-                                                        Delete
-                                                    </>
+                                <ContextMenu key={note.id}>
+                                    <ContextMenuTrigger asChild>
+                                        <div
+                                            className={cn(
+                                                "flex items-center group",
+                                                isDragOverNote && "bg-blue-100 border-2 border-blue-300 border-dashed rounded",
+                                            )}
+                                            draggable={!isProcessingMove && !isThisNoteDeleting}
+                                            onDragStart={(e) => handleDragStart(e, "note", note.id)}
+                                            onDragOver={(e) => handleDragOver(e, "note", note.id)}
+                                            onDragLeave={handleDragLeave}
+                                            onDrop={(e) => handleDrop(e, "note", note.id)}
+                                        >
+                                            <Button
+                                                variant="ghost"
+                                                className={cn(
+                                                    "flex-1 justify-start h-8 px-2 font-normal text-gray-600 transition-all duration-200",
+                                                    selectedNote === note.id &&
+                                                    "bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-800 shadow-sm border-l-2 border-indigo-500",
+                                                    selectedNote !== note.id && "hover:bg-gray-50 text-gray-700",
                                                 )}
-                                            </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                </div>
+                                                style={{ paddingLeft: `${(level + 1) * 16 + 8}px` }}
+                                                onClick={() => {
+                                                    if (!isProcessingMove && !isThisNoteDeleting) {
+                                                        onNoteSelect(note.id)
+                                                        onNotebookSelect(notebook.id)
+                                                    }
+                                                }}
+                                                disabled={isProcessingMove || isThisNoteDeleting}
+                                            >
+                                                <div className="w-4 mr-1"></div>
+                                                <FileText className="h-3.5 w-3.5 mr-2 text-gray-500" />
+                                                <span className="truncate text-sm flex-1 text-left">{note.title}</span>
+                                            </Button>
+                                        </div>
+                                    </ContextMenuTrigger>
+                                    <ContextMenuContent>
+                                        <ContextMenuItem
+                                            onClick={() => onDeleteNote(note.id)}
+                                            className="text-red-600 focus:text-red-600"
+                                            disabled={isProcessingMove || isThisNoteDeleting}
+                                        >
+                                            {isThisNoteDeleting ? (
+                                                <div className="flex items-center">
+                                                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-red-600 mr-2"></div>
+                                                    Deleting...
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <Trash2 className="h-3 w-3 mr-2" />
+                                                    Delete
+                                                </>
+                                            )}
+                                        </ContextMenuItem>
+                                    </ContextMenuContent>
+                                </ContextMenu>
                             )
                         })}
 
                         {/* Then render child notebooks */}
                         {children.map((child) => renderNotebook(child, level + 1))}
-                    </div>
-                )}
+                    </CollapsibleContent>
+                </Collapsible>
             </div>
         )
     }

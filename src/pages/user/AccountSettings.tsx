@@ -35,6 +35,7 @@ import {
     AlertDialogTrigger,
 } from "@/components/shadui/alert-dialog";
 import { PlanStatusPill } from "@/components/common/PlanStatusPill";
+import { TokenUsagePill } from "@/components/common/TokenUsagePill";
 
 const profileSchema = z.object({
     full_name: z.string().min(2, {
@@ -185,6 +186,18 @@ export default function AccountSettings() {
                             <span className="font-medium">Plan</span>
                             <div className="col-span-2">
                                 <PlanStatusPill className="w-fit" />
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-3 items-center">
+                            <span className="font-medium">AI Chat Usage</span>
+                            <div className="col-span-2">
+                                <TokenUsagePill type="chat" className="w-fit" />
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-3 items-center">
+                            <span className="font-medium">Search Usage</span>
+                            <div className="col-span-2">
+                                <TokenUsagePill type="search" className="w-fit" />
                             </div>
                         </div>
                         <div className="grid grid-cols-3 items-center">

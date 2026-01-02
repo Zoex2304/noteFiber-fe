@@ -2,17 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "@tanstack/react-router";
-import { Sidebar } from "@/components/sidebar";
+import { AppSidebar } from "@/components/layout/AppSidebar";
 import { NoteEditor } from "@/components/note-editor";
 import { SearchDialog } from "@/components/search-dialog";
 import { AIChatDialog } from "@/components/ai-chat-dialog";
 import { NoteBreadcrumb } from "@/components/NoteBreadcrumb";
-import { Button } from "@/components/ui/button";
-import { Plus, FolderPlus, XCircle, ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import type { Note } from "@/types/note";
 import type { Notebook } from "@/types/notebook";
 import { TopBar } from "@/components/common/TopBar";
-import { ActionTooltip } from "@/components/common/ActionTooltip";
 import "@/App.css";
 import type { BaseResponse } from "@/dto/base-response";
 import type {
@@ -338,96 +336,39 @@ export default function NotePage() {
     };
 
     return (
-        <div className="flex flex-col h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-            {/* Global Top Bar */}
-            <TopBar
-                onSearchClick={handleSearchClick}
-                onChatClick={handleChatClick}
+        <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+            {/* Sidebar */}
+            <AppSidebar
+                notebooks={notebooks}
+                notes={notes}
+                selectedNotebook={selectedNotebook}
+                selectedNote={selectedNote}
+                onNotebookSelect={setSelectedNotebook}
+                onNoteSelect={handleNoteSelect}
+                onNotebookUpdate={handleNotebookUpdate}
+                onDeleteNotebook={handleDeleteNotebook}
+                onDeleteNote={handleDeleteNote}
+                onMoveNote={handleMoveNote}
+                onMoveNotebook={handleMoveNotebook}
+                expandedNotebooks={expandedNotebooks}
+                setExpandedNotebooks={setExpandedNotebooks}
+                isProcessingMove={isProcessingMove}
+                isDeletingNotebook={isDeletingNotebook}
+                isDeletingNote={isDeletingNote}
+                onCreateNotebook={handleCreateNotebook}
+                onCreateNote={handleCreateNote}
+                isCreatingNotebook={isCreatingNotebook}
+                isCreatingNote={isCreatingNote}
+                onClearSelection={handleClearSelection}
             />
 
-            <div className="flex flex-1 overflow-hidden">
-                {/* Sidebar */}
-                <div className="w-80 bg-white border-r border-gray-200 flex flex-col shadow-sm">
-                    <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-white to-gray-50">
-                        <div className="flex gap-2 mb-2">
-                            <ActionTooltip label="Create Notebook">
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={handleCreateNotebook}
-                                    disabled={isCreatingNotebook}
-                                    className="flex-1 bg-transparent"
-                                >
-                                    {isCreatingNotebook ? (
-                                        <>
-                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
-                                            Creating...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <FolderPlus className="h-4 w-4 mr-2" />
-                                            New Notebook
-                                        </>
-                                    )}
-                                </Button>
-                            </ActionTooltip>
-
-                            <ActionTooltip label={!selectedNotebook ? "Select a notebook first" : "Create Note"}>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={handleCreateNote}
-                                    disabled={!selectedNotebook || isCreatingNote}
-                                    className="flex-1 bg-transparent"
-                                >
-                                    {isCreatingNote ? (
-                                        <>
-                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
-                                            Creating...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Plus className="h-4 w-4 mr-2" />
-                                            New Note
-                                        </>
-                                    )}
-                                </Button>
-                            </ActionTooltip>
-                        </div>
-                        {(selectedNotebook || selectedNote) && (
-                            <ActionTooltip label="Clear Selection">
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={handleClearSelection}
-                                    className="w-full justify-center text-gray-600 hover:bg-gray-100"
-                                >
-                                    <XCircle className="h-4 w-4 mr-2" />
-                                    Clear Selection
-                                </Button>
-                            </ActionTooltip>
-                        )}
-                    </div>
-
-                    <Sidebar
-                        notebooks={notebooks}
-                        notes={notes}
-                        selectedNotebook={selectedNotebook}
-                        selectedNote={selectedNote}
-                        onNotebookSelect={setSelectedNotebook}
-                        onNoteSelect={handleNoteSelect}
-                        onNotebookUpdate={handleNotebookUpdate}
-                        onDeleteNotebook={handleDeleteNotebook}
-                        onDeleteNote={handleDeleteNote}
-                        onMoveNote={handleMoveNote}
-                        onMoveNotebook={handleMoveNotebook}
-                        expandedNotebooks={expandedNotebooks}
-                        setExpandedNotebooks={setExpandedNotebooks}
-                        isProcessingMove={isProcessingMove}
-                        isDeletingNotebook={isDeletingNotebook}
-                        isDeletingNote={isDeletingNote}
-                    />
-                </div>
+            {/* Workspace (with embedded TopBar) */}
+            <div className="flex-1 flex flex-col overflow-hidden">
+                {/* TopBar belongs to workspace */}
+                <TopBar
+                    onSearchClick={handleSearchClick}
+                    onChatClick={handleChatClick}
+                />
 
                 {/* Main Content */}
                 <div className="flex-1 flex flex-col bg-white overflow-x-hidden">

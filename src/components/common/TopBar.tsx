@@ -1,11 +1,8 @@
-import { Logo } from "@/components/shadui/Logo";
 import { UserProfileMenu } from "@/components/common/UserProfileMenu";
 import { ActionTooltip } from "@/components/common/ActionTooltip";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/shadui/button";
 import { MessageSquare, Search } from "lucide-react";
 import { useSubscription } from "@/contexts/SubscriptionContext";
-import { PlanStatusPill } from "@/components/common/PlanStatusPill";
-import { TokenUsagePill } from "@/components/common/TokenUsagePill";
 import { NotificationDropdown } from "@/components/organisms/NotificationDropdown";
 
 interface TopBarProps {
@@ -20,59 +17,45 @@ export const TopBar = ({ onSearchClick, onChatClick }: TopBarProps) => {
     const showChat = checkPermission('ai_chat');
 
     return (
-        <div className="w-full h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 sticky top-0 z-50">
-            {/* Left: Logo */}
-            <div className="flex items-center">
-                <Logo variant="horizontal" className="h-8" />
-            </div>
-
-            {/* Right: Actions & Profile */}
-            <div className="flex items-center gap-2">
-                {/* Token Usage Pills */}
-                {showSearch && <TokenUsagePill type="search" className="mr-2" />}
-                <TokenUsagePill type="chat" className="mr-2" />
-
-                {/* Plan Status Pill */}
-                <PlanStatusPill className="mr-2" />
-
+        <div className="h-12 bg-white border-b border-gray-200 flex items-center justify-end px-4">
+            {/* Actions */}
+            <div className="flex items-center gap-1">
                 {showSearch && (
                     <ActionTooltip label="Search">
                         <Button
                             variant="ghost"
-                            size="sm"
+                            size="icon"
                             onClick={onSearchClick}
-                            className="h-9 w-9 p-0 hover:bg-gray-100 rounded-full text-gray-600"
+                            className="h-8 w-8 rounded-full"
                         >
-                            <Search className="h-5 w-5" />
+                            <Search className="h-4 w-4" />
                         </Button>
                     </ActionTooltip>
                 )}
 
                 {showChat && (
-                    <div className="flex items-center gap-2">
-                        <ActionTooltip label="Chat with AI">
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={onChatClick}
-                                className="h-9 w-9 p-0 hover:bg-gray-100 rounded-full text-gray-600"
-                            >
-                                <MessageSquare className="h-5 w-5" />
-                            </Button>
-                        </ActionTooltip>
-                    </div>
+                    <ActionTooltip label="Chat with AI">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={onChatClick}
+                            className="h-8 w-8 rounded-full"
+                        >
+                            <MessageSquare className="h-4 w-4" />
+                        </Button>
+                    </ActionTooltip>
                 )}
 
-                {(showSearch || showChat) && <div className="h-6 w-px bg-gray-200 mx-2" />}
+                {(showSearch || showChat) && <div className="h-5 w-px bg-gray-200 mx-1" />}
 
-                {/* Notification Bell */}
                 <NotificationDropdown />
 
-                <div className="h-6 w-px bg-gray-200 mx-2" />
+                <div className="h-5 w-px bg-gray-200 mx-1" />
 
                 <UserProfileMenu />
             </div>
         </div>
     );
 };
+
 
