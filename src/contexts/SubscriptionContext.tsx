@@ -3,6 +3,12 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import { useAuth } from '@/hooks/auth/useAuth';
 import { paymentService } from '@/api/services/payment/payment.service';
 
+interface UsageMetric {
+    used: number;
+    limit: number;
+    percentage: number;
+}
+
 interface SubscriptionContextType {
     isLoading: boolean;
     planName: string;
@@ -15,9 +21,8 @@ interface SubscriptionContextType {
         daily_token_limit: number;
     };
     tokenUsage: {
-        dailyUsed: number;
-        dailyLimit: number;
-        percentage: number;
+        chat: UsageMetric;
+        search: UsageMetric;
     };
     checkPermission: (feature: 'ai_chat' | 'semantic_search') => boolean;
     refreshSubscription: () => Promise<void>;
@@ -30,6 +35,8 @@ const defaultFeatures = {
     daily_token_limit: 0,
 };
 
+const defaultMetric: UsageMetric = { used: 0, limit: 0, percentage: 0 };
+
 const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
 
 export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
@@ -39,10 +46,10 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     const [isActive, setIsActive] = useState<boolean>(false);
     const [subscriptionId, setSubscriptionId] = useState<string | null>(null);
     const [features, setFeatures] = useState(defaultFeatures);
+
     const [tokenUsage, setTokenUsage] = useState({
-        dailyUsed: 0,
-        dailyLimit: 0,
-        percentage: 0,
+        chat: defaultMetric,
+        search: defaultMetric,
     });
 
     const fetchSubscriptionStatus = async () => {
@@ -58,12 +65,12 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
                 })
             ]);
 
-            const response = subResponse; // Keep variable name for minimal diff if wanted, or refactor below
+            const response = subResponse;
 
             if (response.success && response.data) {
                 setPlanName(response.data.plan_name);
                 setIsActive(response.data.is_active);
-                // Set subscription_id if available from response
+
                 const responseData = response.data as Record<string, unknown>;
                 const subId = (responseData.subscription_id || responseData.id) as string | undefined;
                 setSubscriptionId(subId || null);
@@ -103,47 +110,67 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
 
                 setFeatures(normalizedFeatures);
 
-                // Update token usage
-                // Priority: Usage Status API > Subscription Status API
-                let dailyUsed = 0;
+                // --- Calculate Usage & Limits ---
+                const usageData = usageResponse.success ? (usageResponse.data as any) : null;
+                const subData = response.data as any;
 
-                // Allow type assertion for usage response as strict types might not be exported here
-                const usageData = usageResponse.data as any;
+                // Helper to calculate metric
+                const calculateMetric = (
+                    usageKeys: string[],
+                    limitKeys: string[],
+                    defaultLimit: number
+                ): UsageMetric => {
+                    // 1. Get Usage
+                    let used = 0;
+                    // Try Usage Status API first (nested structure)
+                    if (usageData && usageData.daily) {
+                        if (usageKeys.includes('ai_chat') && usageData.daily.ai_chat?.used !== undefined) used = usageData.daily.ai_chat.used;
+                        else if (usageKeys.includes('semantic_search') && usageData.daily.semantic_search?.used !== undefined) used = usageData.daily.semantic_search.used;
+                    }
+                    // Fallback to Subscription Status API
+                    if (used === 0) {
+                        for (const key of usageKeys) {
+                            if (subData[key] !== undefined) {
+                                used = subData[key];
+                                break;
+                            }
+                        }
+                    }
 
-                if (usageResponse.success && usageData && usageData.daily?.ai_chat?.used !== undefined) {
-                    dailyUsed = usageData.daily.ai_chat.used;
-                } else {
-                    // Fallback to subscription status fields
-                    dailyUsed = response.data.ai_daily_usage ??
-                        (response.data as any).ai_chat_daily_usage ??
-                        (response.data as any).daily_usage ??
-                        0;
-                }
+                    // 2. Get Limit
+                    let limit = 0;
+                    for (const key of limitKeys) {
+                        if (subData[key] !== undefined) {
+                            limit = subData[key];
+                            break;
+                        }
+                    }
+                    if (limit === 0 && defaultLimit > 0) limit = defaultLimit;
 
-                // Robust Limit Calculation:
-                // 1. Try explicit credit limit (new)
-                // 2. Try explicit chat limit (old)
-                // 3. Try to infer from usage + remaining (if available)
-                // 4. Fallback to feature flags
-                let dailyLimit = (response.data.ai_daily_credit_limit as number)
-                    ?? (response.data.ai_chat_daily_limit as number);
+                    // 3. Calculate Percentage
+                    const percentage = limit > 0 ? Math.min((used / limit) * 100, 100) : 0;
 
-                if ((dailyLimit === undefined || dailyLimit === 0) && typeof (response.data as any).ai_daily_remaining === 'number') {
-                    dailyLimit = dailyUsed + ((response.data as any).ai_daily_remaining as number);
-                }
+                    return { used, limit, percentage };
+                };
 
-                if (dailyLimit === undefined || dailyLimit === 0) {
-                    dailyLimit = normalizedFeatures.daily_token_limit ?? 0;
-                }
+                // Chat Metrics
+                const chatMetric = calculateMetric(
+                    ['ai_chat_daily_usage', 'ai_daily_usage', 'daily_usage'],
+                    ['ai_chat_daily_limit', 'ai_daily_credit_limit', 'ai_chat_limit'], // fallback keys
+                    normalizedFeatures.daily_token_limit || 0
+                );
 
-                // Ensure -1 is handled correctly (as infinity, usually passed as -1)
+                // Search Metrics
+                const searchMetric = calculateMetric(
+                    ['semantic_search_daily_usage'],
+                    ['semantic_search_daily_limit', 'semantic_search_limit'],
+                    100 // Default search limit fallback if not present? Or 0.
+                );
 
-                const percentage = dailyLimit > 0 ? Math.min((dailyUsed / dailyLimit) * 100, 100) : 0;
 
                 setTokenUsage({
-                    dailyUsed,
-                    dailyLimit,
-                    percentage,
+                    chat: chatMetric,
+                    search: searchMetric,
                 });
             }
         } catch (error) {

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Button } from "./ui/button"
+import { Button } from "@/components/shadui/button"
 import { Input } from "./ui/input"
 import { Eye, Edit, Save } from "lucide-react"
 import { Editor } from "./organisms/Editor"
@@ -20,22 +20,36 @@ export function NoteEditor({ note, onUpdate }: NoteEditorProps) {
     const [hasChanges, setHasChanges] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
 
-    // Track last saved values to prevent race condition
-    const lastSavedRef = useRef({ content: note.content, title: note.title })
+    // Track the content we expect after save to compare against refetched props
+    const expectedContentRef = useRef<{ content: string; title: string } | null>(null)
 
+    // Sync from props when note changes (different note selected or external update)
     useEffect(() => {
+        // If we're expecting this exact content from our own save, ignore the sync
+        // This prevents the refetch from triggering hasChanges
+        if (
+            expectedContentRef.current &&
+            expectedContentRef.current.content === note.content &&
+            expectedContentRef.current.title === note.title
+        ) {
+            // Clear the expected content after we've confirmed sync
+            expectedContentRef.current = null
+            return
+        }
+
         setContent(note.content)
         setTitle(note.title)
         setHasChanges(false)
-        // Update ref when note changes from external source
-        lastSavedRef.current = { content: note.content, title: note.title }
+        expectedContentRef.current = null
     }, [note.id, note.content, note.title])
 
+    // Calculate hasChanges by comparing current values with note props
     useEffect(() => {
-        // Compare against last saved values, not note props (which may be stale during refetch)
-        const saved = lastSavedRef.current
-        setHasChanges(content !== saved.content || title !== saved.title)
-    }, [content, title])
+        // Compare against expected content if we just saved, otherwise against note props
+        const baseContent = expectedContentRef.current?.content ?? note.content
+        const baseTitle = expectedContentRef.current?.title ?? note.title
+        setHasChanges(content !== baseContent || title !== baseTitle)
+    }, [content, title, note.content, note.title])
 
     const handleSave = async () => {
         // Prevent double-clicks
@@ -43,13 +57,15 @@ export function NoteEditor({ note, onUpdate }: NoteEditorProps) {
 
         setIsSaving(true)
         try {
-            // Update the ref BEFORE the API call to prevent race condition
-            lastSavedRef.current = { content, title }
+            // Set expected content BEFORE the API call
+            // When the refetch comes back with this exact content, we know it's from our save
+            expectedContentRef.current = { content, title }
             setHasChanges(false)
 
             await onUpdate(note.id, { content, title })
         } catch (error) {
-            // Restore hasChanges if save failed
+            // Clear expected content and restore hasChanges if save failed
+            expectedContentRef.current = null
             setHasChanges(true)
             console.error("Failed to save note:", error)
         } finally {
@@ -57,7 +73,14 @@ export function NoteEditor({ note, onUpdate }: NoteEditorProps) {
         }
     }
 
-
+    const handleEditorChange = (jsonString: string) => {
+        // Ensure we're receiving a string
+        if (typeof jsonString !== 'string') {
+            console.error("Editor onChange received non-string:", typeof jsonString)
+            return
+        }
+        setContent(jsonString)
+    }
 
     return (
         <div className="flex-1 flex flex-col">
@@ -73,17 +96,15 @@ export function NoteEditor({ note, onUpdate }: NoteEditorProps) {
                     <div className="flex items-center gap-2">
                         {hasChanges && (
                             <Button
-                                variant="outline"
                                 size="sm"
                                 onClick={handleSave}
                                 disabled={isSaving}
-                                className="h-8 bg-transparent"
                             >
                                 <Save className="h-4 w-4 mr-2" />
                                 {isSaving ? 'Saving...' : 'Save'}
                             </Button>
                         )}
-                        <Button variant="outline" size="sm" onClick={() => setIsPreview(!isPreview)} className="h-8">
+                        <Button variant="outline" size="sm" onClick={() => setIsPreview(!isPreview)}>
                             {isPreview ? (
                                 <>
                                     <Edit className="h-4 w-4 mr-2" />
@@ -115,11 +136,9 @@ export function NoteEditor({ note, onUpdate }: NoteEditorProps) {
                 ) : (
                     <div className="h-full flex flex-col p-6 bg-white">
                         <Editor
+                            key={note.id}
                             initialContent={note.content}
-                            onChange={(markdown) => {
-                                setContent(markdown);
-                                setHasChanges(true);
-                            }}
+                            onChange={handleEditorChange}
                         />
                     </div>
                 )}
@@ -127,3 +146,4 @@ export function NoteEditor({ note, onUpdate }: NoteEditorProps) {
         </div>
     )
 }
+

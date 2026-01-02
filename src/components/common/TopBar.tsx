@@ -28,8 +28,9 @@ export const TopBar = ({ onSearchClick, onChatClick }: TopBarProps) => {
 
             {/* Right: Actions & Profile */}
             <div className="flex items-center gap-2">
-                {/* Token Usage Pill (Left of Plan) */}
-                <TokenUsagePill className="mr-2" />
+                {/* Token Usage Pills */}
+                {showSearch && <TokenUsagePill type="search" className="mr-2" />}
+                <TokenUsagePill type="chat" className="mr-2" />
 
                 {/* Plan Status Pill */}
                 <PlanStatusPill className="mr-2" />

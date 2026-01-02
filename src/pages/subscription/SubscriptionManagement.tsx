@@ -28,7 +28,7 @@ export function SubscriptionManagement() {
     const [refundModalOpen, setRefundModalOpen] = useState(false);
     const [hasPendingRefund, setHasPendingRefund] = useState(false);
 
-    // Check for pending refund on mount
+    // Check for pending refund on mount and when refund status changes
     useEffect(() => {
         const checkPendingRefund = async () => {
             try {
@@ -41,9 +41,20 @@ export function SubscriptionManagement() {
                 // Silent error - non-critical
             }
         };
+
         if (subscriptionId) {
             checkPendingRefund();
         }
+
+        // Listen for refund status changes (from NotificationContext)
+        const handleRefundStatusChange = () => {
+            checkPendingRefund();
+        };
+        window.addEventListener('refund:status_changed', handleRefundStatusChange);
+
+        return () => {
+            window.removeEventListener('refund:status_changed', handleRefundStatusChange);
+        };
     }, [subscriptionId]);
 
     const handleCancelSubscription = async () => {
@@ -154,7 +165,7 @@ export function SubscriptionManagement() {
                                     <li className="flex items-center gap-2 text-sm">
                                         <Zap className="h-4 w-4 text-yellow-600" />
                                         <span>
-                                            {tokenUsage.dailyUsed} / {tokenUsage.dailyLimit} AI requests used today
+                                            {tokenUsage.chat.used} / {tokenUsage.chat.limit} AI requests used today
                                         </span>
                                     </li>
                                 )}

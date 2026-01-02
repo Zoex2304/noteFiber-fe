@@ -91,7 +91,7 @@ export function PricingCard({ data, className }: PricingCardProps) {
             text-body-base
           "
         >
-          {period ? period.toLowerCase().startsWith('month') ? '/ month' : '/ year' : ''}
+          {period}
         </span>
       </div>
 

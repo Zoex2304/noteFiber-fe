@@ -12,6 +12,7 @@ import type { Note } from "@/types/note"; // Updated path
 import type { Notebook } from "@/types/notebook"; // Updated path
 import { TopBar } from "@/components/common/TopBar";
 import { ActionTooltip } from "@/components/common/ActionTooltip";
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import "@/App.css"; // Updated path
 import type { BaseResponse } from "@/dto/base-response"; // Updated path
 import type {
@@ -404,14 +405,21 @@ export default function MainApp() { // Renamed from App to MainApp
           {currentNote ? (
             <NoteEditor note={currentNote} onUpdate={handleNoteUpdate} />
           ) : (
-            <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-gray-50 to-white">
-              <div className="text-center">
-                <div className="text-6xl mb-4">📝</div>
-                <h2 className="text-xl font-medium mb-2">
+            <div className="flex-1 flex flex-col items-center justify-center bg-white p-8">
+              <div className="w-full max-w-[400px] mb-6">
+                <DotLottieReact
+                  src="https://lottie.host/d670d9d5-55ad-47ab-9def-49702f7c7e49/KrwUHw5kwJ.lottie"
+                  loop
+                  autoplay
+                  className="w-full h-auto"
+                />
+              </div>
+              <div className="text-center space-y-2 max-w-md">
+                <h2 className="text-2xl font-semibold text-gray-800 tracking-tight">
                   Select a note to start editing
                 </h2>
-                <p className="text-sm">
-                  Choose a note from the sidebar or create a new one
+                <p className="text-gray-500 text-base">
+                  Choose a note from the sidebar or create a new one to begin capturing your thoughts.
                 </p>
               </div>
             </div>

@@ -267,7 +267,7 @@ export function AIChatDialog({ open, onOpenChange }: AIChatDialogProps) {
               Ask AI
             </DialogTitle>
             <div className="flex items-center gap-4">
-              <TokenUsagePill />
+              <TokenUsagePill type="chat" />
               <Button
                 variant="outline"
                 size="sm"
@@ -377,7 +377,7 @@ export function AIChatDialog({ open, onOpenChange }: AIChatDialogProps) {
         <TokenLimitDialog
           open={showTokenLimitDialog}
           onOpenChange={setShowTokenLimitDialog}
-          dailyLimit={tokenUsage.dailyLimit}
+          dailyLimit={tokenUsage.chat.limit}
         />
       </DialogContent>
     </Dialog>

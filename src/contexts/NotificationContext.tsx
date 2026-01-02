@@ -213,6 +213,15 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
                 refreshSubscription();
             }
 
+            // Handle refund status changes
+            if (
+                message.data.type_code === NotificationTypeCode.REFUND_APPROVED ||
+                message.data.type_code === NotificationTypeCode.REFUND_REJECTED
+            ) {
+                // Dispatch event for components to react (e.g., SubscriptionManagement)
+                window.dispatchEvent(new CustomEvent('refund:status_changed'));
+            }
+
             // Regular toast notification with action_url support
             const actionUrl = message.data.metadata?.action_url as string | undefined;
             toast(message.data.title, {
@@ -261,15 +270,16 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
             baseUrl: wsUrl,
             token: accessToken,
             onNotification: handleNotification,
-            onOpen: () => setIsConnected(true),
+            onOpen: () => {
+                setIsConnected(true);
+                // Sync on connect/reconnect: Fetch missed notifications from DB
+                refreshUnreadCount();
+                refreshNotifications();
+            },
             onClose: () => setIsConnected(false),
         });
 
         wsClientRef.current.connect();
-
-        // Fetch initial data
-        refreshUnreadCount();
-        refreshNotifications();
 
         // Cleanup on unmount
         return () => {

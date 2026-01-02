@@ -170,9 +170,6 @@ export function useAdminNotifications(): UseAdminNotificationsResult {
 
     // ========== WebSocket Lifecycle ==========
     useEffect(() => {
-        // Fetch initial unread count
-        fetchUnreadCount();
-
         // Setup WebSocket
         let client: WebSocketClient | null = null;
         const token = localStorage.getItem('admin_token');
@@ -183,6 +180,11 @@ export function useAdminNotifications(): UseAdminNotificationsResult {
                 baseUrl: wsUrl,
                 token,
                 onNotification: handleNotification,
+                onOpen: () => {
+                    // Sync on connect/reconnect: Fetch missed notifications from DB
+                    fetchUnreadCount();
+                    fetchNotifications();
+                },
             });
             wsClientRef.current = client;
             client.connect();
@@ -195,7 +197,7 @@ export function useAdminNotifications(): UseAdminNotificationsResult {
             }
             wsClientRef.current = null;
         };
-    }, [fetchUnreadCount, handleNotification]);
+    }, [fetchUnreadCount, fetchNotifications, handleNotification]);
 
     // ========== Fetch on Dropdown Open ==========
     useEffect(() => {
