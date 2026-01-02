@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Plus, FolderPlus, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/shadui/button";
 import { ActionTooltip } from "@/components/common/ActionTooltip";
@@ -74,11 +74,13 @@ export function AppSidebar({
     const sidebarRef = useRef<HTMLDivElement>(null);
 
     // Toggle collapse
-    const toggleCollapse = () => {
-        const newState = !isCollapsed;
-        setIsCollapsed(newState);
-        document.cookie = `${SIDEBAR_COOKIE_NAME}=${newState}; path=/; max-age=${60 * 60 * 24 * 365}`;
-    };
+    const toggleCollapse = useCallback(() => {
+        setIsCollapsed((prev) => {
+            const newState = !prev;
+            document.cookie = `${SIDEBAR_COOKIE_NAME}=${newState}; path=/; max-age=${60 * 60 * 24 * 365}`;
+            return newState;
+        });
+    }, []);
 
     // Click outside to clear selection
     useEffect(() => {
@@ -108,7 +110,7 @@ export function AppSidebar({
         };
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
-    }, []);
+    }, [toggleCollapse]);
 
     return (
         <aside

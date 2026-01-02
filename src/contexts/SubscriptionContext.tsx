@@ -111,7 +111,9 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
                 setFeatures(normalizedFeatures);
 
                 // --- Calculate Usage & Limits ---
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const usageData = usageResponse.success ? (usageResponse.data as any) : null;
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const subData = response.data as any;
 
                 // Helper to calculate metric

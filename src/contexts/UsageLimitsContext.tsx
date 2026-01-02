@@ -132,6 +132,7 @@ export function UsageLimitsProvider({ children }: UsageLimitsProviderProps) {
     );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useUsageLimits() {
     const context = useContext(UsageLimitsContext);
     if (context === undefined) {
@@ -144,7 +145,9 @@ export function useUsageLimits() {
  * Helper function to handle 429 limit exceeded errors from API
  * Use this in your API error handlers
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export function handleLimitExceededError(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     error: any,
     showPricingModal: UsageLimitsContextType['showPricingModal']
 ): boolean {

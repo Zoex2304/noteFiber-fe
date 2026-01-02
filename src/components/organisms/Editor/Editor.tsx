@@ -22,6 +22,10 @@ import CheckListPlugin from "./plugins/CheckListPlugin";
 import HashtagPlugin from "./plugins/HashtagPlugin";
 import CodeHighlightPlugin from "./plugins/CodeHighlightPlugin";
 import MentionsPlugin from "./plugins/MentionsPlugin";
+import ImagePlugin from "./plugins/ImagePlugin";
+import FloatingLinkEditorPlugin from "./plugins/FloatingLinkEditorPlugin";
+import TableActionMenuPlugin from "./plugins/TableActionMenuPlugin";
+import FilePlugin from "./plugins/FilePlugin";
 import "./Editor.css";
 
 function Placeholder() {
@@ -113,6 +117,10 @@ export function Editor({ initialContent = "", onChange, readOnly = false }: Edit
                     <HashtagPlugin />
                     <CodeHighlightPlugin />
                     <MentionsPlugin />
+                    <ImagePlugin />
+                    <FloatingLinkEditorPlugin />
+                    <TableActionMenuPlugin />
+                    <FilePlugin />
                 </div>
             </div>
         </LexicalComposer>

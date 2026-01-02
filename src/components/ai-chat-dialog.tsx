@@ -212,12 +212,14 @@ export function AIChatDialog({ open, onOpenChange }: AIChatDialogProps) {
 
       // Refresh subscription to get updated token usage
       await refreshSubscription();
-    } catch (error: any) {
+    } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const err = error as any;
       // Handle limit exceeded error (429) with pricing modal
-      if (!handleLimitExceededError(error, showPricingModal)) {
+      if (!handleLimitExceededError(err, showPricingModal)) {
         // Handle legacy token limit error (500)
-        if (error.response?.status === 500 &&
-          error.response?.data?.message?.includes("daily AI usage limit exceeded")) {
+        if (err.response?.status === 500 &&
+          err.response?.data?.message?.includes("daily AI usage limit exceeded")) {
           setShowTokenLimitDialog(true);
         }
       }

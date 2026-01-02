@@ -5,10 +5,8 @@ import { CodeHighlightNode, CodeNode } from "@lexical/code";
 import { AutoLinkNode, LinkNode } from "@lexical/link";
 import { HashtagNode } from "@lexical/hashtag";
 import { HorizontalRuleNode } from "@lexical/react/LexicalHorizontalRuleNode";
-
-// Will add VideoNode/YouTubeNode later when we implement the plugin
-
-// Will add VideoNode/YouTubeNode later when we implement the plugin
+import { ImageNode } from "./nodes/ImageNode";
+import { FileNode } from "./nodes/FileNode";
 
 export const EditorNodes = [
     HeadingNode,
@@ -23,5 +21,7 @@ export const EditorNodes = [
     AutoLinkNode,
     LinkNode,
     HashtagNode,
-    HorizontalRuleNode
+    HorizontalRuleNode,
+    ImageNode,
+    FileNode
 ];

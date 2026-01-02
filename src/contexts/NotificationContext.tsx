@@ -102,8 +102,10 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
             if (response.success && response.data?.data) {
                 // Wrapped: { success: true, data: { data: [...] } }
                 items = response.data.data;
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } else if (Array.isArray((response as any).data)) {
                 // Unwrapped: { data: [...], limit: ... }
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 items = (response as any).data;
             }
 

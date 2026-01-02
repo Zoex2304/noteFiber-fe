@@ -3,28 +3,43 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
+    DropdownMenuSeparator,
 } from "@/components/shadui/dropdown-menu";
 import { Button } from "@/components/shadui/button";
-import { ChevronDown, Check } from "lucide-react";
+import { ChevronDown, Check, Heading1, Heading2, Heading3, Heading4, Heading5, Heading6, Type, Quote, Code, List, ListOrdered } from "lucide-react";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $getSelection, $isRangeSelection, $createParagraphNode } from "lexical";
 import { $createHeadingNode, $createQuoteNode, type HeadingTagType } from "@lexical/rich-text";
 import { $setBlocksType } from "@lexical/selection";
 import { useCallback, useEffect, useState } from "react";
 import { $createCodeNode } from "@lexical/code";
+import { INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND, $isListNode, ListNode } from "@lexical/list";
+import { $getNearestNodeOfType } from "@lexical/utils";
+import type { LucideIcon } from "lucide-react";
 
-const BLOCK_TYPES = {
-    paragraph: "Normal",
-    h1: "Heading 1",
-    h2: "Heading 2",
-    h3: "Heading 3",
-    quote: "Quote",
-    code: "Code Block",
+interface BlockType {
+    label: string;
+    icon: LucideIcon;
+    type: "block" | "list";
+}
+
+const BLOCK_TYPES: Record<string, BlockType> = {
+    paragraph: { label: "Normal", icon: Type, type: "block" },
+    h1: { label: "Heading 1", icon: Heading1, type: "block" },
+    h2: { label: "Heading 2", icon: Heading2, type: "block" },
+    h3: { label: "Heading 3", icon: Heading3, type: "block" },
+    h4: { label: "Heading 4", icon: Heading4, type: "block" },
+    h5: { label: "Heading 5", icon: Heading5, type: "block" },
+    h6: { label: "Heading 6", icon: Heading6, type: "block" },
+    quote: { label: "Quote", icon: Quote, type: "block" },
+    code: { label: "Code Block", icon: Code, type: "block" },
+    bullet: { label: "Bullet List", icon: List, type: "list" },
+    number: { label: "Numbered List", icon: ListOrdered, type: "list" },
 };
 
 export function BlockTypeDropdown() {
     const [editor] = useLexicalComposerContext();
-    const [blockType, setBlockType] = useState<keyof typeof BLOCK_TYPES>("paragraph");
+    const [blockType, setBlockType] = useState<string>("paragraph");
 
     const updateBlockType = useCallback(() => {
         editor.update(() => {
@@ -36,15 +51,28 @@ export function BlockTypeDropdown() {
                     : anchorNode.getTopLevelElementOrThrow();
                 const elementType = element.getType();
 
-                if (elementType in BLOCK_TYPES) {
-                    // For headings, we need to check the tag
-                    if (elementType === 'heading') {
-                        // @ts-expect-error LexicalEditor type doesn't recognize dynamic command names
-                        const tag = element.getTag();
-                        setBlockType(tag);
-                    } else {
-                        setBlockType(elementType as keyof typeof BLOCK_TYPES);
-                    }
+                // Check for list type
+                if ($isListNode(element)) {
+                    const listType = element.getListType();
+                    setBlockType(listType === "number" ? "number" : "bullet");
+                    return;
+                }
+
+                // Check for list parent
+                const listNode = $getNearestNodeOfType(anchorNode, ListNode);
+                if (listNode) {
+                    const listType = listNode.getListType();
+                    setBlockType(listType === "number" ? "number" : "bullet");
+                    return;
+                }
+
+                // For headings, check the tag
+                if (elementType === 'heading') {
+                    // @ts-expect-error LexicalEditor type doesn't recognize dynamic command names
+                    const tag = element.getTag();
+                    setBlockType(tag);
+                } else if (elementType in BLOCK_TYPES) {
+                    setBlockType(elementType);
                 } else {
                     setBlockType("paragraph");
                 }
@@ -52,7 +80,6 @@ export function BlockTypeDropdown() {
         });
     }, [editor]);
 
-    // Listen for updates to update dropdown state
     useEffect(() => {
         return editor.registerUpdateListener(({ editorState }) => {
             editorState.read(() => {
@@ -61,16 +88,25 @@ export function BlockTypeDropdown() {
         });
     }, [editor, updateBlockType]);
 
-
     const formatBlock = (type: string) => {
-        if (type === "paragraph") {
+        const blockInfo = BLOCK_TYPES[type];
+        if (!blockInfo) return;
+
+        if (blockInfo.type === "list") {
+            // Handle list types
+            if (type === "bullet") {
+                editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
+            } else if (type === "number") {
+                editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
+            }
+        } else if (type === "paragraph") {
             editor.update(() => {
                 const selection = $getSelection();
                 if ($isRangeSelection(selection)) {
                     $setBlocksType(selection, () => $createParagraphNode());
                 }
             });
-        } else if (type === "h1" || type === "h2" || type === "h3") {
+        } else if (["h1", "h2", "h3", "h4", "h5", "h6"].includes(type)) {
             editor.update(() => {
                 const selection = $getSelection();
                 if ($isRangeSelection(selection)) {
@@ -94,25 +130,81 @@ export function BlockTypeDropdown() {
         }
     };
 
+    const currentBlock = BLOCK_TYPES[blockType] || BLOCK_TYPES.paragraph;
+    const CurrentIcon = currentBlock.icon;
+
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 gap-1 min-w-[100px] justify-between">
-                    <span className="truncate">{BLOCK_TYPES[blockType]}</span>
-                    <ChevronDown className="h-3 w-3 opacity-50" />
+                <Button variant="ghost" size="sm" className="h-8 gap-1 min-w-[120px] justify-between">
+                    <div className="flex items-center gap-1.5">
+                        <CurrentIcon className="h-4 w-4" />
+                        <span className="truncate text-xs">{currentBlock.label}</span>
+                    </div>
+                    <ChevronDown className="h-3 w-3 opacity-50 shrink-0" />
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
-                {Object.entries(BLOCK_TYPES).map(([type, label]) => (
-                    <DropdownMenuItem
-                        key={type}
-                        onClick={() => formatBlock(type)}
-                        className="justify-between"
-                    >
-                        {label}
-                        {blockType === type && <Check className="h-3 w-3" />}
-                    </DropdownMenuItem>
-                ))}
+            <DropdownMenuContent align="start" className="min-w-[160px]">
+                {/* Text blocks */}
+                {["paragraph", "h1", "h2", "h3", "h4", "h5", "h6"].map((type) => {
+                    const block = BLOCK_TYPES[type];
+                    const Icon = block.icon;
+                    return (
+                        <DropdownMenuItem
+                            key={type}
+                            onClick={() => formatBlock(type)}
+                            className="justify-between"
+                        >
+                            <div className="flex items-center gap-2">
+                                <Icon className="h-4 w-4" />
+                                {block.label}
+                            </div>
+                            {blockType === type && <Check className="h-3 w-3" />}
+                        </DropdownMenuItem>
+                    );
+                })}
+
+                <DropdownMenuSeparator />
+
+                {/* Lists */}
+                {["bullet", "number"].map((type) => {
+                    const block = BLOCK_TYPES[type];
+                    const Icon = block.icon;
+                    return (
+                        <DropdownMenuItem
+                            key={type}
+                            onClick={() => formatBlock(type)}
+                            className="justify-between"
+                        >
+                            <div className="flex items-center gap-2">
+                                <Icon className="h-4 w-4" />
+                                {block.label}
+                            </div>
+                            {blockType === type && <Check className="h-3 w-3" />}
+                        </DropdownMenuItem>
+                    );
+                })}
+
+                <DropdownMenuSeparator />
+
+                {/* Special blocks */}
+                {["quote", "code"].map((type) => {
+                    const block = BLOCK_TYPES[type];
+                    const Icon = block.icon;
+                    return (
+                        <DropdownMenuItem
+                            key={type}
+                            onClick={() => formatBlock(type)}
+                            className="justify-between"
+                        >
+                            <div className="flex items-center gap-2">
+                                <Icon className="h-4 w-4" />
+                                {block.label}
+                            </div>
+                            {blockType === type && <Check className="h-3 w-3" />}
+                        </DropdownMenuItem>
+                    );
+                })}
             </DropdownMenuContent>
         </DropdownMenu>
     );

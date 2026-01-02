@@ -21,7 +21,7 @@ export function TopLoader({ color }: TopLoaderProps) {
                 setProgress(100);
             }
         }
-    }, [isLoading]);
+    }, [isLoading, isVisible]);
 
     useEffect(() => {
         if (progress === 100) {

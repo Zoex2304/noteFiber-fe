@@ -80,7 +80,6 @@ export function useCountUp(
         observer.unobserve(currentRef);
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [end, duration, startDelay, decimals]);
 
   return { count, ref };
