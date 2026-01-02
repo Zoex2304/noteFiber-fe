@@ -34,7 +34,10 @@ export function UserProfileMenu() {
         <DropdownMenu>
             <ActionTooltip label="Profile & Settings">
                 <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                    <Button
+                        variant="ghost"
+                        className="relative h-8 w-8 rounded-full focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+                    >
                         <Avatar className="h-8 w-8 border border-gray-200">
                             <AvatarImage src={user?.avatar_url || ""} alt={user?.full_name || "User"} referrerPolicy="no-referrer" />
                             <AvatarFallback className="bg-royal-violet-light text-royal-violet-base font-medium flex items-center justify-center">

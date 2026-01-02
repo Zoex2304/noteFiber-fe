@@ -16,7 +16,7 @@ const SIDEBAR_WIDTH = 280;
 const SIDEBAR_COLLAPSED_WIDTH = 64;
 const SIDEBAR_COOKIE_NAME = "sidebar_collapsed";
 
-interface AppSidebarProps {
+export interface AppSidebarProps {
     notebooks: Notebook[];
     notes: Note[];
     selectedNotebook: string | null;
@@ -29,7 +29,7 @@ interface AppSidebarProps {
     onMoveNote: (noteId: string, targetNotebookId: string) => void;
     onMoveNotebook: (notebookId: string, targetParentId: string | null) => void;
     expandedNotebooks: Set<string>;
-    setExpandedNotebooks: (expanded: Set<string>) => void;
+    setExpandedNotebooks: React.Dispatch<React.SetStateAction<Set<string>>>;
     isProcessingMove: boolean;
     isDeletingNotebook: string | null;
     isDeletingNote: string | null;

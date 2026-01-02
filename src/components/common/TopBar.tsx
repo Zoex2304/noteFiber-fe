@@ -26,7 +26,7 @@ export const TopBar = ({ onSearchClick, onChatClick }: TopBarProps) => {
                             variant="ghost"
                             size="icon"
                             onClick={onSearchClick}
-                            className="h-8 w-8 rounded-full"
+                            className="h-8 w-8 rounded-full focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
                         >
                             <Search className="h-4 w-4" />
                         </Button>
@@ -39,7 +39,7 @@ export const TopBar = ({ onSearchClick, onChatClick }: TopBarProps) => {
                             variant="ghost"
                             size="icon"
                             onClick={onChatClick}
-                            className="h-8 w-8 rounded-full"
+                            className="h-8 w-8 rounded-full focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
                         >
                             <MessageSquare className="h-4 w-4" />
                         </Button>
