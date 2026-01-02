@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { apiClient } from "@/api/client/axios.client";
 import type { BaseResponse } from "@/dto/base-response";
 import type { ChatSession, Message } from "@/types/ai-chat";
@@ -73,6 +73,8 @@ export function useChatSystem() {
                                     noteId: c.note_id,
                                     title: c.title,
                                 })),
+                                mode: data.mode,
+                                nuanceKey: data.nuance_key,
                             })),
                         };
                     }
@@ -84,44 +86,60 @@ export function useChatSystem() {
         }
     }, []);
 
-    const selectSession = useCallback(async (sessionId: string) => {
+    // Ref for sessions to allow stable callbacks
+    const sessionsRef = useRef(sessions);
+    useEffect(() => {
+        sessionsRef.current = sessions;
+    }, [sessions]);
+
+    const selectSession = useCallback((sessionId: string) => {
         setActiveSessionId(sessionId);
-        // Only fetch if empty? Or always refresh? Always refresh for now to be safe.
-        // Optimization: Check if messages exist?
-        await fetchSessionHistory(sessionId);
+        // If we don't have messages for this session, fetch them
+        const session = sessionsRef.current.find((s) => s.id === sessionId);
+        if (session && session.messages.length === 0) {
+            fetchSessionHistory(sessionId);
+        }
     }, [fetchSessionHistory]);
 
     const createSession = useCallback(async () => {
         try {
             const res = await apiClient.post<BaseResponse<CreateSessionResponse>>(`/chatbot/v1/create-session`);
-            await fetchSessions();
-            await selectSession(res.data.data.id);
-            return res.data.data.id;
+            const newSession: ChatSession = {
+                id: res.data.data.id,
+                name: "New Chat",
+                messages: [],
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            };
+            setSessions((prev) => [newSession, ...prev]);
+            setActiveSessionId(newSession.id);
+            return newSession.id;
         } catch (error) {
             console.error("Failed to create session", error);
+            return null;
         }
-    }, [fetchSessions, selectSession]);
+    }, []);
 
     const deleteSession = useCallback(async (sessionId: string) => {
-        // Prevent deleting last session logic if handled by UI, but here we just execute.
         try {
-            const data: DeleteSessionRequest = { chat_session_id: sessionId };
-            await apiClient.delete(`/chatbot/v1/delete-session`, { data });
+            const request: DeleteSessionRequest = { chat_session_id: sessionId };
+            await apiClient.delete(`/chatbot/v1/delete-session`, {
+                data: request,
+            });
 
-            await fetchSessions();
-            // If deleted active, select another
+            setSessions((prev) => prev.filter((s) => s.id !== sessionId));
             if (activeSessionId === sessionId) {
-                setActiveSessionId(null); // Or select first in effect
+                setActiveSessionId(null);
             }
         } catch (error) {
             console.error("Failed to delete session", error);
         }
-    }, [activeSessionId, fetchSessions]);
+    }, [activeSessionId]);
 
-    const sendMessage = useCallback(async (content: string) => {
+    const sendMessage = useCallback(async (content: string, sessionId?: string) => {
         if (!content.trim() || isLoading) return;
 
-        let currentSessionId = activeSessionId;
+        let currentSessionId = sessionId || activeSessionId;
 
         // Auto-create session if none exists
         if (!currentSessionId) {
@@ -181,6 +199,8 @@ export function useChatSystem() {
                             noteId: c.note_id,
                             title: c.title,
                         })),
+                        mode: res.data.data.mode,
+                        nuanceKey: res.data.data.nuance_key,
                     };
 
                     // Filter out our temp message (id starts with temp-)

@@ -16,6 +16,8 @@ import {
   CreditCard,
   RotateCcw,
   Activity,
+  Bot,
+  Settings2,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -84,6 +86,21 @@ export const sidebarData: SidebarData = {
       ],
     },
 
+    {
+      title: 'AI Management',
+      items: [
+        {
+          title: 'Configurations',
+          url: '/ai/configurations',
+          icon: Settings2,
+        },
+        {
+          title: 'Nuances',
+          url: '/ai/nuances',
+          icon: Bot,
+        },
+      ],
+    },
     {
       title: 'Other',
       items: [

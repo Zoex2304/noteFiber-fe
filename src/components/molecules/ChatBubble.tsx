@@ -13,6 +13,10 @@ export interface ChatBubbleProps {
     compact?: boolean;
 }
 
+import { ChatModeBadge } from "./ChatModeBadge";
+
+// ... (props interface unchanged) ...
+
 export function ChatBubble({ message, onCitationClick, compact }: ChatBubbleProps) {
     const isUser = message.role === "user";
     const isAssistant = message.role === "assistant";
@@ -45,12 +49,19 @@ export function ChatBubble({ message, onCitationClick, compact }: ChatBubbleProp
                 {/* Message Content */}
                 <div
                     className={cn(
-                        "rounded-lg p-3 shadow-sm min-w-0 overflow-hidden",
+                        "rounded-lg p-3 shadow-sm min-w-0 overflow-hidden relative",
                         isUser
                             ? "bg-gradient-primary-violet text-white"
                             : "bg-white border border-gray-200 text-gray-900 shadow-sm"
                     )}
                 >
+                    {/* Mode Badge - Only for assistant */}
+                    {isAssistant && (message.mode === "bypass" || message.mode === "nuance") && (
+                        <div className="mb-2">
+                            <ChatModeBadge mode={message.mode} nuanceKey={message.nuanceKey} />
+                        </div>
+                    )}
+
                     {/* Message Text */}
                     {isAssistant ? (
                         <div className="prose prose-sm max-w-none break-words overflow-hidden 

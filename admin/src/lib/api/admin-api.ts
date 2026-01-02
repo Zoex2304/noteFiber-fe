@@ -29,6 +29,11 @@ import type {
     Feature,
     CreateFeatureRequest,
     UpdateFeatureRequest,
+    AiConfiguration,
+    AiNuance,
+    CreateAiNuanceRequest,
+    UpdateAiConfigurationRequest,
+    UpdateAiNuanceRequest,
 } from '../types/admin-api'
 import { ADMIN_ENDPOINTS } from '../../config/admin-endpoints'
 
@@ -323,6 +328,68 @@ export const adminFeaturesApi = {
      */
     async deleteFeature(id: string): Promise<void> {
         await apiClient.delete(ADMIN_ENDPOINTS.FEATURES.DELETE(id))
+    },
+}
+
+// AI Configuration API
+export const adminAiConfigApi = {
+    /**
+     * Get all AI configurations
+     */
+    async getConfigs(): Promise<AiConfiguration[]> {
+        const response = await apiClient.get<ApiSuccessResponse<AiConfiguration[]>>(ADMIN_ENDPOINTS.AI.CONFIGURATIONS)
+        return response.data.data
+    },
+
+    /**
+     * Update an AI configuration
+     */
+    async updateConfig(key: string, data: UpdateAiConfigurationRequest): Promise<AiConfiguration> {
+        const response = await apiClient.put<ApiSuccessResponse<AiConfiguration>>(
+            ADMIN_ENDPOINTS.AI.CONFIGURATION_UPDATE(key),
+            data
+        )
+        return response.data.data
+    },
+}
+
+// AI Nuance API
+export const adminAiNuanceApi = {
+    /**
+     * Get all AI nuances
+     */
+    async getNuances(): Promise<AiNuance[]> {
+        const response = await apiClient.get<ApiSuccessResponse<AiNuance[]>>(ADMIN_ENDPOINTS.AI.NUANCES)
+        return response.data.data
+    },
+
+    /**
+     * Create a new AI nuance
+     */
+    async createNuance(data: CreateAiNuanceRequest): Promise<AiNuance> {
+        const response = await apiClient.post<ApiSuccessResponse<AiNuance>>(
+            ADMIN_ENDPOINTS.AI.NUANCE_CREATE,
+            data
+        )
+        return response.data.data
+    },
+
+    /**
+     * Update an AI nuance
+     */
+    async updateNuance(id: string, data: UpdateAiNuanceRequest): Promise<AiNuance> {
+        const response = await apiClient.put<ApiSuccessResponse<AiNuance>>(
+            ADMIN_ENDPOINTS.AI.NUANCE_UPDATE(id),
+            data
+        )
+        return response.data.data
+    },
+
+    /**
+     * Delete an AI nuance
+     */
+    async deleteNuance(id: string): Promise<void> {
+        await apiClient.delete(ADMIN_ENDPOINTS.AI.NUANCE_DELETE(id))
     },
 }
 

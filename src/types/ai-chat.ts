@@ -9,6 +9,8 @@ export interface Message {
     content: string
     timestamp: Date
     citations?: Citation[]
+    mode?: "rag" | "bypass" | "nuance"
+    nuanceKey?: string
 }
 
 export interface ChatSession {

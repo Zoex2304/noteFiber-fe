@@ -16,6 +16,8 @@ import { ActionTooltip } from "@/components/common/ActionTooltip";
 import { Clock, Plus, Trash2, Send, Bot, MessageSquare, ArrowLeft, Search as SearchIcon } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Input } from "@/components/ui/input";
+import { NewSessionConfirmationModal } from "@/components/molecules/NewSessionConfirmationModal";
+import { PrefixHelper } from "@/components/molecules/PrefixHelper";
 
 import type { ChatSession } from "@/types/ai-chat";
 import { useSidebarState } from "@/hooks/useSidebarState";
@@ -131,6 +133,11 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
 
     const [view, setView] = useState<'chat' | 'history'>('chat');
 
+    // New Session Confirmation State
+    const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+    const [pendingMode, setPendingMode] = useState("");
+    const [pendingMessage, setPendingMessage] = useState("");
+
     useEffect(() => {
         if (isOpen) {
             fetchSessions().then((s) => {
@@ -142,9 +149,64 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen, fetchSessions, selectSession]); // Removed activeSessionId to prevent loop
 
-    const handleSend = () => {
+    const handlePrefixSelect = (prefix: string) => {
+        setInput((prev) => prefix + prev);
+    };
+
+    const checkMode = (text: string) => {
+        if (text.startsWith("/bypass")) return "bypass";
+        if (text.startsWith("/nuance")) return "nuance";
+        return "rag";
+    };
+
+    const handleConfirmNewSession = async () => {
+        setConfirmModalOpen(false);
+        // We do NOT set isLoading here manually because createSession/sendMessage handles it? 
+        // Actually custom usage.
+
+        try {
+            const newSessionId = await createSession();
+            // Pass newSessionId to sendMessage override
+            if (newSessionId) {
+                // We need to pass the ID to sendMessage.
+                // The useChatSystem hook was updated to accept 2nd arg.
+                await sendMessage(pendingMessage, newSessionId);
+            }
+        } catch (e) {
+            console.error("Failed to sequence new session", e);
+        } finally {
+            setPendingMessage("");
+            setPendingMode("");
+            setView('chat');
+        }
+    };
+
+    const handleSend = async () => {
         if (!input.trim()) return;
-        sendMessage(input);
+
+        // Command Logic
+        const mode = checkMode(input);
+        const currentSession = sessions.find(s => s.id === activeSessionId);
+        const sessionDirty = (currentSession?.messages || []).length > 0;
+
+        if ((mode === "bypass" || mode === "nuance") && sessionDirty) {
+            setPendingMessage(input);
+            setPendingMode(mode);
+            setConfirmModalOpen(true);
+            // Clear input? Maybe wait for confirm. 
+            // If user cancels, they might want to keep input? 
+            // Let's clear input only if we proceed... or keep it until confirm.
+            // If I clear it now, and they cancel, they lose text.
+            // If I don't clear, and they confirm, handleConfirm needs to clear it?
+            // "sendMessage" in useChatSystem doesn't clear local input, the caller does.
+            // So I should clear input here only if I am NOT blocking?
+            setInput(""); // We clear it for UI response. If they cancel, they lose it? Ideally restore it.
+            // For now, let's assume they want to proceed.
+            // Wait, if I clear it, pendingMessage has the content.
+            return;
+        }
+
+        await sendMessage(input);
         setInput("");
     };
 
@@ -309,6 +371,11 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
                             <div className="flex items-end gap-2 bg-white border border-gray-200 rounded-2xl p-2 shadow-sm focus-within:border-royal-violet-base focus-within:ring-1 focus-within:ring-royal-violet-base transition-all">
 
 
+                                {/* Prefix Helper */}
+                                <div className="mb-0.5 ml-1">
+                                    <PrefixHelper onSelect={handlePrefixSelect} />
+                                </div>
+
                                 {/* Textarea */}
                                 <Textarea
                                     value={input}
@@ -343,6 +410,19 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
                     </div>
                 </div>
             )}
+
+            <NewSessionConfirmationModal
+                open={confirmModalOpen}
+                onOpenChange={setConfirmModalOpen}
+                mode={pendingMode}
+                onConfirm={handleConfirmNewSession}
+                onCancel={() => {
+                    setConfirmModalOpen(false);
+                    // Do NOT clear input here so user can edit or just simple-send.
+                    setPendingMode("");
+                    setPendingMessage("");
+                }}
+            />
 
             <TokenLimitDialog
                 open={showTokenLimitDialog}

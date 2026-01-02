@@ -8,6 +8,8 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
+import { createFileRoute } from '@tanstack/react-router'
+
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ClerkRouteRouteImport } from './routes/clerk/route'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
@@ -46,6 +48,13 @@ import { Route as AuthenticatedSettingsAppearanceRouteImport } from './routes/_a
 import { Route as AuthenticatedSettingsAccountRouteImport } from './routes/_authenticated/settings/account'
 import { Route as AuthenticatedRefundsRefundIdRouteImport } from './routes/_authenticated/refunds.$refundId'
 import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenticated/errors/$error'
+
+const AuthenticatedAiNuancesLazyRouteImport = createFileRoute(
+  '/_authenticated/ai/nuances',
+)()
+const AuthenticatedAiConfigurationsLazyRouteImport = createFileRoute(
+  '/_authenticated/ai/configurations',
+)()
 
 const ClerkRouteRoute = ClerkRouteRouteImport.update({
   id: '/clerk',
@@ -182,6 +191,24 @@ const AuthenticatedAppsIndexRoute = AuthenticatedAppsIndexRouteImport.update({
   path: '/apps/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAiNuancesLazyRoute =
+  AuthenticatedAiNuancesLazyRouteImport.update({
+    id: '/ai/nuances',
+    path: '/ai/nuances',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any).lazy(() =>
+    import('./routes/_authenticated/ai/nuances.lazy').then((d) => d.Route),
+  )
+const AuthenticatedAiConfigurationsLazyRoute =
+  AuthenticatedAiConfigurationsLazyRouteImport.update({
+    id: '/ai/configurations',
+    path: '/ai/configurations',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any).lazy(() =>
+    import('./routes/_authenticated/ai/configurations.lazy').then(
+      (d) => d.Route,
+    ),
+  )
 const ClerkAuthenticatedUserManagementRoute =
   ClerkAuthenticatedUserManagementRouteImport.update({
     id: '/user-management',
@@ -270,6 +297,8 @@ export interface FileRoutesByFullPath {
   '/clerk/sign-in': typeof ClerkauthSignInRoute
   '/clerk/sign-up': typeof ClerkauthSignUpRoute
   '/clerk/user-management': typeof ClerkAuthenticatedUserManagementRoute
+  '/ai/configurations': typeof AuthenticatedAiConfigurationsLazyRoute
+  '/ai/nuances': typeof AuthenticatedAiNuancesLazyRoute
   '/apps': typeof AuthenticatedAppsIndexRoute
   '/chats': typeof AuthenticatedChatsIndexRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexRoute
@@ -305,6 +334,8 @@ export interface FileRoutesByTo {
   '/clerk/sign-in': typeof ClerkauthSignInRoute
   '/clerk/sign-up': typeof ClerkauthSignUpRoute
   '/clerk/user-management': typeof ClerkAuthenticatedUserManagementRoute
+  '/ai/configurations': typeof AuthenticatedAiConfigurationsLazyRoute
+  '/ai/nuances': typeof AuthenticatedAiNuancesLazyRoute
   '/apps': typeof AuthenticatedAppsIndexRoute
   '/chats': typeof AuthenticatedChatsIndexRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexRoute
@@ -345,6 +376,8 @@ export interface FileRoutesById {
   '/clerk/(auth)/sign-in': typeof ClerkauthSignInRoute
   '/clerk/(auth)/sign-up': typeof ClerkauthSignUpRoute
   '/clerk/_authenticated/user-management': typeof ClerkAuthenticatedUserManagementRoute
+  '/_authenticated/ai/configurations': typeof AuthenticatedAiConfigurationsLazyRoute
+  '/_authenticated/ai/nuances': typeof AuthenticatedAiNuancesLazyRoute
   '/_authenticated/apps/': typeof AuthenticatedAppsIndexRoute
   '/_authenticated/chats/': typeof AuthenticatedChatsIndexRoute
   '/_authenticated/help-center/': typeof AuthenticatedHelpCenterIndexRoute
@@ -383,6 +416,8 @@ export interface FileRouteTypes {
     | '/clerk/sign-in'
     | '/clerk/sign-up'
     | '/clerk/user-management'
+    | '/ai/configurations'
+    | '/ai/nuances'
     | '/apps'
     | '/chats'
     | '/help-center'
@@ -418,6 +453,8 @@ export interface FileRouteTypes {
     | '/clerk/sign-in'
     | '/clerk/sign-up'
     | '/clerk/user-management'
+    | '/ai/configurations'
+    | '/ai/nuances'
     | '/apps'
     | '/chats'
     | '/help-center'
@@ -457,6 +494,8 @@ export interface FileRouteTypes {
     | '/clerk/(auth)/sign-in'
     | '/clerk/(auth)/sign-up'
     | '/clerk/_authenticated/user-management'
+    | '/_authenticated/ai/configurations'
+    | '/_authenticated/ai/nuances'
     | '/_authenticated/apps/'
     | '/_authenticated/chats/'
     | '/_authenticated/help-center/'
@@ -671,6 +710,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ai/nuances': {
+      id: '/_authenticated/ai/nuances'
+      path: '/ai/nuances'
+      fullPath: '/ai/nuances'
+      preLoaderRoute: typeof AuthenticatedAiNuancesLazyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/ai/configurations': {
+      id: '/_authenticated/ai/configurations'
+      path: '/ai/configurations'
+      fullPath: '/ai/configurations'
+      preLoaderRoute: typeof AuthenticatedAiConfigurationsLazyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/clerk/_authenticated/user-management': {
       id: '/clerk/_authenticated/user-management'
       path: '/user-management'
@@ -788,6 +841,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedErrorsErrorRoute: typeof AuthenticatedErrorsErrorRoute
   AuthenticatedUsersUserIdRoute: typeof AuthenticatedUsersUserIdRoute
+  AuthenticatedAiConfigurationsLazyRoute: typeof AuthenticatedAiConfigurationsLazyRoute
+  AuthenticatedAiNuancesLazyRoute: typeof AuthenticatedAiNuancesLazyRoute
   AuthenticatedAppsIndexRoute: typeof AuthenticatedAppsIndexRoute
   AuthenticatedChatsIndexRoute: typeof AuthenticatedChatsIndexRoute
   AuthenticatedHelpCenterIndexRoute: typeof AuthenticatedHelpCenterIndexRoute
@@ -805,6 +860,9 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedErrorsErrorRoute: AuthenticatedErrorsErrorRoute,
   AuthenticatedUsersUserIdRoute: AuthenticatedUsersUserIdRoute,
+  AuthenticatedAiConfigurationsLazyRoute:
+    AuthenticatedAiConfigurationsLazyRoute,
+  AuthenticatedAiNuancesLazyRoute: AuthenticatedAiNuancesLazyRoute,
   AuthenticatedAppsIndexRoute: AuthenticatedAppsIndexRoute,
   AuthenticatedChatsIndexRoute: AuthenticatedChatsIndexRoute,
   AuthenticatedHelpCenterIndexRoute: AuthenticatedHelpCenterIndexRoute,

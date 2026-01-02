@@ -355,3 +355,60 @@ export const updateFeatureRequestSchema = z.object({
 })
 
 export type UpdateFeatureRequest = z.infer<typeof updateFeatureRequestSchema>
+
+// AI Configuration Types
+export const aiConfigurationSchema = z.object({
+    key: z.string(),
+    value: z.string(),
+    description: z.string(),
+    value_type: z.enum(['string', 'number', 'boolean', 'json']),
+    category: z.enum(['system', 'model', 'search']),
+})
+
+export type AiConfiguration = z.infer<typeof aiConfigurationSchema>
+
+export const updateAiConfigurationRequestSchema = z.object({
+    value: z.string(),
+})
+
+export type UpdateAiConfigurationRequest = z.infer<typeof updateAiConfigurationRequestSchema>
+
+// AI Nuance Types
+export const aiNuanceSchema = z.object({
+    id: z.string(),
+    key: z.string(),
+    name: z.string(),
+    description: z.string(),
+    model_override: z.string().optional().nullable(),
+    system_prompt: z.string(),
+    is_active: z.boolean(),
+    sort_order: z.number(),
+    created_at: z.string(),
+    updated_at: z.string(),
+})
+
+export type AiNuance = z.infer<typeof aiNuanceSchema>
+
+export const createAiNuanceRequestSchema = z.object({
+    key: z.string().min(1, 'Key is required'),
+    name: z.string().min(1, 'Name is required'),
+    description: z.string().optional(),
+    system_prompt: z.string().min(1, 'Prompt is required'),
+    model_override: z.string().optional().nullable(),
+    is_active: z.boolean().optional(),
+    sort_order: z.number().optional(),
+})
+
+export type CreateAiNuanceRequest = z.infer<typeof createAiNuanceRequestSchema>
+
+export const updateAiNuanceRequestSchema = z.object({
+    name: z.string().optional(),
+    description: z.string().optional(),
+    system_prompt: z.string().optional(),
+    model_override: z.string().optional().nullable(),
+    is_active: z.boolean().optional(),
+    sort_order: z.number().optional(),
+})
+
+export type UpdateAiNuanceRequest = z.infer<typeof updateAiNuanceRequestSchema>
+

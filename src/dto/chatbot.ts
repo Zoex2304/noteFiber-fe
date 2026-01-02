@@ -11,6 +11,8 @@ export interface GetChatHistoryResponse {
     chat: string;
     created_at: Date;
     citations?: CitationResponse[];
+    mode?: "rag" | "bypass" | "nuance";
+    nuance_key?: string;
 }
 
 export interface CreateSessionResponse {
@@ -44,4 +46,6 @@ export interface SendChatResponse {
     title: string;
     sent: SendChatResponseChat;
     reply: SendChatResponseChat;
+    mode?: "rag" | "bypass" | "nuance";
+    nuance_key?: string;
 }

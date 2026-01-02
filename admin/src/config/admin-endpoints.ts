@@ -42,4 +42,12 @@ export const ADMIN_ENDPOINTS = {
     TOKEN_USAGE: {
         LIST: '/admin/token-usage',
     },
+    AI: {
+        CONFIGURATIONS: '/admin/ai/configurations',
+        CONFIGURATION_UPDATE: (key: string) => `/admin/ai/configurations/${key}`,
+        NUANCES: '/admin/ai/nuances',
+        NUANCE_CREATE: '/admin/ai/nuances',
+        NUANCE_UPDATE: (id: string) => `/admin/ai/nuances/${id}`,
+        NUANCE_DELETE: (id: string) => `/admin/ai/nuances/${id}`,
+    },
 } as const;

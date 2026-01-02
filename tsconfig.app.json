@@ -10,7 +10,9 @@
     ],
     "module": "ESNext",
     "skipLibCheck": true,
-    "types": ["node"],
+    "types": [
+      "node"
+    ],
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
@@ -27,6 +29,9 @@
     "paths": {
       "@/*": [
         "./src/*"
+      ],
+      "@admin/*": [
+        "./admin/src/*"
       ]
     }
   },
