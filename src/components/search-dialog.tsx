@@ -144,10 +144,13 @@ export function SearchDialog({ open, onOpenChange, onNoteSelect, notes }: Search
                 {/* Recent Items (shown when query is empty) */}
                 {!query && recentNotes.length > 0 && (
                     <>
-                        <div className="flex flex-col items-center justify-center py-8 text-center opacity-60">
-                            <p className="text-xs text-gray-400 flex items-center gap-1.5">
-                                <Search className="w-3 h-3" />
-                                Type to search specific topics
+                        <div className="flex flex-col items-center justify-center py-10 text-center">
+                            <div className="bg-purple-50 p-3 rounded-full mb-3">
+                                <Search className="w-5 h-5 text-purple-600" />
+                            </div>
+                            <p className="text-sm font-medium text-gray-800">Ready to search</p>
+                            <p className="text-xs text-gray-500 mt-1">
+                                Type keywords or ask questions to find your notes
                             </p>
                         </div>
                         <CommandSeparator className="my-2" />

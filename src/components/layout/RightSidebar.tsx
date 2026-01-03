@@ -476,14 +476,14 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
                                         </div>
                                     )}
                                     {messages.length === 0 && !isLoading && (
-                                        <div className="flex flex-col items-center justify-center h-[50vh] text-center text-gray-400 p-8 space-y-4">
+                                        <div className="flex flex-col items-center justify-center h-[50vh] text-center text-gray-400 p-8 space-y-2">
                                             <motion.div
                                                 initial={{ scale: 0.5, opacity: 0 }}
                                                 animate={{ scale: 1, opacity: 1 }}
                                                 transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                                                className="rounded-full overflow-hidden mb-4"
+                                                className="rounded-full overflow-hidden"
                                             >
-                                                <div className="w-64 h-64">
+                                                <div className="w-52 h-52">
                                                     <DotLottieReact
                                                         src="https://lottie.host/b00c932e-94d9-407f-9893-8e00ce7a55f3/hanmwXSGzz.lottie"
                                                         loop

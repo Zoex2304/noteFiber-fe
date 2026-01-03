@@ -3,13 +3,13 @@ import { AppSidebar } from "@/components/layout/AppSidebar";
 import { RightSidebar } from "@/components/layout/RightSidebar";
 import { TopBar } from "@/components/common/TopBar";
 import { SearchDialog } from "@/components/search-dialog";
-import { NoteOrchestratorProvider, useNoteOrchestratorContext } from "@/contexts/NoteOrchestratorContext";
+import { useNoteOrchestratorContext } from "@/contexts/NoteOrchestratorContext";
 import { useChatStore } from "@/stores/useChatStore";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { playNotificationSound } from "@/utils/sound";
 
-function PersistentLayoutContent() {
+export function PersistentLayout() {
     const {
         appSidebarProps,
         noteSystem,
@@ -84,10 +84,3 @@ function PersistentLayoutContent() {
     );
 }
 
-export function PersistentLayout() {
-    return (
-        <NoteOrchestratorProvider>
-            <PersistentLayoutContent />
-        </NoteOrchestratorProvider>
-    );
-}
