@@ -28,6 +28,7 @@ import { Progress } from '@/components/shadui/progress';
 import HeaderGradient from '@/assets/images/common/header gradient_v2.svg';
 import { motion } from 'framer-motion';
 import { useSubscriptionStore } from '@/stores/useSubscriptionStore';
+import { AnimatedCounter } from "@/components/common/AnimatedCounter";
 import { getPlanDisplayFeatures, findPlanByName } from '@/utils/planUtils';
 
 export function SubscriptionManagement() {
@@ -187,9 +188,12 @@ export function SubscriptionManagement() {
                         <CardContent>
                             <div className="space-y-4">
                                 <div className="flex items-baseline justify-between">
-                                    <span className="text-2xl font-bold text-gray-900">
-                                        {tokenUsage.chat?.percentage?.toFixed(0) || 0}%
-                                    </span>
+                                    <AnimatedCounter
+                                        value={tokenUsage.chat?.percentage || 0}
+                                        initialValue={100}
+                                        formatter={(v) => `${v}%`}
+                                        className="text-2xl font-bold text-gray-900"
+                                    />
                                     <span className="text-sm text-gray-500">daily used</span>
                                 </div>
                                 <TokenUsageIndicator
@@ -217,9 +221,12 @@ export function SubscriptionManagement() {
                         <CardContent>
                             <div className="space-y-4">
                                 <div className="flex items-baseline justify-between">
-                                    <span className="text-2xl font-bold text-gray-900">
-                                        {tokenUsage.search?.percentage?.toFixed(0) || 0}%
-                                    </span>
+                                    <AnimatedCounter
+                                        value={tokenUsage.search?.percentage || 0}
+                                        initialValue={100}
+                                        formatter={(v) => `${v}%`}
+                                        className="text-2xl font-bold text-gray-900"
+                                    />
                                     <span className="text-sm text-gray-500">daily used</span>
                                 </div>
                                 <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
@@ -249,9 +256,17 @@ export function SubscriptionManagement() {
                         <CardContent>
                             <div className="space-y-4">
                                 <div className="flex items-baseline justify-between">
-                                    <span className="text-2xl font-bold text-gray-900">
-                                        {tokenUsage.storage?.notes?.limit === -1 || tokenUsage.storage?.notes?.limit > 9000 ? "Active" : `${tokenUsage.storage?.notes?.percentage?.toFixed(0)}%`}
-                                    </span>
+                                    <div className="text-2xl font-bold text-gray-900">
+                                        {tokenUsage.storage?.notes?.limit === -1 || tokenUsage.storage?.notes?.limit > 9000 ? (
+                                            "Active"
+                                        ) : (
+                                            <AnimatedCounter
+                                                value={tokenUsage.storage?.notes?.percentage || 0}
+                                                initialValue={100}
+                                                formatter={(v) => `${v}%`}
+                                            />
+                                        )}
+                                    </div>
                                     <span className="text-sm text-gray-500">
                                         {tokenUsage.storage?.notes?.limit > 9000 ? "Unlimited" : "used"}
                                     </span>
@@ -283,9 +298,17 @@ export function SubscriptionManagement() {
                         <CardContent>
                             <div className="space-y-4">
                                 <div className="flex items-baseline justify-between">
-                                    <span className="text-2xl font-bold text-gray-900">
-                                        {tokenUsage.storage?.notebooks?.limit === -1 || tokenUsage.storage?.notebooks?.limit > 9000 ? "Active" : `${tokenUsage.storage?.notebooks?.percentage?.toFixed(0)}%`}
-                                    </span>
+                                    <div className="text-2xl font-bold text-gray-900">
+                                        {tokenUsage.storage?.notebooks?.limit === -1 || tokenUsage.storage?.notebooks?.limit > 9000 ? (
+                                            "Active"
+                                        ) : (
+                                            <AnimatedCounter
+                                                value={tokenUsage.storage?.notebooks?.percentage || 0}
+                                                initialValue={100}
+                                                formatter={(v) => `${v}%`}
+                                            />
+                                        )}
+                                    </div>
                                     <span className="text-sm text-gray-500">
                                         {tokenUsage.storage?.notebooks?.limit > 9000 ? "Unlimited" : "used"}
                                     </span>
