@@ -77,7 +77,7 @@ export function ChatBubble({ message, onCitationClick, compact, animate = false 
 
                     {/* Message Text */}
                     {isAssistant ? (
-                        <div className="markdown-content">
+                        <div className="markdown-content break-words min-w-0">
                             <ReactMarkdown
                                 components={{
                                     p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,

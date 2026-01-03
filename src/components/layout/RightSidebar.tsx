@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { SidebarLayout } from "./SidebarLayout";
 import { Button } from "@/components/shadui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -131,6 +131,8 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
 
     const [input, setInput] = useState("");
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const sidebarRef = useRef<HTMLDivElement>(null);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
 
     // Unified sidebar state
     const { isCollapsed, setIsCollapsed, toggle } = useSidebarState();
@@ -274,13 +276,13 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
             contentToSend = `/${activeModes[0]} ${input}`;
         }
 
-        await sendMessage(contentToSend);
         setInput("");
         setActiveModes([]); // Clear pills
-
         if (textareaRef.current) {
             textareaRef.current.style.height = 'auto';
         }
+
+        await sendMessage(contentToSend);
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -336,6 +338,10 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
         setActiveModes(prev => prev.filter(m => m !== mode));
     };
 
+    const hasWideContent = useMemo(() =>
+        messages.some(m => m.role === 'assistant' && (m.content.includes('```') || m.content.includes('| -')))
+        , [messages]);
+
     if (!isOpen) return null;
 
     return (
@@ -343,7 +349,7 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
             side="right"
             isCollapsed={isCollapsed}
             onToggle={toggle}
-            width={380}
+            width={hasWideContent ? 600 : 380}
             className="border-l border-gray-200 h-full shadow-xl z-30 flex flex-col"
         >
             {/* Header */}
