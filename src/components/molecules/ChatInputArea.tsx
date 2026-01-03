@@ -8,7 +8,7 @@ import { PrefixHelper } from "@/components/molecules/PrefixHelper";
 import { SlashCommandMenu } from "@/components/molecules/SlashCommandMenu";
 import { ActiveModePills } from "@/components/molecules/ActiveModePills";
 
-import { useSlashCommands, useChatInputModes, type ChatMode, type ChatCommand } from "@/hooks/chat";
+import { useSlashCommands, useChatInputModes, type ChatMode } from "@/hooks/chat";
 
 export interface ChatInputAreaProps {
     /** Current input value */
@@ -63,13 +63,24 @@ export function ChatInputArea({
         processInput(value);
     }, [value, processInput]);
 
-    // Auto-resize textarea
+    // Auto-resize textarea - reset to base height when empty
+    useEffect(() => {
+        if (textareaRef.current) {
+            // Always reset first, then resize if there's content
+            textareaRef.current.style.height = 'auto';
+            if (value.trim()) {
+                textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 200)}px`;
+            }
+        }
+    }, [value]);
+
+    // Reset height on mount
     useEffect(() => {
         if (textareaRef.current) {
             textareaRef.current.style.height = 'auto';
-            textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 200)}px`;
         }
-    }, [value]);
+    }, []);
+
 
     // Apply a slash command
     const applyCommand = useCallback((cmd: string) => {
