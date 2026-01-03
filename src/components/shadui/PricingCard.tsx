@@ -189,7 +189,7 @@ export function PricingCard({ data, className, context = 'app' }: PricingCardPro
       </p>
 
       {/* 3. Features List Section */}
-      <div className="flex flex-col items-start gap-3 w-full flex-grow">
+      <div className="flex flex-col items-start gap-3 w-full flex-grow overflow-y-auto min-h-0 pr-2">
         {features.map((feature) => (
           <PriceAdvantageItem key={feature} text={feature} />
         ))}
