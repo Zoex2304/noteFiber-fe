@@ -4,7 +4,9 @@ import { RightSidebar } from "@/components/layout/RightSidebar";
 import { TopBar } from "@/components/common/TopBar";
 import { SearchDialog } from "@/components/search-dialog";
 import { useNoteOrchestratorContext } from "@/contexts/NoteOrchestratorContext";
+// Hooks
 import { useChatStore } from "@/stores/useChatStore";
+import { useSidebarStore } from "@/stores/useSidebarStore";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { playNotificationSound } from "@/utils/sound";
@@ -17,40 +19,49 @@ export function PersistentLayout() {
         searchOpen,
         setSearchOpen,
         checkAndOpenSearch,
-        // Chat Sidebar
-        isChatOpen,
-        setIsChatOpen,
         checkAndToggleChat,
         // Navigation
         navigateToNote
     } = useNoteOrchestratorContext();
+
+    // Sidebar Store
+    const isRightOpen = useSidebarStore(s => s.isRightOpen);
+    const isRightCollapsed = useSidebarStore(s => s.isRightCollapsed);
+    const toggleRightSidebar = useSidebarStore(s => s.toggleRightSidebar);
+    const openChat = useSidebarStore(s => s.openChat);
 
     // Background Job Notification Logic
     const isGenerating = useChatStore(state => state.isGenerating);
     const prevGenerating = useRef(isGenerating);
 
     useEffect(() => {
-        const handleOpenChatSidebar = () => setIsChatOpen(true);
+        const handleOpenChatSidebar = () => openChat();
         window.addEventListener("open-chat-sidebar", handleOpenChatSidebar);
         return () => window.removeEventListener("open-chat-sidebar", handleOpenChatSidebar);
-    }, [setIsChatOpen]);
+    }, [openChat]);
 
     useEffect(() => {
-        // If we WERE generating, and now NOT generating, and sidebar is CLOSED
-        // If we WERE generating, and now NOT generating, and sidebar is CLOSED
-        if (prevGenerating.current && !isGenerating && !isChatOpen) {
-            playNotificationSound();
-            toast.success("Response Ready", {
-                description: "The AI has finished processing your request.",
-                action: {
-                    label: "Open Chat",
-                    onClick: () => setIsChatOpen(true)
-                },
-                duration: 5000
-            });
+        // If we WERE generating, and now NOT generating, and sidebar is CLOSED or COLLAPSED
+        if (prevGenerating.current && !isGenerating) {
+            // Notification Condition:
+            // 1. Sidebar is completely closed (!isRightOpen)
+            // 2. OR Sidebar is open but collapsed (isRightOpen && isRightCollapsed)
+            const shouldNotify = !isRightOpen || isRightCollapsed;
+
+            if (shouldNotify) {
+                playNotificationSound();
+                toast.success("Response Ready", {
+                    description: "The AI has finished processing your request.",
+                    action: {
+                        label: "Open Chat",
+                        onClick: () => openChat()
+                    },
+                    duration: 5000
+                });
+            }
         }
         prevGenerating.current = isGenerating;
-    }, [isGenerating, isChatOpen, setIsChatOpen]);
+    }, [isGenerating, isRightOpen, isRightCollapsed, openChat]);
 
     return (
         <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
@@ -72,8 +83,6 @@ export function PersistentLayout() {
 
             {/* Right Sidebar (Chat) */}
             <RightSidebar
-                isOpen={isChatOpen}
-                onToggle={() => setIsChatOpen(!isChatOpen)}
                 onNavigateToNote={navigateToNote}
                 notes={noteSystem.notes}
             />

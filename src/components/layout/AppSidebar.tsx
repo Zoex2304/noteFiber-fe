@@ -11,10 +11,11 @@ import { cn } from "@/lib/utils";
 import type { Note } from "@/types/note";
 import type { Notebook } from "@/types/notebook";
 import { SidebarLayout } from "./SidebarLayout";
-import { useSidebarState } from "@/hooks/useSidebarState";
+// Hooks
+import { useSidebarStore } from "@/stores/useSidebarStore";
 
 // Constants
-const SIDEBAR_COOKIE_NAME = "sidebar_collapsed";
+// const SIDEBAR_COOKIE_NAME = "sidebar_collapsed"; // Handled by store persist now
 
 export interface AppSidebarProps {
     notebooks: Notebook[];
@@ -63,11 +64,14 @@ export function AppSidebar({
     isCreatingNote,
     onClearSelection,
 }: AppSidebarProps) {
-    // Shared sidebar state logic with cookie persistence
-    const { isCollapsed, toggle: toggleCollapse, expand } = useSidebarState({
-        cookieName: SIDEBAR_COOKIE_NAME,
-        defaultCollapsed: false
-    });
+    // Sidebar Store Logic
+    const isLeftOpen = useSidebarStore(s => s.isLeftOpen);
+    const toggleLeftSidebar = useSidebarStore(s => s.toggleLeftSidebar);
+    const setLeftSidebarOpen = useSidebarStore(s => s.setLeftSidebarOpen);
+
+    const isCollapsed = !isLeftOpen;
+    const toggleCollapse = toggleLeftSidebar;
+    const expand = () => setLeftSidebarOpen(true);
 
     const sidebarRef = useRef<HTMLDivElement>(null);
 

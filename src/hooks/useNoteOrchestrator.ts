@@ -7,6 +7,7 @@ import { useNoteSystem } from "./useNoteSystem";
 import { useActiveNote } from "./useActiveNote";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useUsageLimits } from "@/contexts/UsageLimitsContext";
+import { useSidebarStore } from "@/stores/useSidebarStore";
 
 export function useNoteOrchestrator() {
     // strict: false allows usage outside of the explicit route (e.g. in MainApp dashboard)
@@ -24,7 +25,6 @@ export function useNoteOrchestrator() {
 
     // -- Dialog/Sidebar State --
     const [searchOpen, setSearchOpen] = useState(false);
-    const [isChatOpen, setIsChatOpen] = useState(false); // Changed from chatOpen (dialog) to sidebar toggle
 
     // -- Synchronization Effects --
 
@@ -170,19 +170,27 @@ export function useNoteOrchestrator() {
 
     // -- Dialog/Sidebar Handlers --
     const checkAndToggleChat = async () => {
-        // Toggle off instantly if open
-        if (isChatOpen) {
-            setIsChatOpen(false);
+        const { isRightOpen, isRightCollapsed, toggleRightSidebar, openChat } = useSidebarStore.getState();
+
+        // If open and expanded, just close it (toggle)
+        if (isRightOpen && !isRightCollapsed) {
+            toggleRightSidebar();
             return;
         }
 
-        // Check permission before opening
+        // If open but collapsed, expand it
+        if (isRightOpen && isRightCollapsed) {
+            openChat();
+            return;
+        }
+
+        // If closed, check permission before opening
         const canUse = await checkCanUseAiChat();
         if (!canUse) return;
 
         // @ts-ignore
         if (checkPermission("ai_chat")) {
-            setIsChatOpen(true);
+            openChat();
         } else {
             const UPGRADE_EVENT = "upgrade-plan";
             window.dispatchEvent(new Event(UPGRADE_EVENT));
@@ -245,8 +253,6 @@ export function useNoteOrchestrator() {
         checkAndOpenSearch,
 
         // Chat Sidebar
-        isChatOpen,
-        setIsChatOpen,
         checkAndToggleChat,
     };
 }

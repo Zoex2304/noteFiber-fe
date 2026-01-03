@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { Clock, Plus, ArrowLeft } from "lucide-react";
-import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import type { Note } from "@/types/note";
 
@@ -21,7 +20,7 @@ import { ChatInterface } from "@/components/organisms/ChatInterface";
 
 // Hooks
 import { useChatSystem } from "@/hooks/useChatSystem";
-import { useSidebarState } from "@/hooks/useSidebarState";
+import { useSidebarStore } from "@/stores/useSidebarStore";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useNewSessionConfirmation } from "@/hooks/chat";
 
@@ -30,13 +29,9 @@ import { useNewSessionConfirmation } from "@/hooks/chat";
 // -----------------------------------------------------------------------------
 
 export interface RightSidebarProps {
-    isOpen: boolean;
-    onToggle: () => void;
     onNavigateToNote: (noteId: string) => void;
     notes: Note[];
 }
-
-type SidebarView = 'chat' | 'history';
 
 // -----------------------------------------------------------------------------
 // Component
@@ -53,8 +48,6 @@ type SidebarView = 'chat' | 'history';
  * All business logic lives in hooks. All UI compositions live in organisms/molecules.
  */
 export function RightSidebar({
-    isOpen,
-    onToggle: _onToggle,
     onNavigateToNote,
     notes
 }: RightSidebarProps) {
@@ -62,22 +55,29 @@ export function RightSidebar({
     // Hooks
     // -------------------------------------------------------------------------
 
+    // Sidebar Store
+    const isCollapsed = useSidebarStore(s => s.isRightCollapsed);
+    const isOpen = useSidebarStore(s => s.isRightOpen);
+    const view = useSidebarStore(s => s.rightView);
+    const toggleCollapse = useSidebarStore(s => s.toggleRightCollapsed);
+    const setView = useSidebarStore(s => s.setRightView);
+    const expand = () => useSidebarStore.getState().setRightCollapsed(false);
+
+    // Chat System State
     const {
-        sessions,
         activeSessionId,
+        sessions,
         messages,
         isLoading,
-        showTokenLimitDialog,
-        setShowTokenLimitDialog,
-        tokenUsage,
-        fetchSessions,
-        selectSession,
-        createSession,
-        deleteSession,
         sendMessage,
+        selectSession,
+        deleteSession,
+        createSession,
+        tokenUsage,
+        showTokenLimitDialog,
+        setShowTokenLimitDialog
     } = useChatSystem();
 
-    const { isCollapsed, setIsCollapsed, toggle } = useSidebarState();
     const { refreshSubscription } = useSubscription();
     const newSessionConfirmation = useNewSessionConfirmation();
 
@@ -85,7 +85,6 @@ export function RightSidebar({
     // State
     // -------------------------------------------------------------------------
 
-    const [view, setView] = useState<SidebarView>('chat');
     const [input, setInput] = useState("");
 
     // -------------------------------------------------------------------------
@@ -95,27 +94,20 @@ export function RightSidebar({
     // Handle external open requests (e.g. from Search Dialog export)
     useEffect(() => {
         const handleOpenChat = () => {
-            if (isCollapsed) {
-                toggle();
-            }
-            setView("chat");
+            useSidebarStore.getState().openChat();
         };
 
         window.addEventListener("open-chat-sidebar", handleOpenChat);
         return () => window.removeEventListener("open-chat-sidebar", handleOpenChat);
-    }, [isCollapsed, toggle]);
+    }, []);
 
     // Fetch sessions when sidebar opens
     useEffect(() => {
         if (isOpen) {
             refreshSubscription();
-            fetchSessions().then((s) => {
-                if (s.length > 0 && !activeSessionId) {
-                    selectSession(s[0].id);
-                }
-            });
+            // We can fetch sessions here if needed, but useChatSystem handles init.
         }
-    }, [isOpen, fetchSessions, selectSession, refreshSubscription, activeSessionId]);
+    }, [isOpen, refreshSubscription]);
 
     // -------------------------------------------------------------------------
     // Derived State
@@ -138,11 +130,11 @@ export function RightSidebar({
 
         if ((mode === "bypass" || mode === "nuance") && sessionDirty) {
             newSessionConfirmation.requestConfirmation(content, mode);
-            setInput("");
             return;
         }
 
         await sendMessage(content);
+        setInput(""); // Clear input after send
     };
 
     const handleConfirmNewSession = async () => {
@@ -158,6 +150,7 @@ export function RightSidebar({
         }
 
         setView('chat');
+        setInput("");
     };
 
     const handleSessionSelect = (id: string) => {
@@ -165,9 +158,13 @@ export function RightSidebar({
         setView('chat');
     };
 
-    const handleNewChat = () => {
-        createSession();
-        setView('chat');
+    const handleNewSession = async () => {
+        if (messages.length > 0) {
+            const confirmed = await newSessionConfirmation.confirm();
+            if (!confirmed) return;
+        }
+        await createSession();
+        setInput("");
     };
 
     // -------------------------------------------------------------------------
@@ -177,76 +174,57 @@ export function RightSidebar({
     return (
         <SidebarLayout
             side="right"
-            isCollapsed={isCollapsed}
-            onToggle={toggle}
             width={hasWideContent ? 600 : 380}
+            collapsedWidth={64}
+            isCollapsed={isCollapsed}
+            onToggle={toggleCollapse}
             className={cn(
                 "border-l border-gray-200 h-full shadow-xl z-30 flex flex-col",
                 !isOpen && "hidden"
             )}
         >
             {/* Header */}
-            <div className="h-12 px-4 border-b border-gray-200 flex items-center justify-between shrink-0 bg-white relative">
-                <div className="flex items-center gap-2">
-                    {!isCollapsed && (
-                        <>
-                            {view === 'history' ? (
-                                <div className="flex items-center gap-2.5">
-                                    <motion.div
-                                        initial={{ y: 10, opacity: 0, scale: 0.8 }}
-                                        animate={{ y: 0, opacity: 1, scale: [1, 1.05, 1] }}
-                                        transition={{
-                                            y: { type: "spring", stiffness: 300, damping: 20 },
-                                            scale: { duration: 0.4, delay: 0.1 }
-                                        }}
-                                        className="w-8 h-8 rounded-xl bg-gradient-primary-violet grid place-items-center shadow-md"
-                                    >
-                                        <Clock className="h-4 w-4 text-white" strokeWidth={2.5} />
-                                    </motion.div>
-                                    <span className="font-semibold text-gray-700">Chat History</span>
-                                </div>
-                            ) : (
-                                <>
-                                    <Logo variant="symbol" className="h-6 w-6" />
-                                    <span className="font-semibold text-gray-700 whitespace-nowrap">Ask AI</span>
-                                </>
+            <div className={cn(
+                "flex items-center justify-between border-b border-gray-200 bg-white flex-shrink-0 overflow-hidden",
+                isCollapsed ? "h-12 px-2 flex-col justify-center gap-2" : "h-12 px-4"
+            )}>
+                {isCollapsed ? (
+                    <Logo variant="symbol" className="h-5 w-5 mx-auto" />
+                ) : (
+                    <div className="flex items-center w-full h-full gap-2 px-1">
+                        {/* Left: Logo & Title - Flex 1 to push center */}
+                        <div className="flex-1 flex items-center justify-start min-w-0 gap-2">
+                            {view === 'history' && (
+                                <Button variant="ghost" size="icon" className="-ml-2 shrink-0" onClick={() => setView('chat')}>
+                                    <ArrowLeft className="h-4 w-4" />
+                                </Button>
                             )}
-                        </>
-                    )}
-                    {isCollapsed && <Logo variant="symbol" className="h-6 w-6 mx-auto" />}
-                </div>
+                            <div className="flex items-center gap-2 min-w-0">
+                                <Logo variant="symbol" className="h-5 w-5 shrink-0" />
+                                <span className="font-semibold text-sm text-gray-700 whitespace-nowrap overflow-hidden text-ellipsis">Ask AI</span>
+                            </div>
+                        </div>
 
-                {/* Token Usage Pill (centered) */}
-                {!isCollapsed && view === 'chat' && (
-                    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-                        <TokenUsagePill type="chat" />
-                    </div>
-                )}
+                        {/* Center: Token Usage */}
+                        <div className="shrink-0">
+                            <TokenUsagePill />
+                        </div>
 
-                {/* Header Actions */}
-                {!isCollapsed && (
-                    <div className="flex items-center gap-1">
-                        <ActionTooltip label={view === 'history' ? "Back to Chat" : "History"}>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => setView(view === 'chat' ? 'history' : 'chat')}
-                                className={cn("h-8 w-8", view === 'history' && "text-purple-600 bg-purple-50")}
-                            >
-                                {view === 'history' ? <ArrowLeft className="h-4 w-4" /> : <Clock className="h-4 w-4" />}
-                            </Button>
-                        </ActionTooltip>
-
-                        <ActionTooltip label="New Chat">
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={handleNewChat}
-                                className="h-8 w-8"
-                            >
-                                <Plus className="h-4 w-4" />
-                            </Button>
-                        </ActionTooltip>
+                        {/* Right: Actions - Flex 1 to push center */}
+                        <div className="flex-1 flex items-center justify-end min-w-0 gap-1">
+                            {view === 'chat' && (
+                                <ActionTooltip label="History">
+                                    <Button variant="ghost" size="icon" onClick={() => setView('history')}>
+                                        <Clock className="h-4 w-4 text-gray-500" />
+                                    </Button>
+                                </ActionTooltip>
+                            )}
+                            <ActionTooltip label="New Chat">
+                                <Button variant="ghost" size="icon" onClick={handleNewSession}>
+                                    <Plus className="h-4 w-4" />
+                                </Button>
+                            </ActionTooltip>
+                        </div>
                     </div>
                 )}
             </div>
@@ -256,8 +234,8 @@ export function RightSidebar({
                 <div className="flex flex-col items-center py-4 gap-2">
                     <ActionTooltip label="New Chat" side="left">
                         <Button variant="ghost" size="icon" onClick={() => {
-                            setIsCollapsed(false);
-                            handleNewChat();
+                            expand();
+                            handleNewSession();
                         }}>
                             <Plus className="h-4 w-4" />
                         </Button>
@@ -265,7 +243,7 @@ export function RightSidebar({
 
                     <ActionTooltip label="History" side="left">
                         <Button variant="ghost" size="icon" onClick={() => {
-                            setIsCollapsed(false);
+                            expand();
                             setView('history');
                         }}>
                             <Clock className="h-4 w-4 text-gray-500" />

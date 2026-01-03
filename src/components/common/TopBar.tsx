@@ -5,6 +5,7 @@ import { MessageSquare, Search } from "lucide-react";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { NotificationDropdown } from "@/components/organisms/NotificationDropdown";
 import AiLogo from "@/assets/images/landing/logo/logo_symbol.svg";
+import { GradientPill } from "@/components/common/GradientPill";
 import { cn } from "@/lib/utils";
 
 interface TopBarProps {
@@ -64,13 +65,10 @@ export const TopBar = ({ onSearchClick, onChatClick }: TopBarProps) => {
                 )}
 
                 {showChat && (
-                    <Button
-                        onClick={onChatClick}
-                        className="bg-gradient-to-r from-[#7050f0] to-[#9e8ce8] text-white rounded-full px-4 h-9 shadow-md hover:shadow-lg hover:brightness-110 transition-all font-medium flex items-center gap-2 border-0"
-                    >
-                        <img src={AiLogo} alt="AI" className="w-4 h-4 brightness-0 invert" />
-                        <span>Generate AI</span>
-                    </Button>
+                    <GradientPill onClick={onChatClick}>
+                        <img src={AiLogo} alt="AI" className="w-3.5 h-3.5 brightness-0 invert" />
+                        <span className="tracking-tight font-bold text-shadow-sm font-sans">Ask AI</span>
+                    </GradientPill>
                 )}
 
                 <div className="h-6 w-px bg-gray-200 mx-1" />
