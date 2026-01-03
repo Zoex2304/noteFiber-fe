@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import { Clock, Plus, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import type { Note } from "@/types/note";
 
 // Layout
 import { SidebarLayout } from "./SidebarLayout";
@@ -32,6 +33,7 @@ export interface RightSidebarProps {
     isOpen: boolean;
     onToggle: () => void;
     onNavigateToNote: (noteId: string) => void;
+    notes: Note[];
 }
 
 type SidebarView = 'chat' | 'history';
@@ -53,7 +55,8 @@ type SidebarView = 'chat' | 'history';
 export function RightSidebar({
     isOpen,
     onToggle: _onToggle,
-    onNavigateToNote
+    onNavigateToNote,
+    notes
 }: RightSidebarProps) {
     // -------------------------------------------------------------------------
     // Hooks
@@ -88,6 +91,19 @@ export function RightSidebar({
     // -------------------------------------------------------------------------
     // Effects
     // -------------------------------------------------------------------------
+
+    // Handle external open requests (e.g. from Search Dialog export)
+    useEffect(() => {
+        const handleOpenChat = () => {
+            if (isCollapsed) {
+                toggle();
+            }
+            setView("chat");
+        };
+
+        window.addEventListener("open-chat-sidebar", handleOpenChat);
+        return () => window.removeEventListener("open-chat-sidebar", handleOpenChat);
+    }, [isCollapsed, toggle]);
 
     // Fetch sessions when sidebar opens
     useEffect(() => {
@@ -158,15 +174,16 @@ export function RightSidebar({
     // Render
     // -------------------------------------------------------------------------
 
-    if (!isOpen) return null;
-
     return (
         <SidebarLayout
             side="right"
             isCollapsed={isCollapsed}
             onToggle={toggle}
             width={hasWideContent ? 600 : 380}
-            className="border-l border-gray-200 h-full shadow-xl z-30 flex flex-col"
+            className={cn(
+                "border-l border-gray-200 h-full shadow-xl z-30 flex flex-col",
+                !isOpen && "hidden"
+            )}
         >
             {/* Header */}
             <div className="h-12 px-4 border-b border-gray-200 flex items-center justify-between shrink-0 bg-white relative">
@@ -283,6 +300,7 @@ export function RightSidebar({
                             onCitationClick={onNavigateToNote}
                             inputValue={input}
                             onInputChange={setInput}
+                            notes={notes}
                         />
                     </div>
                 </div>

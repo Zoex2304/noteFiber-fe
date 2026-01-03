@@ -9,6 +9,7 @@ import { ChatInputArea } from "@/components/molecules/ChatInputArea";
 import { Button } from "@/components/shadui/button";
 
 import type { Message, ChatSession } from "@/types/ai-chat";
+import type { Note } from "@/types/note";
 
 export interface ChatInterfaceProps {
     /** Active session ID */
@@ -27,6 +28,8 @@ export interface ChatInterfaceProps {
     inputValue: string;
     /** Input change handler (controlled) */
     onInputChange: (value: string) => void;
+    /** Available notes for autocomplete */
+    notes: Note[];
 }
 
 /**
@@ -42,7 +45,8 @@ export function ChatInterface({
     onSendMessage,
     onCitationClick,
     inputValue,
-    onInputChange
+    onInputChange,
+    notes
 }: ChatInterfaceProps) {
     const currentSession = sessions.find(s => s.id === activeSessionId);
 
@@ -162,7 +166,7 @@ export function ChatInterface({
 
                         {/* Empty State */}
                         {messages.length === 0 && !isLoading && (
-                            <ChatEmptyState />
+                            <ChatEmptyState onAction={onInputChange} />
                         )}
 
                         {/* Scroll anchor */}
@@ -194,6 +198,7 @@ export function ChatInterface({
                 onChange={onInputChange}
                 onSend={onSendMessage}
                 disabled={isLoading}
+                notes={notes}
             />
         </div>
     );

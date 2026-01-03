@@ -23,9 +23,15 @@ export interface DeleteSessionRequest {
     chat_session_id: string;
 }
 
+export interface NoteReferenceDTO {
+    note_id: string;
+    source_type: "export" | "inline" | "autocomplete";
+}
+
 export interface SendChatRequest {
     chat_session_id: string;
     chat: string;
+    references?: NoteReferenceDTO[];
 }
 
 export interface CitationResponse {

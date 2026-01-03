@@ -30,11 +30,18 @@ export function PersistentLayout() {
     const prevGenerating = useRef(isGenerating);
 
     useEffect(() => {
+        const handleOpenChatSidebar = () => setIsChatOpen(true);
+        window.addEventListener("open-chat-sidebar", handleOpenChatSidebar);
+        return () => window.removeEventListener("open-chat-sidebar", handleOpenChatSidebar);
+    }, [setIsChatOpen]);
+
+    useEffect(() => {
+        // If we WERE generating, and now NOT generating, and sidebar is CLOSED
         // If we WERE generating, and now NOT generating, and sidebar is CLOSED
         if (prevGenerating.current && !isGenerating && !isChatOpen) {
             playNotificationSound();
-            toast.success("AI Reset Completed", {
-                description: "Your response is ready.",
+            toast.success("Response Ready", {
+                description: "The AI has finished processing your request.",
                 action: {
                     label: "Open Chat",
                     onClick: () => setIsChatOpen(true)
@@ -68,6 +75,7 @@ export function PersistentLayout() {
                 isOpen={isChatOpen}
                 onToggle={() => setIsChatOpen(!isChatOpen)}
                 onNavigateToNote={navigateToNote}
+                notes={noteSystem.notes}
             />
 
             {/* Dialogs */}

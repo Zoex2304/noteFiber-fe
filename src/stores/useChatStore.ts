@@ -13,17 +13,21 @@ import type {
     SendChatRequest,
 } from "@/dto/chatbot";
 
+import type { Note } from "@/types/note";
+
 interface ChatState {
     sessions: ChatSession[];
     activeSessionId: string | null;
     isLoading: boolean;
     isGenerating: boolean;
     showTokenLimitDialog: boolean;
+    preloadedReferences: Note[];
 
     // Actions
     setSessions: (sessions: ChatSession[]) => void;
     setActiveSessionId: (id: string | null) => void;
     setShowTokenLimitDialog: (show: boolean) => void;
+    setPreloadedReferences: (notes: Note[]) => void;
 
     fetchSessions: () => Promise<ChatSession[]>;
     fetchSessionHistory: (sessionId: string) => Promise<void>;
@@ -39,10 +43,12 @@ export const useChatStore = create<ChatState>((set, get) => ({
     isLoading: false,
     isGenerating: false,
     showTokenLimitDialog: false,
+    preloadedReferences: [],
 
     setSessions: (sessions) => set({ sessions }),
     setActiveSessionId: (id) => set({ activeSessionId: id }),
     setShowTokenLimitDialog: (show) => set({ showTokenLimitDialog: show }),
+    setPreloadedReferences: (notes) => set({ preloadedReferences: notes }),
 
     fetchSessions: async () => {
         try {
@@ -183,6 +189,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
         set({ isLoading: true, isGenerating: true });
 
+        // Get references if any
+        const { preloadedReferences, setPreloadedReferences } = get();
+        const references = preloadedReferences.map(note => ({
+            note_id: note.id,
+            source_type: "export" as const
+        }));
+
         // Optimistic Update
         const tempId = "temp-" + Date.now();
         const optimisticMsg: Message = {
@@ -205,9 +218,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
             const request: SendChatRequest = {
                 chat: content,
                 chat_session_id: currentSessionId,
+                references: references.length > 0 ? references : undefined,
             };
 
             const res = await apiClient.post<BaseResponse<SendChatResponse>>(`/chatbot/v1/send-chat`, request);
+
+            // Clear references after successful send
+            setPreloadedReferences([]);
 
             // Update with real response
             const realUserMsg = {

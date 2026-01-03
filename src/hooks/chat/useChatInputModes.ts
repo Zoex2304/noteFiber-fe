@@ -3,15 +3,21 @@ import { useState, useCallback } from 'react';
 /**
  * Valid chat modes (commands that become pills)
  */
-export type ChatMode = 'bypass' | 'nuance';
+/**
+ * Valid chat modes (commands that become pills)
+ * allowing string for dynamic nuances
+ */
+export type ChatMode = string;
 
-const MODE_COMMANDS: ChatMode[] = ['bypass', 'nuance'];
+// We allow dynamic modes now, so no strict static list checks for adding.
+// But we might want to know which are "system" commands vs nuances?
+// For now, let's just treat everything added via addMode as a pill.
 
 interface UseChatInputModesReturn {
     /** Currently active modes as pills */
     activeModes: ChatMode[];
     /** Add a mode to active modes */
-    addMode: (mode: ChatMode | string) => void;
+    addMode: (mode: ChatMode) => void;
     /** Remove a mode from active modes */
     removeMode: (mode: ChatMode) => void;
     /** Remove the last added mode (for Backspace handling) */
@@ -27,22 +33,20 @@ interface UseChatInputModesReturn {
 }
 
 /**
- * Hook to manage chat input mode pills (bypass, nuance).
- * Follows single responsibility: only handles mode state management.
+ * Hook to manage chat input mode pills.
  */
 export function useChatInputModes(): UseChatInputModesReturn {
     const [activeModes, setActiveModes] = useState<ChatMode[]>([]);
 
     // Check if a command string is a mode command
     const isModeCommand = useCallback((cmd: string): boolean => {
-        const cleanCmd = cmd.replace("/", "");
-        return MODE_COMMANDS.includes(cleanCmd as ChatMode);
+        // Simple heuristic: starts with / is potentially a mode if passed here
+        return cmd.startsWith("/");
     }, []);
 
     // Add a mode (from command like "/bypass" or clean like "bypass")
-    const addMode = useCallback((mode: ChatMode | string) => {
-        const cleanMode = mode.replace("/", "") as ChatMode;
-        if (!MODE_COMMANDS.includes(cleanMode)) return;
+    const addMode = useCallback((mode: string) => {
+        const cleanMode = mode.replace("/", "");
 
         setActiveModes(prev => {
             if (prev.includes(cleanMode)) return prev;
@@ -75,10 +79,10 @@ export function useChatInputModes(): UseChatInputModesReturn {
 
     // Extract mode from pasted/typed text (fallback detection)
     const extractModeFromText = useCallback((text: string): ChatMode | null => {
-        for (const mode of MODE_COMMANDS) {
-            if (text.startsWith(`/${mode}`)) {
-                return mode;
-            }
+        // Simple extraction: if text starts with /, extract the first word as mode
+        const match = text.match(/^\/(\w+)/);
+        if (match) {
+            return match[1];
         }
         return null;
     }, []);
