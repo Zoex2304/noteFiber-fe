@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { SidebarLayout } from "./SidebarLayout";
 import { Button } from "@/components/shadui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -13,11 +13,11 @@ import { useChatSystem } from "@/hooks/useChatSystem";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/shadui/Logo";
 import { ActionTooltip } from "@/components/common/ActionTooltip";
-import { Clock, Plus, Trash2, Send, Bot, MessageSquare, ArrowLeft, Search as SearchIcon } from "lucide-react";
+import { Clock, Plus, Trash2, Send, Bot, MessageSquare, ArrowLeft, Search as SearchIcon, Command } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { NewSessionConfirmationModal } from "@/components/molecules/NewSessionConfirmationModal";
-import { PrefixHelper } from "@/components/molecules/PrefixHelper";
+import { PrefixHelper, CHAT_COMMANDS } from "@/components/molecules/PrefixHelper";
 
 import type { ChatSession } from "@/types/ai-chat";
 import { useSidebarState } from "@/hooks/useSidebarState";
@@ -127,6 +127,7 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
     } = useChatSystem();
 
     const [input, setInput] = useState("");
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     // Unified sidebar state
     const { isCollapsed, setIsCollapsed, toggle } = useSidebarState();
@@ -138,6 +139,16 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
     const [pendingMode, setPendingMode] = useState("");
     const [pendingMessage, setPendingMessage] = useState("");
 
+    // Slash Command State
+    const [showSlashMenu, setShowSlashMenu] = useState(false);
+    const [slashFilter, setSlashFilter] = useState("");
+    const [activeCmdIndex, setActiveCmdIndex] = useState(0);
+
+    const filteredCommands = CHAT_COMMANDS.filter(c =>
+        c.cmd.toLowerCase().startsWith(slashFilter.toLowerCase()) ||
+        c.desc.toLowerCase().includes(slashFilter.toLowerCase())
+    );
+
     useEffect(() => {
         if (isOpen) {
             fetchSessions().then((s) => {
@@ -147,10 +158,45 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
             });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isOpen, fetchSessions, selectSession]); // Removed activeSessionId to prevent loop
+    }, [isOpen, fetchSessions, selectSession]);
+
+    // Auto-resize textarea
+    useEffect(() => {
+        if (textareaRef.current) {
+            // Reset height to allow shrinking
+            textareaRef.current.style.height = 'auto';
+            // Set to scrollHeight to expand
+            textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 200)}px`;
+        }
+    }, [input]);
+
+    /**
+     * Parse input for slash commands
+     */
+    useEffect(() => {
+        const lastWord = input.split(/(\s+)/).pop() || "";
+        if (lastWord.startsWith("/")) {
+            setShowSlashMenu(true);
+            setSlashFilter(lastWord);
+            setActiveCmdIndex(0);
+        } else {
+            setShowSlashMenu(false);
+        }
+    }, [input]);
 
     const handlePrefixSelect = (prefix: string) => {
         setInput((prev) => prefix + prev);
+    };
+
+    const applyCommand = (cmd: string) => {
+        // Replace the current partial command with the full one
+        const parts = input.split(/(\s+)/);
+        parts.pop(); // Remove partial
+        const newValue = parts.join("") + cmd + " ";
+        setInput(newValue);
+        setShowSlashMenu(false);
+        // Focus back
+        textareaRef.current?.focus();
     };
 
     const checkMode = (text: string) => {
@@ -161,15 +207,10 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
 
     const handleConfirmNewSession = async () => {
         setConfirmModalOpen(false);
-        // We do NOT set isLoading here manually because createSession/sendMessage handles it? 
-        // Actually custom usage.
 
         try {
             const newSessionId = await createSession();
-            // Pass newSessionId to sendMessage override
             if (newSessionId) {
-                // We need to pass the ID to sendMessage.
-                // The useChatSystem hook was updated to accept 2nd arg.
                 await sendMessage(pendingMessage, newSessionId);
             }
         } catch (e) {
@@ -193,24 +234,42 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
             setPendingMessage(input);
             setPendingMode(mode);
             setConfirmModalOpen(true);
-            // Clear input? Maybe wait for confirm. 
-            // If user cancels, they might want to keep input? 
-            // Let's clear input only if we proceed... or keep it until confirm.
-            // If I clear it now, and they cancel, they lose text.
-            // If I don't clear, and they confirm, handleConfirm needs to clear it?
-            // "sendMessage" in useChatSystem doesn't clear local input, the caller does.
-            // So I should clear input here only if I am NOT blocking?
-            setInput(""); // We clear it for UI response. If they cancel, they lose it? Ideally restore it.
-            // For now, let's assume they want to proceed.
-            // Wait, if I clear it, pendingMessage has the content.
+            setInput("");
             return;
         }
 
         await sendMessage(input);
         setInput("");
+        // Reset height
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+        }
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (showSlashMenu && filteredCommands.length > 0) {
+            if (e.key === "Tab" || e.key === "Enter") {
+                e.preventDefault();
+                applyCommand(filteredCommands[activeCmdIndex].cmd);
+                return;
+            }
+            if (e.key === "ArrowUp") {
+                e.preventDefault();
+                setActiveCmdIndex(prev => Math.max(0, prev - 1));
+                return;
+            }
+            if (e.key === "ArrowDown") {
+                e.preventDefault();
+                setActiveCmdIndex(prev => Math.min(filteredCommands.length - 1, prev + 1));
+                return;
+            }
+            if (e.key === "Escape") {
+                e.preventDefault();
+                setShowSlashMenu(false);
+                return;
+            }
+        }
+
         if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
             handleSend();
@@ -225,7 +284,7 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
             isCollapsed={isCollapsed}
             onToggle={toggle}
             width={380} // Slightly wider for better history view
-            className="border-l border-gray-200 h-full shadow-xl z-30"
+            className="border-l border-gray-200 h-full shadow-xl z-30 flex flex-col"
         >
             {/* Header */}
             <div className="h-12 px-4 border-b border-gray-200 flex items-center justify-between shrink-0 bg-white">
@@ -305,7 +364,7 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
 
                     {/* View: History */}
                     {view === 'history' && (
-                        <div className="absolute inset-0 z-20 animate-in fade-in slide-in-from-right-4 duration-300">
+                        <div className="absolute inset-0 z-20 bg-white animate-in fade-in slide-in-from-right-4 duration-300">
                             <SessionHistoryList
                                 sessions={sessions}
                                 activeSessionId={activeSessionId}
@@ -325,7 +384,6 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
                     )}>
                         <div className="flex-1 overflow-hidden relative flex flex-col">
                             {/* Session Title Bar */}
-                            {/* Only show if we have an active session and it has a name */}
                             {activeSessionId && (
                                 <div className="px-4 py-2 border-b border-gray-100 bg-white/50 flex items-center justify-between shrink-0">
                                     <div className="text-xs font-medium text-gray-500 truncate max-w-[200px] flex items-center gap-1.5">
@@ -365,8 +423,34 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
                                 </div>
                             </ScrollArea>
                         </div>
+
                         {/* Input Area */}
-                        <div className="p-4 border-t border-gray-200 bg-white shrink-0">
+                        <div className="p-4 border-t border-gray-200 bg-white shrink-0 relative">
+                            {/* Slash Command Suggestions */}
+                            {showSlashMenu && filteredCommands.length > 0 && (
+                                <div className="absolute bottom-full left-4 mb-2 w-72 bg-white rounded-lg border border-gray-200 shadow-xl overflow-hidden animate-in fade-in slide-in-from-bottom-2 z-50">
+                                    <div className="p-1">
+                                        <div className="px-2 py-1.5 text-xs font-medium text-gray-500 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
+                                            <span>Commands</span>
+                                            <span className="text-[10px] uppercase tracking-wider">Tab to select</span>
+                                        </div>
+                                        {filteredCommands.map((cmd, index) => (
+                                            <button
+                                                key={cmd.cmd}
+                                                className={cn(
+                                                    "w-full text-left px-3 py-2 text-sm flex items-center justify-between transition-colors",
+                                                    index === activeCmdIndex ? "bg-purple-50 text-royal-violet-base" : "hover:bg-gray-50 text-gray-700"
+                                                )}
+                                                onClick={() => applyCommand(cmd.cmd)}
+                                            >
+                                                <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs font-mono">{cmd.cmd}</code>
+                                                <span className="text-xs text-gray-500">{cmd.desc}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
                             {/* Container Utama: Border dan Shadow ada di sini */}
                             <div className="flex items-end gap-2 bg-white border border-gray-200 rounded-2xl p-2 shadow-sm focus-within:border-royal-violet-base focus-within:ring-1 focus-within:ring-royal-violet-base transition-all">
 
@@ -378,11 +462,12 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
 
                                 {/* Textarea */}
                                 <Textarea
+                                    ref={textareaRef}
                                     value={input}
                                     onChange={(e) => setInput(e.target.value)}
                                     onKeyDown={handleKeyDown}
-                                    placeholder="Ask anything..."
-                                    className="flex-1 min-h-[44px] max-h-[140px] resize-none border-none shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 py-3 px-3 bg-transparent text-sm placeholder:text-gray-400"
+                                    placeholder="Ask anything... (/ for commands)"
+                                    className="flex-1 min-h-[44px] max-h-[200px] resize-none border-none shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 py-3 px-3 bg-transparent text-sm placeholder:text-gray-400 overflow-y-auto"
                                     disabled={isLoading}
                                     rows={1}
                                 />

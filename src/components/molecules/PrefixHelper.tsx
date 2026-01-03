@@ -11,14 +11,16 @@ interface PrefixHelperProps {
     onSelect: (prefix: string) => void;
 }
 
+export const CHAT_COMMANDS = [
+    { cmd: "/bypass", desc: "No RAG (Direct)" },
+    { cmd: "/nuance:engineering", desc: "Technical Mode" },
+    { cmd: "/nuance:creative", desc: "Creative Mode" },
+    { cmd: "/nuance:formal", desc: "Professional Tone" },
+    { cmd: "/nuance:concise", desc: "Brief Answers" },
+];
+
 export function PrefixHelper({ onSelect }: PrefixHelperProps) {
-    const prefixes = [
-        { cmd: "/bypass", desc: "Direct Chat (No RAG)" },
-        { cmd: "/nuance:engineering", desc: "Technical Mode" },
-        { cmd: "/nuance:creative", desc: "Creative Mode" },
-        { cmd: "/nuance:formal", desc: "Professional Tone" },
-        { cmd: "/nuance:concise", desc: "Brief Answers" },
-    ];
+    const prefixes = CHAT_COMMANDS;
 
     return (
         <Popover>

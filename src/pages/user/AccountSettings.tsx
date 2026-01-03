@@ -18,9 +18,8 @@ import {
     FormMessage,
 } from "@/components/shadui/form";
 import { Input } from "@/components/shadui/input";
-import { Separator } from "@/components/shadui/separator";
-import { Loader2, MoveLeft } from "lucide-react";
-import { useRouter } from "@tanstack/react-router";
+import { Loader2, MoveLeft, User, Shield, AlertTriangle } from "lucide-react";
+import { useRouter, Link } from "@tanstack/react-router";
 import { AvatarUploader } from "@/components/common/AvatarUploader";
 import { toast } from "sonner";
 import {
@@ -36,6 +35,7 @@ import {
 } from "@/components/shadui/alert-dialog";
 import { PlanStatusPill } from "@/components/common/PlanStatusPill";
 import { TokenUsagePill } from "@/components/common/TokenUsagePill";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/shadui/card";
 
 const profileSchema = z.object({
     full_name: z.string().min(2, {
@@ -70,31 +70,23 @@ export default function AccountSettings() {
     }
 
     const handleAvatarUpload = async (blob: Blob) => {
-        // Create FormData
         const formData = new FormData();
         formData.append('avatar', blob, 'avatar.jpg');
 
         try {
             const response = await apiClient.post(`/user/avatar`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                }
+                headers: { 'Content-Type': 'multipart/form-data' }
             });
 
             if (response.data && response.data.user) {
-                // Assume backend returns updated user or we fetch it again
-                // For now, let's fetch profile again to be sure or update if response has it
                 updateUser(response.data.user);
             } else {
-                // Fallback: fetch profile
                 const profileResponse = await userService.getProfile();
                 if (profileResponse.success && profileResponse.data) {
                     updateUser(profileResponse.data);
                 }
             }
-
             toast.success("Avatar updated successfully");
-
         } catch (error) {
             console.error(error);
             toast.error("Failed to upload avatar");
@@ -102,165 +94,172 @@ export default function AccountSettings() {
     };
 
     return (
-        <div className="p-10 pb-16 max-w-5xl mx-auto">
-            {/* Header with Back Button outside the main content flow */}
-            <div className="flex items-center gap-4 mb-8">
+        <div className="container max-w-5xl mx-auto p-6 space-y-8 animate-in fade-in duration-500">
+            {/* Header */}
+            <div className="flex items-center gap-4">
                 <ActionTooltip label="Go Back">
                     <Button
-                        variant="outline"
+                        variant="ghost"
                         size="icon"
                         onClick={() => router.history.go(-1)}
-                        className="h-10 w-10 shrink-0 rounded-full border-gray-200"
+                        className="h-10 w-10 shrink-0 rounded-full hover:bg-gray-100"
                     >
-                        <MoveLeft className="h-5 w-5" />
+                        <MoveLeft className="h-5 w-5 text-gray-600" />
                     </Button>
                 </ActionTooltip>
                 <div>
-                    <h2 className="text-2xl font-bold tracking-tight">Settings</h2>
-                    <p className="text-muted-foreground">
-                        Manage your account settings and preferences.
-                    </p>
+                    <h1 className="text-3xl font-bold tracking-tight text-gray-900">Settings</h1>
+                    <p className="text-gray-500 mt-1">Manage your account preferences</p>
                 </div>
             </div>
 
-            <Separator className="mb-8" />
+            {/* Layout Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-            <div className="space-y-6 max-w-4xl ml-14">
-                {/* Profile Section */}
-                <div className="grid gap-4">
-                    <div>
-                        <h3 className="text-lg font-medium">Profile</h3>
-                        <p className="text-sm text-muted-foreground">
-                            Update your personal information.
-                        </p>
-                    </div>
-
-                    <div className="flex justify-center sm:justify-start mb-6">
-                        <AvatarUploader
-                            currentAvatarUrl={user?.avatar_url}
-                            onUpload={handleAvatarUpload}
-                        // isUploading state could be added here
-                        />
-                    </div>
-
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 max-w-xl">
-                            <div className="flex flex-col sm:flex-row gap-4 items-start">
-                                <FormField
-                                    control={form.control}
-                                    name="full_name"
-                                    render={({ field }) => (
-                                        <FormItem className="flex-1">
-                                            <FormLabel>Full Name</FormLabel>
-                                            <FormControl>
-                                                <Input placeholder="Your name" {...field} />
-                                            </FormControl>
-                                            <FormDescription>
-                                                This is the name that will be displayed on your profile and in emails.
-                                            </FormDescription>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
+                {/* Left Column: Profile Edit */}
+                <div className="lg:col-span-2 space-y-8">
+                    {/* Profile Information Card */}
+                    <Card className="shadow-sm border-gray-100">
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2 text-xl">
+                                <User className="h-5 w-5 text-royal-violet-base" />
+                                Personal Information
+                            </CardTitle>
+                            <CardDescription>
+                                Update your public profile details.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-8">
+                            {/* Avatar Section */}
+                            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+                                <AvatarUploader
+                                    currentAvatarUrl={user?.avatar_url}
+                                    onUpload={handleAvatarUpload}
                                 />
-                                <Button type="submit" disabled={isUpdating} className="mt-8">
-                                    {isUpdating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                    Update
-                                </Button>
+                                <div className="space-y-1 text-center sm:text-left">
+                                    <h4 className="font-medium text-gray-900">Profile Photo</h4>
+                                    <p className="text-sm text-gray-500 max-w-xs">
+                                        Upload a new avatar to personalize your profile. JPG, GIF or PNG.
+                                    </p>
+                                </div>
                             </div>
-                        </form>
-                    </Form>
+
+                            {/* Form Section */}
+                            <Form {...form}>
+                                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                                    <FormField
+                                        control={form.control}
+                                        name="full_name"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Full Name</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder="Your name" {...field} className="max-w-md" />
+                                                </FormControl>
+                                                <FormDescription>
+                                                    This name will be displayed on your profile.
+                                                </FormDescription>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <div className="flex justify-start">
+                                        <Button type="submit" disabled={isUpdating}>
+                                            {isUpdating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                            Save Changes
+                                        </Button>
+                                    </div>
+                                </form>
+                            </Form>
+                        </CardContent>
+                    </Card>
+
+                    {/* Danger Zone Card */}
+                    <Card className="border-red-100 bg-red-50/30 shadow-none">
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2 text-red-700 text-lg">
+                                <AlertTriangle className="h-5 w-5" />
+                                Danger Zone
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="flex items-center justify-between">
+                                <div className="space-y-1">
+                                    <h4 className="font-medium text-gray-900">Delete Account</h4>
+                                    <p className="text-sm text-gray-500">
+                                        Permanently delete your account and all data.
+                                    </p>
+                                </div>
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button variant="destructive" size="sm">Delete Account</Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                This action cannot be undone. This will permanently delete your
+                                                account and remove your data from our servers.
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <AlertDialogAction
+                                                onClick={() => deleteAccount()}
+                                                className="bg-red-600 hover:bg-red-700 disabled:opacity-50"
+                                                disabled={isDeleting}
+                                            >
+                                                {isDeleting ? "Deleting..." : "Delete Account"}
+                                            </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+                            </div>
+                        </CardContent>
+                    </Card>
                 </div>
 
-                <Separator />
-
-                {/* Account Details (ReadOnly) */}
-                <div className="grid gap-4">
-                    <div>
-                        <h3 className="text-lg font-medium">Account Details</h3>
-                        <p className="text-sm text-muted-foreground">
-                            Review your account information.
-                        </p>
-                    </div>
-                    <div className="grid gap-4 max-w-xl text-sm">
-                        <div className="grid grid-cols-3 items-center">
-                            <span className="font-medium">Plan</span>
-                            <div className="col-span-2">
-                                <PlanStatusPill className="w-fit" />
+                {/* Right Column: Account Status & Read-only info */}
+                <div className="space-y-6">
+                    <Card className="shadow-sm border-gray-100 bg-gray-50/50">
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2 text-lg">
+                                <Shield className="h-5 w-5 text-gray-500" />
+                                Account Details
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div>
+                                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</label>
+                                <p className="text-sm font-medium text-gray-900 mt-0.5">{user?.email}</p>
                             </div>
-                        </div>
-                        <div className="grid grid-cols-3 items-center">
-                            <span className="font-medium">AI Chat Usage</span>
-                            <div className="col-span-2">
-                                <TokenUsagePill type="chat" className="w-fit" />
+                            <div>
+                                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">User ID</label>
+                                <p className="text-xs font-mono text-gray-600 mt-0.5 break-all">{user?.id}</p>
                             </div>
-                        </div>
-                        <div className="grid grid-cols-3 items-center">
-                            <span className="font-medium">Search Usage</span>
-                            <div className="col-span-2">
-                                <TokenUsagePill type="search" className="w-fit" />
+                            <div>
+                                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Plan</label>
+                                <div className="mt-1 flex items-center justify-between">
+                                    <PlanStatusPill className="w-fit" />
+                                    <Link to="/app/subscription" className="text-xs text-blue-600 hover:underline">Manage</Link>
+                                </div>
                             </div>
-                        </div>
-                        <div className="grid grid-cols-3 items-center">
-                            <span className="font-medium">Email</span>
-                            <span className="col-span-2 text-muted-foreground">{user?.email}</span>
-                        </div>
-                        <div className="grid grid-cols-3 items-center">
-                            <span className="font-medium">User ID</span>
-                            <span className="col-span-2 text-muted-foreground font-mono text-xs">{user?.id}</span>
-                        </div>
-                        <div className="grid grid-cols-3 items-center">
-                            <span className="font-medium">Role</span>
-                            <span className="col-span-2 text-muted-foreground capitalize">{user?.role}</span>
-                        </div>
-                    </div>
+                            <div className="pt-2">
+                                <div className="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label className="text-[10px] text-gray-400 uppercase">AI Chat Used</label>
+                                        <TokenUsagePill type="chat" className="w-full mt-1" />
+                                    </div>
+                                    <div>
+                                        <label className="text-[10px] text-gray-400 uppercase">Search Used</label>
+                                        <TokenUsagePill type="search" className="w-full mt-1" />
+                                    </div>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
                 </div>
 
-                <Separator />
-
-                {/* Danger Zone */}
-                <div className="grid gap-4">
-                    <div>
-                        <h3 className="text-lg font-medium text-red-600">Danger Zone</h3>
-                        <p className="text-sm text-muted-foreground">
-                            Irreversible actions for your account.
-                        </p>
-                    </div>
-
-                    <div className="rounded-md border border-red-200 p-4 max-w-xl bg-red-50">
-                        <div className="flex items-center justify-between">
-                            <div className="space-y-1">
-                                <h4 className="font-medium text-red-900">Delete Account</h4>
-                                <p className="text-sm text-red-700">
-                                    Permanently delete your account and all contents.
-                                </p>
-                            </div>
-                            <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                    <Button variant="destructive" size="sm">Delete Account</Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                            This action cannot be undone. This will permanently delete your
-                                            account and remove your data from our servers.
-                                        </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                        <AlertDialogAction
-                                            onClick={() => deleteAccount()}
-                                            className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
-                                            disabled={isDeleting}
-                                        >
-                                            {isDeleting ? "Deleting..." : "Delete Account"}
-                                        </AlertDialogAction>
-                                    </AlertDialogFooter>
-                                </AlertDialogContent>
-                            </AlertDialog>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     );

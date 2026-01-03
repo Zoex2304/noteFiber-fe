@@ -13,7 +13,6 @@ import { Route as LandingRouteImport } from './routes/landing'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminSplatRouteImport } from './routes/admin.$'
-import { Route as AuthenticatedSubscriptionRouteImport } from './routes/_authenticated/subscription'
 import { Route as AuthenticatedPricingRouteImport } from './routes/_authenticated/pricing'
 import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated/checkout'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
@@ -25,6 +24,7 @@ import { Route as authForgotPasswordRouteImport } from './routes/(auth)/forgot-p
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedUsersUserIdRouteImport } from './routes/_authenticated/users.$userId'
 import { Route as AuthenticatedRefundsRefundIdRouteImport } from './routes/_authenticated/refunds.$refundId'
+import { Route as AuthenticatedAppSubscriptionRouteImport } from './routes/_authenticated/app.subscription'
 import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/app.settings'
 import { Route as AuthenticatedAppNoteNoteIdRouteImport } from './routes/_authenticated/app.note.$noteId'
 
@@ -47,12 +47,6 @@ const AdminSplatRoute = AdminSplatRouteImport.update({
   path: '/admin/$',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedSubscriptionRoute =
-  AuthenticatedSubscriptionRouteImport.update({
-    id: '/subscription',
-    path: '/subscription',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
 const AuthenticatedPricingRoute = AuthenticatedPricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
@@ -110,6 +104,12 @@ const AuthenticatedRefundsRefundIdRoute =
     path: '/refunds/$refundId',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedAppSubscriptionRoute =
+  AuthenticatedAppSubscriptionRouteImport.update({
+    id: '/subscription',
+    path: '/subscription',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppSettingsRoute =
   AuthenticatedAppSettingsRouteImport.update({
     id: '/settings',
@@ -134,9 +134,9 @@ export interface FileRoutesByFullPath {
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/pricing': typeof AuthenticatedPricingRoute
-  '/subscription': typeof AuthenticatedSubscriptionRoute
   '/admin/$': typeof AdminSplatRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
+  '/app/subscription': typeof AuthenticatedAppSubscriptionRoute
   '/refunds/$refundId': typeof AuthenticatedRefundsRefundIdRoute
   '/users/$userId': typeof AuthenticatedUsersUserIdRoute
   '/app/': typeof AuthenticatedAppIndexRoute
@@ -152,9 +152,9 @@ export interface FileRoutesByTo {
   '/validate-code': typeof authValidateCodeRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/pricing': typeof AuthenticatedPricingRoute
-  '/subscription': typeof AuthenticatedSubscriptionRoute
   '/admin/$': typeof AdminSplatRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
+  '/app/subscription': typeof AuthenticatedAppSubscriptionRoute
   '/refunds/$refundId': typeof AuthenticatedRefundsRefundIdRoute
   '/users/$userId': typeof AuthenticatedUsersUserIdRoute
   '/app': typeof AuthenticatedAppIndexRoute
@@ -173,9 +173,9 @@ export interface FileRoutesById {
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/checkout': typeof AuthenticatedCheckoutRoute
   '/_authenticated/pricing': typeof AuthenticatedPricingRoute
-  '/_authenticated/subscription': typeof AuthenticatedSubscriptionRoute
   '/admin/$': typeof AdminSplatRoute
   '/_authenticated/app/settings': typeof AuthenticatedAppSettingsRoute
+  '/_authenticated/app/subscription': typeof AuthenticatedAppSubscriptionRoute
   '/_authenticated/refunds/$refundId': typeof AuthenticatedRefundsRefundIdRoute
   '/_authenticated/users/$userId': typeof AuthenticatedUsersUserIdRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
@@ -194,9 +194,9 @@ export interface FileRouteTypes {
     | '/app'
     | '/checkout'
     | '/pricing'
-    | '/subscription'
     | '/admin/$'
     | '/app/settings'
+    | '/app/subscription'
     | '/refunds/$refundId'
     | '/users/$userId'
     | '/app/'
@@ -212,9 +212,9 @@ export interface FileRouteTypes {
     | '/validate-code'
     | '/checkout'
     | '/pricing'
-    | '/subscription'
     | '/admin/$'
     | '/app/settings'
+    | '/app/subscription'
     | '/refunds/$refundId'
     | '/users/$userId'
     | '/app'
@@ -232,9 +232,9 @@ export interface FileRouteTypes {
     | '/_authenticated/app'
     | '/_authenticated/checkout'
     | '/_authenticated/pricing'
-    | '/_authenticated/subscription'
     | '/admin/$'
     | '/_authenticated/app/settings'
+    | '/_authenticated/app/subscription'
     | '/_authenticated/refunds/$refundId'
     | '/_authenticated/users/$userId'
     | '/_authenticated/app/'
@@ -282,13 +282,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/$'
       preLoaderRoute: typeof AdminSplatRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/subscription': {
-      id: '/_authenticated/subscription'
-      path: '/subscription'
-      fullPath: '/subscription'
-      preLoaderRoute: typeof AuthenticatedSubscriptionRouteImport
-      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/pricing': {
       id: '/_authenticated/pricing'
@@ -367,6 +360,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRefundsRefundIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/app/subscription': {
+      id: '/_authenticated/app/subscription'
+      path: '/subscription'
+      fullPath: '/app/subscription'
+      preLoaderRoute: typeof AuthenticatedAppSubscriptionRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/settings': {
       id: '/_authenticated/app/settings'
       path: '/settings'
@@ -386,12 +386,14 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppSettingsRoute: typeof AuthenticatedAppSettingsRoute
+  AuthenticatedAppSubscriptionRoute: typeof AuthenticatedAppSubscriptionRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
   AuthenticatedAppNoteNoteIdRoute: typeof AuthenticatedAppNoteNoteIdRoute
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppSettingsRoute: AuthenticatedAppSettingsRoute,
+  AuthenticatedAppSubscriptionRoute: AuthenticatedAppSubscriptionRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
   AuthenticatedAppNoteNoteIdRoute: AuthenticatedAppNoteNoteIdRoute,
 }
@@ -403,7 +405,6 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAppRoute: typeof AuthenticatedAppRouteWithChildren
   AuthenticatedCheckoutRoute: typeof AuthenticatedCheckoutRoute
   AuthenticatedPricingRoute: typeof AuthenticatedPricingRoute
-  AuthenticatedSubscriptionRoute: typeof AuthenticatedSubscriptionRoute
   AuthenticatedRefundsRefundIdRoute: typeof AuthenticatedRefundsRefundIdRoute
   AuthenticatedUsersUserIdRoute: typeof AuthenticatedUsersUserIdRoute
 }
@@ -412,7 +413,6 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAppRoute: AuthenticatedAppRouteWithChildren,
   AuthenticatedCheckoutRoute: AuthenticatedCheckoutRoute,
   AuthenticatedPricingRoute: AuthenticatedPricingRoute,
-  AuthenticatedSubscriptionRoute: AuthenticatedSubscriptionRoute,
   AuthenticatedRefundsRefundIdRoute: AuthenticatedRefundsRefundIdRoute,
   AuthenticatedUsersUserIdRoute: AuthenticatedUsersUserIdRoute,
 }
