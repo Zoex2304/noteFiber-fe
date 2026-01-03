@@ -454,7 +454,8 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
                         "flex flex-col flex-1 h-full transition-opacity duration-300",
                         view === 'history' ? "opacity-0 pointer-events-none" : "opacity-100"
                     )}>
-                        <div className="flex-1 overflow-hidden relative flex flex-col">
+                        {/* Content Container - strictly bounded */}
+                        <div className="flex-1 flex flex-col min-h-0 w-full overflow-hidden">
                             {activeSessionId && (
                                 <div className="px-4 py-2 border-b border-gray-100 bg-white/50 flex items-center justify-between shrink-0">
                                     <div className="text-xs font-medium text-gray-500 truncate max-w-[200px] flex items-center gap-1.5">
@@ -464,8 +465,8 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
                                 </div>
                             )}
 
-                            <ScrollArea className="flex-1 p-4">
-                                <div className="space-y-4 pb-2">
+                            <ScrollArea className="flex-1 p-4 w-full">
+                                <div className="space-y-4 pb-2 w-full overflow-hidden">
                                     {messages.map((message, index) => (
                                         <ChatBubble
                                             key={message.id}

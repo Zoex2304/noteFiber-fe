@@ -95,12 +95,12 @@ export function ChatBubble({ message, onCitationClick, compact, animate = false 
                                                 {children}
                                             </code>
                                         ) : (
-                                            <div className="relative my-2 rounded-md overflow-hidden bg-gray-50 border border-gray-200 max-w-full">
+                                            <div className="relative my-2 rounded-md overflow-hidden bg-gray-50 border border-gray-200 w-full">
                                                 <div className="px-3 py-1.5 bg-gray-100 border-b border-gray-200 text-xs text-gray-500 font-mono flex justify-between items-center">
                                                     <span>{match?.[1] || 'text'}</span>
                                                 </div>
-                                                <div className="p-3 overflow-x-auto">
-                                                    <code className={cn("text-xs font-mono text-gray-800", className)} {...props}>
+                                                <div className="p-3 overflow-x-auto w-0 min-w-full">
+                                                    <code className={cn("text-xs font-mono text-gray-800 whitespace-pre block", className)} {...props}>
                                                         {children}
                                                     </code>
                                                 </div>
