@@ -214,9 +214,6 @@ export function useChatSystem() {
                 }
                 return s;
             }));
-
-            await refreshSubscription();
-
         } catch (error) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const err = error as any;
@@ -234,6 +231,7 @@ export function useChatSystem() {
                 return s;
             }));
         } finally {
+            await refreshSubscription();
             setIsLoading(false);
         }
     }, [activeSessionId, isLoading, createSession, refreshSubscription, showPricingModal]);

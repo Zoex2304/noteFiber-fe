@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { paymentService } from '@/api/services/payment/payment.service';
 
@@ -52,7 +52,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
         search: defaultMetric,
     });
 
-    const fetchSubscriptionStatus = async () => {
+    const fetchSubscriptionStatus = useCallback(async () => {
         try {
             // Fetch both endpoints:
             // 1. Subscription Status (Plan info, Features)
@@ -182,7 +182,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, []);
 
     useEffect(() => {
         if (isAuthenticated) {

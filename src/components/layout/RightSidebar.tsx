@@ -10,10 +10,11 @@ import { ChatBubble } from "@/components/molecules/ChatBubble";
 import { PixelLoader } from "@/components/molecules/PixelLoader";
 import { TokenLimitDialog } from "@/components/common/TokenLimitDialog";
 import { useChatSystem } from "@/hooks/useChatSystem";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/shadui/Logo";
 import { ActionTooltip } from "@/components/common/ActionTooltip";
-import { Clock, Plus, Trash2, Send, Bot, MessageSquare, ArrowLeft, Search as SearchIcon, Command } from "lucide-react";
+import { Clock, Plus, Trash2, Send, Bot, MessageSquare, ArrowLeft, Search as SearchIcon } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { NewSessionConfirmationModal } from "@/components/molecules/NewSessionConfirmationModal";
@@ -131,6 +132,7 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
 
     // Unified sidebar state
     const { isCollapsed, setIsCollapsed, toggle } = useSidebarState();
+    const { refreshSubscription } = useSubscription();
 
     const [view, setView] = useState<'chat' | 'history'>('chat');
 
@@ -151,6 +153,7 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
 
     useEffect(() => {
         if (isOpen) {
+            refreshSubscription();
             fetchSessions().then((s) => {
                 if (s.length > 0 && !activeSessionId) {
                     selectSession(s[0].id);
@@ -158,7 +161,7 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
             });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isOpen, fetchSessions, selectSession]);
+    }, [isOpen, fetchSessions, selectSession, refreshSubscription]);
 
     // Auto-resize textarea
     useEffect(() => {
@@ -287,8 +290,9 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
             className="border-l border-gray-200 h-full shadow-xl z-30 flex flex-col"
         >
             {/* Header */}
-            <div className="h-12 px-4 border-b border-gray-200 flex items-center justify-between shrink-0 bg-white">
-                <div className="flex items-center gap-2 overflow-hidden">
+            {/* Header */}
+            <div className="h-12 px-4 border-b border-gray-200 flex items-center justify-between shrink-0 bg-white relative">
+                <div className="flex items-center gap-2">
                     {!isCollapsed && (
                         <>
                             {view === 'history' ? (
@@ -297,13 +301,19 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
                                 <>
                                     <Logo variant="symbol" className="h-6 w-6" />
                                     <span className="font-semibold text-gray-700 whitespace-nowrap">Ask AI</span>
-                                    <TokenUsagePill type="chat" compact />
                                 </>
                             )}
                         </>
                     )}
                     {isCollapsed && <Logo variant="symbol" className="h-6 w-6 mx-auto" />}
                 </div>
+
+                {/* Centered Pill */}
+                {!isCollapsed && view === 'chat' && (
+                    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                        <TokenUsagePill type="chat" />
+                    </div>
+                )}
 
                 {!isCollapsed && (
                     <div className="flex items-center gap-1">
