@@ -240,6 +240,28 @@ export function AppSidebar({
                             </Button>
                         </ActionTooltip>
                     </div>
+                ) : notebooks.length === 0 ? (
+                    // Empty State
+                    <div className="flex flex-col items-center justify-center h-full p-6 text-center space-y-4 animate-in fade-in duration-300">
+                        <div className="bg-gray-50 p-4 rounded-full shadow-sm ring-1 ring-gray-100 mb-2">
+                            <FolderPlus className="h-8 w-8 text-gray-400" />
+                        </div>
+                        <div className="space-y-1">
+                            <h3 className="text-sm font-semibold text-gray-900">No notebooks yet</h3>
+                            <p className="text-xs text-gray-500 max-w-[200px] mx-auto leading-relaxed">
+                                Create a notebook to start organizing your ideas and chats.
+                            </p>
+                        </div>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={onCreateNotebook}
+                            className="bg-white hover:bg-gray-50 text-gray-700 border-gray-200 mt-2"
+                        >
+                            <FolderPlus className="mr-2 h-3.5 w-3.5" />
+                            Create Notebook
+                        </Button>
+                    </div>
                 ) : (
                     <Sidebar
                         notebooks={notebooks}
