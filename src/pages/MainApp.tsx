@@ -4,6 +4,7 @@ import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import "@/App.css";
 import { useNoteOrchestratorContext } from "@/contexts/NoteOrchestratorContext";
 import { NoteEditor } from "@/components/note-editor";
+import HeaderGradient from "@/assets/images/common/header gradient_v2.svg";
 
 export default function MainApp() {
   const {
@@ -22,8 +23,15 @@ export default function MainApp() {
   }
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center bg-white p-8 overflow-auto h-full">
-      <div className="w-full max-w-[400px] mb-6">
+    <div className="flex-1 flex flex-col items-center justify-center bg-white p-8 overflow-hidden h-full relative">
+      {/* Background Gradient */}
+      <img
+        src={HeaderGradient}
+        alt=""
+        className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
+      />
+
+      <div className="w-full max-w-[400px] mb-6 relative z-10">
         <DotLottieReact
           src="https://lottie.host/d670d9d5-55ad-47ab-9def-49702f7c7e49/KrwUHw5kwJ.lottie"
           loop
@@ -31,7 +39,7 @@ export default function MainApp() {
           className="w-full h-auto"
         />
       </div>
-      <div className="text-center space-y-2 max-w-md">
+      <div className="text-center space-y-2 max-w-md relative z-10">
         <h2 className="text-2xl font-semibold text-gray-800 tracking-tight">
           Select a note to start editing
         </h2>

@@ -476,7 +476,7 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
                                     value={input}
                                     onChange={(e) => setInput(e.target.value)}
                                     onKeyDown={handleKeyDown}
-                                    placeholder="Ask anything... (/ for commands)"
+                                    placeholder="Ask anything..."
                                     className="flex-1 min-h-[44px] max-h-[200px] resize-none border-none shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 py-3 px-3 bg-transparent text-sm placeholder:text-gray-400 overflow-y-auto"
                                     disabled={isLoading}
                                     rows={1}

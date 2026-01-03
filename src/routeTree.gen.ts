@@ -26,6 +26,8 @@ import { Route as AuthenticatedUsersUserIdRouteImport } from './routes/_authenti
 import { Route as AuthenticatedRefundsRefundIdRouteImport } from './routes/_authenticated/refunds.$refundId'
 import { Route as AuthenticatedAppSubscriptionRouteImport } from './routes/_authenticated/app.subscription'
 import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/app.settings'
+import { Route as AuthenticatedAppUsersUserIdRouteImport } from './routes/_authenticated/app.users.$userId'
+import { Route as AuthenticatedAppRefundsRefundIdRouteImport } from './routes/_authenticated/app.refunds.$refundId'
 import { Route as AuthenticatedAppNoteNoteIdRouteImport } from './routes/_authenticated/app.note.$noteId'
 
 const LandingRoute = LandingRouteImport.update({
@@ -116,6 +118,18 @@ const AuthenticatedAppSettingsRoute =
     path: '/settings',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppUsersUserIdRoute =
+  AuthenticatedAppUsersUserIdRouteImport.update({
+    id: '/users/$userId',
+    path: '/users/$userId',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppRefundsRefundIdRoute =
+  AuthenticatedAppRefundsRefundIdRouteImport.update({
+    id: '/refunds/$refundId',
+    path: '/refunds/$refundId',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppNoteNoteIdRoute =
   AuthenticatedAppNoteNoteIdRouteImport.update({
     id: '/note/$noteId',
@@ -141,6 +155,8 @@ export interface FileRoutesByFullPath {
   '/users/$userId': typeof AuthenticatedUsersUserIdRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/note/$noteId': typeof AuthenticatedAppNoteNoteIdRoute
+  '/app/refunds/$refundId': typeof AuthenticatedAppRefundsRefundIdRoute
+  '/app/users/$userId': typeof AuthenticatedAppUsersUserIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -159,6 +175,8 @@ export interface FileRoutesByTo {
   '/users/$userId': typeof AuthenticatedUsersUserIdRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/note/$noteId': typeof AuthenticatedAppNoteNoteIdRoute
+  '/app/refunds/$refundId': typeof AuthenticatedAppRefundsRefundIdRoute
+  '/app/users/$userId': typeof AuthenticatedAppUsersUserIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -180,6 +198,8 @@ export interface FileRoutesById {
   '/_authenticated/users/$userId': typeof AuthenticatedUsersUserIdRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/note/$noteId': typeof AuthenticatedAppNoteNoteIdRoute
+  '/_authenticated/app/refunds/$refundId': typeof AuthenticatedAppRefundsRefundIdRoute
+  '/_authenticated/app/users/$userId': typeof AuthenticatedAppUsersUserIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -201,6 +221,8 @@ export interface FileRouteTypes {
     | '/users/$userId'
     | '/app/'
     | '/app/note/$noteId'
+    | '/app/refunds/$refundId'
+    | '/app/users/$userId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -219,6 +241,8 @@ export interface FileRouteTypes {
     | '/users/$userId'
     | '/app'
     | '/app/note/$noteId'
+    | '/app/refunds/$refundId'
+    | '/app/users/$userId'
   id:
     | '__root__'
     | '/'
@@ -239,6 +263,8 @@ export interface FileRouteTypes {
     | '/_authenticated/users/$userId'
     | '/_authenticated/app/'
     | '/_authenticated/app/note/$noteId'
+    | '/_authenticated/app/refunds/$refundId'
+    | '/_authenticated/app/users/$userId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -374,6 +400,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppSettingsRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/users/$userId': {
+      id: '/_authenticated/app/users/$userId'
+      path: '/users/$userId'
+      fullPath: '/app/users/$userId'
+      preLoaderRoute: typeof AuthenticatedAppUsersUserIdRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/refunds/$refundId': {
+      id: '/_authenticated/app/refunds/$refundId'
+      path: '/refunds/$refundId'
+      fullPath: '/app/refunds/$refundId'
+      preLoaderRoute: typeof AuthenticatedAppRefundsRefundIdRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/note/$noteId': {
       id: '/_authenticated/app/note/$noteId'
       path: '/note/$noteId'
@@ -389,6 +429,8 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppSubscriptionRoute: typeof AuthenticatedAppSubscriptionRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
   AuthenticatedAppNoteNoteIdRoute: typeof AuthenticatedAppNoteNoteIdRoute
+  AuthenticatedAppRefundsRefundIdRoute: typeof AuthenticatedAppRefundsRefundIdRoute
+  AuthenticatedAppUsersUserIdRoute: typeof AuthenticatedAppUsersUserIdRoute
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
@@ -396,6 +438,8 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppSubscriptionRoute: AuthenticatedAppSubscriptionRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
   AuthenticatedAppNoteNoteIdRoute: AuthenticatedAppNoteNoteIdRoute,
+  AuthenticatedAppRefundsRefundIdRoute: AuthenticatedAppRefundsRefundIdRoute,
+  AuthenticatedAppUsersUserIdRoute: AuthenticatedAppUsersUserIdRoute,
 }
 
 const AuthenticatedAppRouteWithChildren =

@@ -93,7 +93,8 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				'soft-purple': '#F8F6F9'
 			},
 			backgroundImage: {
 				'gradient-primary-violet': 'linear-gradient(360deg, #7050f0 0%, #b7aaee 100%)',

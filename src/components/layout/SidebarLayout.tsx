@@ -28,7 +28,7 @@ export function SidebarLayout({
     return (
         <aside
             className={cn(
-                "relative flex flex-col bg-white transition-[width] duration-200 ease-in-out z-20",
+                "relative flex flex-col bg-white transition-[width] duration-200 ease-in-out z-20 will-change-[width]",
                 isLeft ? "border-r border-gray-200" : "border-l border-gray-200",
                 className
             )}

@@ -24,6 +24,7 @@ import { refundService } from '@/api/services/refund/refund.service';
 import { cn } from '@/lib/utils';
 import { TokenUsageIndicator } from '@/components/common/TokenUsageIndicator';
 import { Progress } from '@/components/shadui/progress';
+import HeaderGradient from '@/assets/images/common/header gradient_v2.svg';
 
 export function SubscriptionManagement() {
     const { planName, isActive, features, tokenUsage, subscriptionId, refreshSubscription, isLoading } = useSubscription();
@@ -101,12 +102,17 @@ export function SubscriptionManagement() {
             </div>
 
             {/* Hero Section */}
-            <div className="relative overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-                <div className={cn(
-                    "absolute top-0 left-0 w-full h-1.5",
-                    isActive ? "bg-gradient-primary-violet" : "bg-gray-200"
-                )} />
-                <div className="p-8 md:p-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div className="relative overflow-hidden rounded-2xl border border-gray-100 bg-soft-purple shadow-sm">
+
+
+                {/* header gradient_v2 Asset */}
+                <img
+                    src={HeaderGradient}
+                    alt=""
+                    className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
+                />
+
+                <div className="relative z-10 p-8 md:p-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div>
                         <div className="flex items-center gap-3 mb-2">
                             <Badge variant={isActive ? 'default' : 'secondary'} className={cn(
@@ -121,11 +127,11 @@ export function SubscriptionManagement() {
                                 </Badge>
                             )}
                         </div>
-                        <h2 className="text-4xl font-bold text-gray-900 mb-2 flex items-center gap-3">
+                        <h2 className="text-4xl font-bold text-[#0F0538] mb-2 flex items-center gap-3">
                             {planName}
                             {isPaidPlan && <Crown className="h-6 w-6 text-yellow-500 fill-yellow-100" />}
                         </h2>
-                        <p className="text-gray-500 max-w-md">
+                        <p className="text-[#4B3E8E] max-w-md font-medium">
                             {isPaidPlan
                                 ? "You have access to all premium features including advanced AI chat and semantic search."
                                 : "Upgrade to Pro to unlock advanced AI capabilities and unlimited notes."}
