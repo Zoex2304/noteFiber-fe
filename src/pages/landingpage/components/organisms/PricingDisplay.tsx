@@ -13,6 +13,12 @@ interface PricingDisplayProps {
     onPlanSelect?: (planSlug: string) => void;
     currentPlanSlug?: string;
     showSwitcher?: boolean; // Default true
+    /**
+     * Context determines button behavior:
+     * - 'landing': Always show "Get Started" → signup
+     * - 'app': Show "Current plan" / "Upgrade to X"
+     */
+    context?: 'landing' | 'app';
 }
 
 /**
@@ -32,7 +38,8 @@ interface PricingDisplayProps {
 export function PricingDisplay({
     onPlanSelect,
     currentPlanSlug,
-    showSwitcher = true
+    showSwitcher = true,
+    context = 'app',
 }: PricingDisplayProps) {
     const [period, setPeriod] = useState<PricingPeriod>("monthly");
     const [isPulsing, setIsPulsing] = useState(false);
@@ -133,7 +140,7 @@ export function PricingDisplay({
                         <p className="text-red-500">Failed to load pricing plans</p>
                     </div>
                 ) : dataToDisplay.length > 0 ? (
-                    <PricingSection cardsData={dataToDisplay} isPulsing={isPulsing} />
+                    <PricingSection cardsData={dataToDisplay} isPulsing={isPulsing} context={context} />
                 ) : (
                     <div className="text-center py-12">
                         <p className="text-gray-500">No {period} plans available at the moment.</p>

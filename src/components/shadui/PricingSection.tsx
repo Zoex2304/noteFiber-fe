@@ -9,6 +9,12 @@ import { PricingCard, type PricingCardData } from './PricingCard';
 interface PricingSectionProps {
   cardsData: PricingCardData[];
   isPulsing?: boolean;
+  /**
+   * Context determines button behavior in each card:
+   * - 'landing': Always show "Get Started" → signup
+   * - 'app': Show "Current plan" / "Upgrade to X"
+   */
+  context?: 'landing' | 'app';
 }
 
 /**
@@ -22,13 +28,14 @@ interface PricingSectionProps {
 export function PricingSection({
   cardsData,
   isPulsing,
+  context = 'app',
 }: PricingSectionProps) {
   return (
-    // Layout logic for 3-card grid
+    // Layout: Centered flex container with gap between fixed-width cards
     <div
       className={cn(
-        'flex w-full flex-col items-center gap-4 lg:flex-row lg:items-stretch lg:gap-[16.064px]',
-        isPulsing && 'animate-pulse' // Apply pulse animation if active
+        'flex w-full flex-col items-center gap-6 lg:flex-row lg:justify-center lg:items-stretch lg:gap-6',
+        isPulsing && 'animate-pulse'
       )}
     >
       {/* Map through cards and render */}
@@ -36,7 +43,7 @@ export function PricingSection({
         <PricingCard
           key={data.title}
           data={data}
-          className="flex-1 basis-0 w-full" // Equal width distribution
+          context={context}
         />
       ))}
     </div>

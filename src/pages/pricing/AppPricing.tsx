@@ -29,8 +29,8 @@ export default function AppPricing() {
                     </div>
                 </div>
 
-                {/* Pricing Display - Reusable Organism */}
-                <PricingDisplay showSwitcher={true} />
+                {/* Pricing Display - App Context */}
+                <PricingDisplay showSwitcher={true} context="app" />
             </div>
         </div>
     );

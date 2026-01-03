@@ -8,8 +8,8 @@ import { PricingDisplay } from "./PricingDisplay";
 export function PricingContent() {
   return (
     <div className="flex w-full flex-col items-center px-4 sm:px-6 lg:px-8 py-12 lg:py-16 gap-10 lg:gap-12">
-      {/* Pricing Display - Reusable Organism */}
-      <PricingDisplay showSwitcher={true} />
+      {/* Pricing Display - Landing Context */}
+      <PricingDisplay showSwitcher={true} context="landing" />
     </div>
   );
 }

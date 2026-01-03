@@ -2,8 +2,10 @@ import { Link } from "@tanstack/react-router";
 import { Button } from "./button";
 import { PriceAdvantageItem } from "./PriceAdvantageItem";
 import { cn } from "@/lib/utils";
+import { ArrowRight } from "lucide-react";
+import type { ReactNode } from "react";
 
-// Definisikan tipe untuk data yang akan ditampilkan
+// Define the type for data to be displayed
 export interface PricingCardData {
   title: string;
   price: string;
@@ -11,152 +13,200 @@ export interface PricingCardData {
   description: string;
   features: string[];
   isPopular?: boolean;
-  slug?: string; // Added slug property
+  slug?: string;
   // Optional button customization (for modal usage)
   onClick?: () => void;
   buttonText?: string;
   isDisabled?: boolean;
+  // Optional tier badge (icon/badge next to title)
+  tierBadge?: ReactNode;
 }
 
 interface PricingCardProps {
   data: PricingCardData;
-  className?: string; // Add optional className prop
+  className?: string;
+  /**
+   * Context determines button behavior:
+   * - 'landing': Always show "Get Started" → links to signup
+   * - 'app': Show "Current plan" / "Upgrade to X" based on plan
+   */
+  context?: 'landing' | 'app';
 }
 
 /**
- * Komponen Reusable "Pricing Card"
+ * Reusable Pricing Card Component
  *
- * LOKASI: src/components/shadui/PricingCard.tsx
+ * LOCATION: src/components/shadui/PricingCard.tsx
  *
- * Fitur:
- * 1. Deskripsi <p> diberi 'min-h-[8rem]' untuk meratakan tombol.
- * 2. Auto-wrap menggunakan max-width CSS (lebih natural dan responsive).
- * 3. Optional onClick prop untuk custom button behavior (e.g., in modals)
+ * Layout Structure (Mistral-style):
+ * 1. Header: Tier Badge + Plan Title
+ * 2. Description
+ * 3. Features List (with checkmarks)
+ * 4. Price + Period
+ * 5. CTA Button
+ *
+ * Fixed dimensions: 320px width × 480px height on desktop
+ * Light card background (existing theme preserved)
  */
-export function PricingCard({ data, className }: PricingCardProps) {
-  const { title, price, period, description, features, isPopular, slug, onClick, buttonText, isDisabled } = data;
+export function PricingCard({ data, className, context = 'app' }: PricingCardProps) {
+  const {
+    title,
+    price,
+    period,
+    description,
+    features,
+    isPopular,
+    slug,
+    onClick,
+    buttonText,
+    isDisabled,
+    tierBadge,
+  } = data;
 
   // Determine the target URL
-  // If slug is explicitly 'free' or price indicates free, redirect to dashboard
   const isFree = slug === 'free' || price === '$0.00' || price === 'Rp0';
-
-  // Use slug if available, otherwise fallback to title-based slug (for backward compatibility)
   const planSlug = slug || title.toLowerCase().replace(/\s+/g, "-");
 
-  // Future: Add direct checkout URL functionality here
-  // const targetUrl = isFree ? "/app" : `/checkout?plan=${planSlug}&...`
-
-  return (
-    // Container Card
-    <div
-      className={cn(
-        "flex w-full flex-col items-start rounded-[26.332px] border-[0.439px] p-5 lg:w-auto lg:p-[28.526px] gap-4 lg:gap-[21.943px] bg-white transition-all duration-300 relative",
-        isPopular ? "border-royal-violet-base shadow-lg scale-105 z-10" : "border-customFont-base",
-        className // Merge external className
-      )}
-    >
-      {isPopular && (
-        <div className="absolute top-0 right-0 overflow-hidden w-[100px] h-[100px] pointer-events-none rounded-tr-[26.332px] z-20">
-          <div className="absolute top-[22px] -right-[30px] rotate-45 bg-royal-violet-base text-white w-[140px] text-center font-bold text-[10px] py-1 shadow-md tracking-wider uppercase">
-            Most Popular
-          </div>
-        </div>
-      )}
-
-      {/* 1. Judul Plan */}
-      <h3
-        className="
-          self-stretch font-normal text-customFont-dark-base
-          text-display-h5
-        "
-      >
-        {title}
-      </h3>
-
-      {/* 2. Frame Harga */}
-      <div className="flex items-center gap-2 lg:gap-[10.971px]">
-        {/* Harga */}
-        <span
-          className="
-            font-normal text-customFont-dark-base
-            text-display-h3
-          "
-        >
-          {price}
-        </span>
-        {/* Periode */}
-        <span
-          className="
-            font-normal text-customFont-base
-            text-body-base
-          "
-        >
-          {period}
-        </span>
-      </div>
-
-      {/* 3. Deskripsi dengan auto-wrap natural */}
-      <p
-        className="
-          self-stretch font-normal text-customFont-base
-          text-body-1
-          min-h-[8rem]
-          max-w-[50ch]
-        "
-      >
-        {description}
-      </p>
-
-      {/* 4. Tombol - Use custom onClick if provided, otherwise use Link */}
-      {onClick ? (
+  // Render button based on context
+  const renderButton = () => {
+    // Custom onClick handler (modal usage)
+    if (onClick) {
+      return (
         <Button
-          variant="custom-outline"
-          size="card-outline"
-          className="relative overflow-hidden group transition-all duration-300 hover:border-royal-violet-base hover:shadow-[0_0_20px_rgba(112,80,240,0.3)] w-full"
+          variant={isDisabled ? "secondary" : "default"}
+          size="lg"
+          className={cn(
+            "w-full rounded-xl font-medium",
+            isDisabled
+              ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+              : "bg-royal-violet-base hover:bg-royal-violet-base/90 text-white"
+          )}
           onClick={onClick}
           disabled={isDisabled}
         >
-          <span className="relative z-10">{buttonText || "Get Started"}</span>
-          <div className="absolute inset-0 -translate-x-full group-hover:animate-shimmer bg-gradient-to-r from-transparent via-royal-violet-base/20 to-transparent z-0" />
+          <span>{buttonText || "Get Started"}</span>
+          {!isDisabled && <ArrowRight className="w-4 h-4 ml-2" />}
         </Button>
-      ) : isFree ? (
+      );
+    }
+
+    // Landing context: Always "Get Started" → signup
+    if (context === 'landing') {
+      return (
+        <Link to="/signup" className="w-full">
+          <Button
+            variant="default"
+            size="lg"
+            className="w-full rounded-xl font-medium bg-royal-violet-base hover:bg-royal-violet-base/90 text-white"
+          >
+            <span>Get Started</span>
+            <ArrowRight className="w-4 h-4 ml-2" />
+          </Button>
+        </Link>
+      );
+    }
+
+    // App context: Free plan = "Current plan", others = "Upgrade"
+    if (isFree) {
+      return (
         <Link to="/app" className="w-full">
           <Button
-            variant="custom-outline"
-            size="card-outline"
-            className="relative overflow-hidden group transition-all duration-300 hover:border-royal-violet-base hover:shadow-[0_0_20px_rgba(112,80,240,0.3)] w-full"
+            variant="secondary"
+            size="lg"
+            className="w-full rounded-xl font-medium bg-gray-200 text-gray-600"
           >
-            <span className="relative z-10">Get Started</span>
-            <div className="absolute inset-0 -translate-x-full group-hover:animate-shimmer bg-gradient-to-r from-transparent via-royal-violet-base/20 to-transparent z-0" />
+            <span>Current plan</span>
           </Button>
         </Link>
-      ) : (
-        <Link
-          to="/checkout"
-          search={{
-            plan: planSlug,
-            price: price.replace("$", "").replace("Rp", "").replace(/,/g, ""),
-            period: period.includes("month") ? "monthly" : "yearly"
-          }}
-          className="w-full"
-        >
-          <Button
-            variant="custom-outline"
-            size="card-outline"
-            className="relative overflow-hidden group transition-all duration-300 hover:border-royal-violet-base hover:shadow-[0_0_20px_rgba(112,80,240,0.3)] w-full"
-          >
-            <span className="relative z-10">Get Started</span>
-            <div className="absolute inset-0 -translate-x-full group-hover:animate-shimmer bg-gradient-to-r from-transparent via-royal-violet-base/20 to-transparent z-0" />
-          </Button>
-        </Link>
-      )}
+      );
+    }
 
-      {/* 5. Frame List Fitur */}
-      <div className="flex flex-col items-start gap-2 lg:gap-[8.762px]">
+    // App context: Paid plans
+    return (
+      <Link
+        to="/checkout"
+        search={{
+          plan: planSlug,
+          price: price.replace("$", "").replace("Rp", "").replace(/,/g, ""),
+          period: period.includes("month") ? "monthly" : "yearly"
+        }}
+        className="w-full"
+      >
+        <Button
+          variant="default"
+          size="lg"
+          className="w-full rounded-xl font-medium bg-royal-violet-base hover:bg-royal-violet-base/90 text-white"
+        >
+          <span>Upgrade to {title}</span>
+          <ArrowRight className="w-4 h-4 ml-2" />
+        </Button>
+      </Link>
+    );
+  };
+
+  return (
+    // Card Container - Light background (existing theme), fixed dimensions, rounded corners
+    <div
+      className={cn(
+        // Base layout
+        "flex flex-col items-start",
+        // Sizing: Fixed 320px width, fixed 480px height for deterministic sizing
+        "w-full lg:w-[320px] h-auto lg:h-[480px]",
+        // Spacing: 24px padding, 20px gap between sections
+        "p-6 gap-5",
+        // Style: Light background (existing), rounded corners
+        "bg-white rounded-2xl",
+        // Border & shadow
+        isPopular
+          ? "border-2 border-royal-violet-base shadow-lg"
+          : "border border-customBorder-primary",
+        className
+      )}
+    >
+      {/* 1. Header Section: Badge + Title */}
+      <div className="flex items-center gap-3 w-full">
+        {/* Tier Badge (optional) */}
+        {tierBadge && (
+          <div className="flex-shrink-0">
+            {tierBadge}
+          </div>
+        )}
+        {/* Plan Title */}
+        <h3 className="text-[20px] leading-[28px] font-medium text-customFont-dark-base">
+          {title}
+        </h3>
+        {/* Popular indicator */}
+        {isPopular && (
+          <span className="ml-auto text-[12px] font-medium text-royal-violet-base bg-royal-violet-base/10 px-2 py-0.5 rounded-full">
+            Popular
+          </span>
+        )}
+      </div>
+
+      {/* 2. Description Section */}
+      <p className="text-[14px] leading-[20px] text-customFont-base w-full">
+        {description}
+      </p>
+
+      {/* 3. Features List Section */}
+      <div className="flex flex-col items-start gap-3 w-full flex-grow">
         {features.map((feature) => (
           <PriceAdvantageItem key={feature} text={feature} />
         ))}
       </div>
+
+      {/* 4. Price Section */}
+      <div className="flex items-baseline gap-1 w-full pt-2">
+        <span className="text-[36px] leading-[44px] font-semibold text-customFont-dark-base">
+          {price}
+        </span>
+        <span className="text-[14px] leading-[20px] text-customFont-base">
+          {period}
+        </span>
+      </div>
+
+      {/* 5. CTA Button Section */}
+      {renderButton()}
     </div>
   );
 }

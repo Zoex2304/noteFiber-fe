@@ -1,14 +1,31 @@
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
 import { MainContentHeroSectionNavbarLogo } from "../atoms/MainContentHeroSectionNavbarLogo";
 import { MainContentHeroSectionNavbarNavlink } from "../atoms/MainContentHeroSectionNavbarNavlink";
 import { Button } from "@/components/shadui/button";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/auth/useAuth";
 
 
 export function MainContentHeroSectionNavbarNav() {
   const [isOpen, setIsOpen] = useState(false);
+  const { isAuthenticated, isLoading } = useAuth();
+  const navigate = useNavigate();
+
+  /**
+   * Auth-aware Sign In handler
+   * - If authenticated: navigate directly to /app
+   * - If not authenticated: navigate to /signin
+   */
+  const handleSignInClick = () => {
+    setIsOpen(false);
+    if (isAuthenticated) {
+      navigate({ to: "/app" });
+    } else {
+      navigate({ to: "/signin" });
+    }
+  };
 
   return (
     <>
@@ -22,7 +39,7 @@ export function MainContentHeroSectionNavbarNav() {
       <div className={cn(
         "relative z-50 flex w-full flex-col bg-white p-4 lg:bg-transparent lg:p-0",
         isOpen ? "rounded-t-lg" : "rounded-lg",
-        "lg:rounded-none" 
+        "lg:rounded-none"
       )}>
         <div className="flex w-full items-center justify-between">
           <MainContentHeroSectionNavbarLogo />
@@ -37,11 +54,14 @@ export function MainContentHeroSectionNavbarNav() {
 
           <div>
             <div className="hidden lg:block">
-              <Link to="/signin">
-                <Button variant="default" size="default">
-                  Sign In
-                </Button>
-              </Link>
+              <Button
+                variant="default"
+                size="default"
+                onClick={handleSignInClick}
+                disabled={isLoading}
+              >
+                {isAuthenticated ? "Go to App" : "Sign In"}
+              </Button>
             </div>
 
             <button
@@ -54,7 +74,7 @@ export function MainContentHeroSectionNavbarNav() {
           </div>
         </div>
 
-     
+
         {isOpen && (
           <div className="absolute left-0 right-0 top-full z-50 flex w-full flex-col gap-4 rounded-b-lg border-t border-customBorder-primary bg-white p-4 shadow-lg lg:hidden">
             <MainContentHeroSectionNavbarNavlink textArg="Home" urlArg="" />
@@ -62,16 +82,15 @@ export function MainContentHeroSectionNavbarNav() {
             <MainContentHeroSectionNavbarNavlink textArg="Pricing" urlArg="pricing" />
             <MainContentHeroSectionNavbarNavlink textArg="About Us" urlArg="about-us" />
             <MainContentHeroSectionNavbarNavlink textArg="Contact" urlArg="contact" />
-            <Link to="/signin" className="w-full">
-              <Button
-                variant="default"
-                size="default"
-                className="w-full"
-                onClick={() => setIsOpen(false)}
-              >
-                Sign In
-              </Button>
-            </Link>
+            <Button
+              variant="default"
+              size="default"
+              className="w-full"
+              onClick={handleSignInClick}
+              disabled={isLoading}
+            >
+              {isAuthenticated ? "Go to App" : "Sign In"}
+            </Button>
           </div>
         )}
       </div>
