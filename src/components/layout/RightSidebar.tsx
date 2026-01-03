@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { Clock, Plus, ArrowLeft } from "lucide-react";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 // Layout
@@ -173,7 +174,20 @@ export function RightSidebar({
                     {!isCollapsed && (
                         <>
                             {view === 'history' ? (
-                                <span className="font-semibold text-gray-700">Chat History</span>
+                                <div className="flex items-center gap-2.5">
+                                    <motion.div
+                                        initial={{ y: 10, opacity: 0, scale: 0.8 }}
+                                        animate={{ y: 0, opacity: 1, scale: [1, 1.05, 1] }}
+                                        transition={{
+                                            y: { type: "spring", stiffness: 300, damping: 20 },
+                                            scale: { duration: 0.4, delay: 0.1 }
+                                        }}
+                                        className="w-8 h-8 rounded-xl bg-gradient-primary-violet grid place-items-center shadow-md"
+                                    >
+                                        <Clock className="h-4 w-4 text-white" strokeWidth={2.5} />
+                                    </motion.div>
+                                    <span className="font-semibold text-gray-700">Chat History</span>
+                                </div>
                             ) : (
                                 <>
                                     <Logo variant="symbol" className="h-6 w-6" />
