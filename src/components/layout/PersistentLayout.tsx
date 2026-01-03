@@ -4,6 +4,10 @@ import { RightSidebar } from "@/components/layout/RightSidebar";
 import { TopBar } from "@/components/common/TopBar";
 import { SearchDialog } from "@/components/search-dialog";
 import { NoteOrchestratorProvider, useNoteOrchestratorContext } from "@/contexts/NoteOrchestratorContext";
+import { useChatStore } from "@/stores/useChatStore";
+import { useEffect, useRef } from "react";
+import { toast } from "sonner";
+import { playNotificationSound } from "@/utils/sound";
 
 function PersistentLayoutContent() {
     const {
@@ -20,6 +24,26 @@ function PersistentLayoutContent() {
         // Navigation
         navigateToNote
     } = useNoteOrchestratorContext();
+
+    // Background Job Notification Logic
+    const isGenerating = useChatStore(state => state.isGenerating);
+    const prevGenerating = useRef(isGenerating);
+
+    useEffect(() => {
+        // If we WERE generating, and now NOT generating, and sidebar is CLOSED
+        if (prevGenerating.current && !isGenerating && !isChatOpen) {
+            playNotificationSound();
+            toast.success("AI Reset Completed", {
+                description: "Your response is ready.",
+                action: {
+                    label: "Open Chat",
+                    onClick: () => setIsChatOpen(true)
+                },
+                duration: 5000
+            });
+        }
+        prevGenerating.current = isGenerating;
+    }, [isGenerating, isChatOpen, setIsChatOpen]);
 
     return (
         <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">

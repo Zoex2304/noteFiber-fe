@@ -15,7 +15,8 @@ import {
 } from '@/components/shadui/alert-dialog';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useNavigate, useRouter } from '@tanstack/react-router';
-import { Check, Calendar, Zap, MoveLeft, Database, Search, Crown } from 'lucide-react';
+import { Check, Calendar, Zap, MoveLeft, Database, Search, Crown, HardDrive, Sparkles, Book, X } from 'lucide-react';
+
 import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
 import { RefundRequestModal } from './RefundRequestModal';
@@ -25,13 +26,24 @@ import { cn } from '@/lib/utils';
 import { TokenUsageIndicator } from '@/components/common/TokenUsageIndicator';
 import { Progress } from '@/components/shadui/progress';
 import HeaderGradient from '@/assets/images/common/header gradient_v2.svg';
+import { motion } from 'framer-motion';
+import { useSubscriptionStore } from '@/stores/useSubscriptionStore';
+import { getPlanDisplayFeatures, findPlanByName } from '@/utils/planUtils';
 
 export function SubscriptionManagement() {
-    const { planName, isActive, features, tokenUsage, subscriptionId, refreshSubscription, isLoading } = useSubscription();
+    const { planName, isActive, tokenUsage, subscriptionId, refreshSubscription, isLoading } = useSubscription();
+    // Access global plans
+    const publicPlans = useSubscriptionStore(state => state.publicPlans);
+    const fetchPublicPlans = useSubscriptionStore(state => state.fetchPublicPlans);
+
     const navigate = useNavigate();
     const router = useRouter();
     const [refundModalOpen, setRefundModalOpen] = useState(false);
     const [hasPendingRefund, setHasPendingRefund] = useState(false);
+
+    useEffect(() => {
+        fetchPublicPlans();
+    }, [fetchPublicPlans]);
 
     // Check for pending refund
     useEffect(() => {
@@ -97,15 +109,12 @@ export function SubscriptionManagement() {
                 </ActionTooltip>
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight text-gray-900">Subscription</h1>
-                    <p className="text-gray-500 mt-1">Manage your plan and billing details</p>
+                    <p className="text-gray-500 mt-1">Manage your plan usage and details</p>
                 </div>
             </div>
 
             {/* Hero Section */}
             <div className="relative overflow-hidden rounded-2xl border border-gray-100 bg-soft-purple shadow-sm">
-
-
-                {/* header gradient_v2 Asset */}
                 <img
                     src={HeaderGradient}
                     alt=""
@@ -159,96 +168,192 @@ export function SubscriptionManagement() {
                 </div>
             </div>
 
-            {/* Usage Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Note Usage */}
-                <Card className="shadow-sm border-gray-100">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-500 flex items-center gap-2">
-                            <Database className="h-4 w-4" />
-                            Note Storage
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-4">
-                            <div className="flex items-baseline justify-between">
-                                <span className="text-2xl font-bold text-gray-900">
-                                    {features.max_notes === 0 || features.max_notes > 9000 ? "Unlimited" : features.max_notes}
-                                </span>
-                                {features.max_notes > 0 && features.max_notes < 9000 && (
-                                    <span className="text-sm text-gray-500">notes limit</span>
-                                )}
-                            </div>
-                            {features.max_notes > 0 && features.max_notes < 9000 ? (
-                                <Progress value={0} className="h-1.5" /> // We assume 0 used for now as per data limitation
-                            ) : (
-                                <div className="h-1.5 bg-green-100 rounded-full w-full overflow-hidden">
-                                    <div className="bg-green-500 h-full w-full" />
+            {/* SECTION 1: Usage KPIs (Usage & Limits) */}
+            <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <HardDrive className="h-5 w-5 text-gray-500" />
+                    Usage & Limits
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+                    {/* AI Chat Tokens */}
+                    <Card className="shadow-sm border-gray-100 bg-white">
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-sm font-medium text-gray-500 flex items-center gap-2">
+                                <Zap className="h-4 w-4" />
+                                AI Chat Tokens
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-4">
+                                <div className="flex items-baseline justify-between">
+                                    <span className="text-2xl font-bold text-gray-900">
+                                        {tokenUsage.chat?.percentage?.toFixed(0) || 0}%
+                                    </span>
+                                    <span className="text-sm text-gray-500">daily used</span>
                                 </div>
-                            )}
-                            <p className="text-xs text-gray-400">
-                                {features.max_notes > 9000 ? "Create as many notes as you need." : "Upgrade for more storage."}
-                            </p>
-                        </div>
-                    </CardContent>
-                </Card>
+                                <TokenUsageIndicator
+                                    dailyLimit={tokenUsage.chat.limit}
+                                    dailyUsed={tokenUsage.chat.used}
+                                    percentage={tokenUsage.chat.percentage}
+                                    showLabel={false}
+                                />
+                                <div className="flex justify-between text-xs text-gray-400">
+                                    <span>{tokenUsage.chat.used.toLocaleString()} used</span>
+                                    <span>{tokenUsage.chat.limit === -1 ? '∞' : tokenUsage.chat.limit.toLocaleString()} limit</span>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
 
-                {/* AI Chat Usage */}
-                <Card className="shadow-sm border-gray-100">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-500 flex items-center gap-2">
-                            <Zap className="h-4 w-4" />
-                            AI Chat Usage
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-4">
-                            <div className="flex items-baseline justify-between">
-                                <span className="text-2xl font-bold text-gray-900">
-                                    {tokenUsage.chat.percentage.toFixed(0)}%
-                                </span>
-                                <span className="text-sm text-gray-500">daily limit used</span>
+                    {/* Search Tokens */}
+                    <Card className="shadow-sm border-gray-100 bg-white">
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-sm font-medium text-gray-500 flex items-center gap-2">
+                                <Search className="h-4 w-4" />
+                                Search Tokens
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-4">
+                                <div className="flex items-baseline justify-between">
+                                    <span className="text-2xl font-bold text-gray-900">
+                                        {tokenUsage.search?.percentage?.toFixed(0) || 0}%
+                                    </span>
+                                    <span className="text-sm text-gray-500">daily used</span>
+                                </div>
+                                <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                                    <motion.div
+                                        className="h-full bg-blue-500 rounded-full"
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${Math.min(100, tokenUsage.search?.percentage || 0)}%` }}
+                                        transition={{ duration: 1, ease: "easeOut" }}
+                                    />
+                                </div>
+                                <div className="flex justify-between text-xs text-gray-400">
+                                    <span>{tokenUsage.search?.used?.toLocaleString() || 0} used</span>
+                                    <span>{tokenUsage.search?.limit === -1 ? '∞' : (tokenUsage.search?.limit?.toLocaleString() || 0)} limit</span>
+                                </div>
                             </div>
-                            <TokenUsageIndicator
-                                dailyLimit={tokenUsage.chat.limit}
-                                dailyUsed={tokenUsage.chat.used}
-                                percentage={tokenUsage.chat.percentage}
-                                showLabel={false}
-                            />
-                            <p className="text-xs text-gray-400">
-                                Resets daily. Used {tokenUsage.chat.used} / {tokenUsage.chat.limit} tokens.
-                            </p>
-                        </div>
-                    </CardContent>
-                </Card>
+                        </CardContent>
+                    </Card>
 
-                {/* Semantic Search */}
-                <Card className="shadow-sm border-gray-100">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-500 flex items-center gap-2">
-                            <Search className="h-4 w-4" />
-                            Semantic Search
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-4">
-                            <div className="flex items-center gap-2">
-                                <span className={cn(
-                                    "text-2xl font-bold",
-                                    features.semantic_search ? "text-green-600" : "text-gray-400"
-                                )}>
-                                    {features.semantic_search ? "Active" : "Locked"}
-                                </span>
+                    {/* Note Storage */}
+                    <Card className="shadow-sm border-gray-100 bg-white">
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-sm font-medium text-gray-500 flex items-center gap-2">
+                                <Database className="h-4 w-4" />
+                                Note Storage
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-4">
+                                <div className="flex items-baseline justify-between">
+                                    <span className="text-2xl font-bold text-gray-900">
+                                        {tokenUsage.storage?.notes?.limit === -1 || tokenUsage.storage?.notes?.limit > 9000 ? "Active" : `${tokenUsage.storage?.notes?.percentage?.toFixed(0)}%`}
+                                    </span>
+                                    <span className="text-sm text-gray-500">
+                                        {tokenUsage.storage?.notes?.limit > 9000 ? "Unlimited" : "used"}
+                                    </span>
+                                </div>
+                                <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                                    <motion.div
+                                        className={cn("h-full rounded-full", tokenUsage.storage?.notes?.limit > 9000 ? "bg-green-500" : "bg-purple-500")}
+                                        initial={{ width: 0 }}
+                                        animate={{ width: tokenUsage.storage?.notes?.limit > 9000 ? "100%" : `${Math.min(100, tokenUsage.storage?.notes?.percentage || 0)}%` }}
+                                        transition={{ duration: 1, ease: "easeOut" }}
+                                    />
+                                </div>
+                                <div className="flex justify-between text-xs text-gray-400">
+                                    <span>{tokenUsage.storage?.notes?.used?.toLocaleString() || 0} notes</span>
+                                    <span>{tokenUsage.storage?.notes?.limit === -1 || tokenUsage.storage?.notes?.limit > 9000 ? '∞' : tokenUsage.storage?.notes?.limit?.toLocaleString()} limit</span>
+                                </div>
                             </div>
-                            <div className="h-1.5 w-full bg-gray-100 rounded-full">
-                                {features.semantic_search && <div className="h-full bg-green-500 rounded-full w-full" />}
+                        </CardContent>
+                    </Card>
+
+                    {/* Notebook Storage */}
+                    <Card className="shadow-sm border-gray-100 bg-white">
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-sm font-medium text-gray-500 flex items-center gap-2">
+                                <Book className="h-4 w-4" />
+                                Notebooks
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-4">
+                                <div className="flex items-baseline justify-between">
+                                    <span className="text-2xl font-bold text-gray-900">
+                                        {tokenUsage.storage?.notebooks?.limit === -1 || tokenUsage.storage?.notebooks?.limit > 9000 ? "Active" : `${tokenUsage.storage?.notebooks?.percentage?.toFixed(0)}%`}
+                                    </span>
+                                    <span className="text-sm text-gray-500">
+                                        {tokenUsage.storage?.notebooks?.limit > 9000 ? "Unlimited" : "used"}
+                                    </span>
+                                </div>
+                                <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                                    <motion.div
+                                        className={cn("h-full rounded-full", tokenUsage.storage?.notebooks?.limit > 9000 ? "bg-green-500" : "bg-orange-500")}
+                                        initial={{ width: 0 }}
+                                        animate={{ width: tokenUsage.storage?.notebooks?.limit > 9000 ? "100%" : `${Math.min(100, tokenUsage.storage?.notebooks?.percentage || 0)}%` }}
+                                        transition={{ duration: 1, ease: "easeOut" }}
+                                    />
+                                </div>
+                                <div className="flex justify-between text-xs text-gray-400">
+                                    <span>{tokenUsage.storage?.notebooks?.used?.toLocaleString() || 0} notebooks</span>
+                                    <span>{tokenUsage.storage?.notebooks?.limit === -1 || tokenUsage.storage?.notebooks?.limit > 9000 ? '∞' : tokenUsage.storage?.notebooks?.limit?.toLocaleString()} limit</span>
+                                </div>
                             </div>
-                            <p className="text-xs text-gray-400">
-                                {features.semantic_search ? "Smart search is enabled." : "Upgrade to Pro to enable."}
-                            </p>
+                        </CardContent>
+                    </Card>
+
+                </div>
+            </div>
+
+
+            {/* SECTION 2: Included in Plan (Static Features) */}
+            <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
+                <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-purple-500" />
+                    Included in {planName}
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-4 gap-x-8">
+                    {publicPlans.length === 0 ? (
+                        // Loading State
+                        Array(3).fill(0).map((_, i) => (
+                            <div key={i} className="flex items-center gap-3">
+                                <Skeleton className="h-8 w-8 rounded-full" />
+                                <div className="space-y-1">
+                                    <Skeleton className="h-4 w-24" />
+                                    <Skeleton className="h-3 w-16" />
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        // Real Data
+                        (findPlanByName(publicPlans, planName)
+                            ? getPlanDisplayFeatures(findPlanByName(publicPlans, planName)!)
+                            : []
+                        ).map((text, idx) => (
+                            <div key={idx} className="flex items-center gap-3">
+                                <div className="h-8 w-8 rounded-full flex items-center justify-center bg-green-50 text-green-600">
+                                    <Check className="h-4 w-4" />
+                                </div>
+                                <div>
+                                    <p className="font-medium text-gray-900">{text}</p>
+                                    <p className="text-xs text-gray-500">Included</p>
+                                </div>
+                            </div>
+                        ))
+                    )}
+
+                    {/* Fallback if no matching plan found */}
+                    {publicPlans.length > 0 && !findPlanByName(publicPlans, planName) && (
+                        <div className="col-span-full text-center text-gray-500 py-4">
+                            <p>Plan details not available for {planName}.</p>
                         </div>
-                    </CardContent>
-                </Card>
+                    )}
+                </div>
             </div>
 
             {/* Billing & Danger Zone */}

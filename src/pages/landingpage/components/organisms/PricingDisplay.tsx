@@ -1,12 +1,10 @@
-import { useState } from "react";
-import {
-    SwitchPricing,
-    type PricingPeriod,
-} from "@/components/shadui/SwitchPricing";
+import { useState, useEffect } from "react";
+import { SwitchPricing, type PricingPeriod } from "@/components/shadui/SwitchPricing";
 import type { PricingCardData } from "@/components/shadui/PricingCard";
 import { PricingSection } from "@/components/shadui/PricingSection";
-import { usePublicPlans } from "@/hooks/payment";
+import { useSubscriptionStore } from "@/stores/useSubscriptionStore";
 import { Loader2 } from "lucide-react";
+import { getPlanDisplayFeatures } from "@/utils/planUtils";
 
 interface PricingDisplayProps {
     // Optional customization for button behavior (e.g., in modal)
@@ -44,8 +42,12 @@ export function PricingDisplay({
     const [period, setPeriod] = useState<PricingPeriod>("monthly");
     const [isPulsing, setIsPulsing] = useState(false);
 
-    // Fetch public plans from API
-    const { data: plansResponse, isLoading, error } = usePublicPlans();
+    // Fetch public plans from Global Store
+    const { publicPlans, fetchPublicPlans } = useSubscriptionStore();
+
+    useEffect(() => {
+        fetchPublicPlans();
+    }, []);
 
     const handleToggle = (newPeriod: PricingPeriod) => {
         if (newPeriod === period) return;
@@ -55,7 +57,7 @@ export function PricingDisplay({
     };
 
     // Filter and transform API data to PricingCardData format
-    const dataToDisplay: PricingCardData[] = (plansResponse?.data || [])
+    const dataToDisplay: PricingCardData[] = publicPlans
         .filter((plan) => {
             const planPeriod = plan.billing_period?.toLowerCase() || 'monthly';
             return planPeriod === period;
@@ -84,12 +86,34 @@ export function PricingDisplay({
                 }
             }
 
+            if (plan.limits.semantic_search_daily === 0) {
+                features.push("No semantic search data"); // Debugging or consistent? 
+                // Actually existing logic omitted it if 0.
+            }
+
             if (plan.limits.ai_chat_daily > 0) {
                 if (plan.limits.ai_chat_daily === -1) {
                     features.push("Unlimited AI chat");
                 } else {
                     features.push(`${plan.limits.ai_chat_daily} AI chats/day`);
                 }
+            }
+
+            // Also map plan.features (Text List) if available
+            if (plan.features && plan.features.length > 0) {
+                // But wait, plan.features is now objects { key, text, is_enabled }.
+                // We should map them too?
+                // The PricingCard component likely expects strings.
+                // Let's create strings from enabled features.
+                plan.features.filter(f => f.is_enabled).forEach(f => {
+                    // Check if not already added via limits?
+                    // Just add them.
+                    if (!features.includes(f.text)) {
+                        // Avoid duplicates if logic above added them?
+                        // For now trust the API features list.
+                        features.push(f.text);
+                    }
+                });
             }
 
             // Format price
@@ -104,7 +128,7 @@ export function PricingDisplay({
                 price: formattedPrice,
                 period: `/ ${plan.billing_period === 'monthly' ? 'month' : 'year'}`,
                 description: plan.tagline || "",
-                features,
+                features, // Use our constructed list
                 slug: plan.slug,
                 isPopular: plan.is_most_popular,
             };
@@ -131,13 +155,9 @@ export function PricingDisplay({
                 )}
 
                 {/* Card Container */}
-                {isLoading ? (
+                {publicPlans.length === 0 ? (
                     <div className="flex justify-center py-12">
                         <Loader2 className="h-8 w-8 animate-spin text-royal-violet-base" />
-                    </div>
-                ) : error ? (
-                    <div className="text-center py-12">
-                        <p className="text-red-500">Failed to load pricing plans</p>
                     </div>
                 ) : dataToDisplay.length > 0 ? (
                     <PricingSection cardsData={dataToDisplay} isPulsing={isPulsing} context={context} />

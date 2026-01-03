@@ -23,23 +23,12 @@ import type {
 import { SocialProofToast } from '@/components/molecules';
 
 // ========== Constants ==========
-const SOCIAL_PROOF_COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes
-const NOTIFICATION_SOUND_URL = '/sounds/notif.mp3';
+import { playNotificationSound } from '@/utils/sound';
 
-/**
- * Play notification sound
- */
-function playNotificationSound(): void {
-    try {
-        const audio = new Audio(NOTIFICATION_SOUND_URL);
-        audio.volume = 0.5;
-        audio.play().catch(() => {
-            // Autoplay may be blocked - silent fail
-        });
-    } catch {
-        // Audio not supported - silent fail
-    }
-}
+// ========== Constants ==========
+const SOCIAL_PROOF_COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes
+// NOTIFICATION_SOUND_URL moved to utils
+
 
 // ========== Context Type ==========
 interface NotificationContextType {

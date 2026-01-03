@@ -1,20 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { paymentService } from '../../api/services/payment/payment.service';
-import { type PublicPlan, type UsageStatus } from '../../api/services/payment/payment.types';
+import { type UsageStatus } from '../../api/services/payment/payment.types';
 import { type ApiResponse } from '../../api/types/response.types';
 import { type ApiError } from '../../api/types/error.types';
-
-/**
- * Hook to fetch public plans for pricing modal
- * Uses GET /api/plans (no auth required)
- */
-export const usePublicPlans = () => {
-    return useQuery<ApiResponse<PublicPlan[]>, ApiError>({
-        queryKey: ['public', 'plans'],
-        queryFn: () => paymentService.getPublicPlans(),
-        staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-    });
-};
 
 /**
  * Hook to fetch user's current usage status

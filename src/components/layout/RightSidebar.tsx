@@ -16,6 +16,8 @@ import { Logo } from "@/components/shadui/Logo";
 import { ActionTooltip } from "@/components/common/ActionTooltip";
 import { Clock, Plus, Trash2, Send, Bot, MessageSquare, ArrowLeft, Search as SearchIcon, X } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import { motion } from 'framer-motion';
 import { Input } from "@/components/ui/input";
 import { NewSessionConfirmationModal } from "@/components/molecules/NewSessionConfirmationModal";
 import { PrefixHelper, CHAT_COMMANDS } from "@/components/molecules/PrefixHelper";
@@ -475,9 +477,20 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
                                     )}
                                     {messages.length === 0 && !isLoading && (
                                         <div className="flex flex-col items-center justify-center h-[50vh] text-center text-gray-400 p-8 space-y-4">
-                                            <div className="rounded-full bg-white p-4 shadow-sm">
-                                                <Bot className="h-10 w-10 text-purple-200" />
-                                            </div>
+                                            <motion.div
+                                                initial={{ scale: 0.5, opacity: 0 }}
+                                                animate={{ scale: 1, opacity: 1 }}
+                                                transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                                                className="rounded-full overflow-hidden mb-4"
+                                            >
+                                                <div className="w-64 h-64">
+                                                    <DotLottieReact
+                                                        src="https://lottie.host/b00c932e-94d9-407f-9893-8e00ce7a55f3/hanmwXSGzz.lottie"
+                                                        loop
+                                                        autoplay
+                                                    />
+                                                </div>
+                                            </motion.div>
                                             <div>
                                                 <h3 className="text-gray-900 font-medium mb-1">How can I help you?</h3>
                                                 <p className="text-sm max-w-[200px] mx-auto">Ask questions about your notes or generate new ideas.</p>
