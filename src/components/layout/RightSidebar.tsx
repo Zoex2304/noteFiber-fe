@@ -14,7 +14,7 @@ import { useSubscription } from "@/contexts/SubscriptionContext";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/shadui/Logo";
 import { ActionTooltip } from "@/components/common/ActionTooltip";
-import { Clock, Plus, Trash2, Send, Bot, MessageSquare, ArrowLeft, Search as SearchIcon } from "lucide-react";
+import { Clock, Plus, Trash2, Send, Bot, MessageSquare, ArrowLeft, Search as SearchIcon, X } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { NewSessionConfirmationModal } from "@/components/molecules/NewSessionConfirmationModal";
@@ -145,6 +145,8 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
     const [showSlashMenu, setShowSlashMenu] = useState(false);
     const [slashFilter, setSlashFilter] = useState("");
     const [activeCmdIndex, setActiveCmdIndex] = useState(0);
+    // Active Modes (Pills)
+    const [activeModes, setActiveModes] = useState<string[]>([]);
 
     const filteredCommands = CHAT_COMMANDS.filter(c =>
         c.cmd.toLowerCase().startsWith(slashFilter.toLowerCase()) ||
@@ -166,17 +168,17 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
     // Auto-resize textarea
     useEffect(() => {
         if (textareaRef.current) {
-            // Reset height to allow shrinking
             textareaRef.current.style.height = 'auto';
-            // Set to scrollHeight to expand
             textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 200)}px`;
         }
     }, [input]);
 
     /**
-     * Parse input for slash commands
+     * Parse input for slash commands (Suggestions menu)
      */
     useEffect(() => {
+        // Only show if we are NOT in the middle of a word or if it starts with /
+        // Simple logic: if last token starts with /, show menu
         const lastWord = input.split(/(\s+)/).pop() || "";
         if (lastWord.startsWith("/")) {
             setShowSlashMenu(true);
@@ -188,24 +190,37 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
     }, [input]);
 
     const handlePrefixSelect = (prefix: string) => {
-        setInput((prev) => prefix + prev);
+        // If the prefix is a mode command, add it as a pill
+        if (prefix === "/bypass" || prefix === "/nuance") {
+            if (!activeModes.includes(prefix.replace("/", ""))) {
+                setActiveModes(prev => [...prev, prefix.replace("/", "")]);
+            }
+        } else {
+            setInput((prev) => prefix + prev);
+        }
     };
 
     const applyCommand = (cmd: string) => {
-        // Replace the current partial command with the full one
-        const parts = input.split(/(\s+)/);
-        parts.pop(); // Remove partial
-        const newValue = parts.join("") + cmd + " ";
-        setInput(newValue);
-        setShowSlashMenu(false);
-        // Focus back
-        textareaRef.current?.focus();
-    };
+        // If it's a mode command, turn into pill
+        const cleanCmd = cmd.replace("/", "");
+        if (cleanCmd === "bypass" || cleanCmd === "nuance") {
+            if (!activeModes.includes(cleanCmd)) {
+                setActiveModes(prev => [...prev, cleanCmd]);
+            }
+            // Clear the typed command from input
+            const parts = input.split(/(\s+)/);
+            parts.pop(); // Remove the partial command
+            setInput(parts.join(""));
+        } else {
+            // Regular replacement
+            const parts = input.split(/(\s+)/);
+            parts.pop();
+            const newValue = parts.join("") + cmd + " ";
+            setInput(newValue);
+        }
 
-    const checkMode = (text: string) => {
-        if (text.startsWith("/bypass")) return "bypass";
-        if (text.startsWith("/nuance")) return "nuance";
-        return "rag";
+        setShowSlashMenu(false);
+        textareaRef.current?.focus();
     };
 
     const handleConfirmNewSession = async () => {
@@ -214,6 +229,8 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
         try {
             const newSessionId = await createSession();
             if (newSessionId) {
+                // If we had active modes, we might want to respect them here too, 
+                // but checking `pendingMode` is enough as it came from state.
                 await sendMessage(pendingMessage, newSessionId);
             }
         } catch (e) {
@@ -226,10 +243,12 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
     };
 
     const handleSend = async () => {
-        if (!input.trim()) return;
+        if (!input.trim() && activeModes.length === 0) return;
 
         // Command Logic
-        const mode = checkMode(input);
+        // Prefer activeModes pill, fallback to text check if user pasted it
+        let mode = activeModes[0] || (input.startsWith("/bypass") ? "bypass" : (input.startsWith("/nuance") ? "nuance" : "rag"));
+
         const currentSession = sessions.find(s => s.id === activeSessionId);
         const sessionDirty = (currentSession?.messages || []).length > 0;
 
@@ -238,18 +257,32 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
             setPendingMode(mode);
             setConfirmModalOpen(true);
             setInput("");
+            setActiveModes([]); // Clear pills on "send" attempt (even if confirming)
             return;
         }
 
-        await sendMessage(input);
+        // Send message (sendMessage hook might need mode update? 
+        // Currently sendMessage just takes content. The `mode` is usually inferred by backend or passed in request headers/body?
+        // Wait, `sendMessage` in `useChatSystem` doesn't accept `mode` arg!
+        // The previous implementation relied on the TEXT content starting with /bypass.
+        // If I strip the pill, the backend won't see "/bypass".
+        // FIX: I must prepend the mode to the content if it's a pill!
+        let contentToSend = input;
+        if (activeModes.length > 0) {
+            contentToSend = `/${activeModes[0]} ${input}`;
+        }
+
+        await sendMessage(contentToSend);
         setInput("");
-        // Reset height
+        setActiveModes([]); // Clear pills
+
         if (textareaRef.current) {
             textareaRef.current.style.height = 'auto';
         }
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
+        // 1. Slash Menu Navigation
         if (showSlashMenu && filteredCommands.length > 0) {
             if (e.key === "Tab" || e.key === "Enter") {
                 e.preventDefault();
@@ -273,10 +306,32 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
             }
         }
 
+        // 2. Spacebar to confirm pill
+        if (e.key === " " && !showSlashMenu) {
+            const lastWord = input.split(/(\s+)/).pop() || "";
+            if (lastWord === "/bypass" || lastWord === "/nuance") {
+                e.preventDefault();
+                applyCommand(lastWord);
+                return;
+            }
+        }
+
+        // 3. Backspace to remove pill
+        if (e.key === "Backspace" && input === "" && activeModes.length > 0) {
+            e.preventDefault();
+            setActiveModes(prev => prev.slice(0, -1));
+            return;
+        }
+
+        // 4. Send Message
         if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
             handleSend();
         }
+    };
+
+    const removeMode = (mode: string) => {
+        setActiveModes(prev => prev.filter(m => m !== mode));
     };
 
     if (!isOpen) return null;
@@ -286,10 +341,9 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
             side="right"
             isCollapsed={isCollapsed}
             onToggle={toggle}
-            width={380} // Slightly wider for better history view
+            width={380}
             className="border-l border-gray-200 h-full shadow-xl z-30 flex flex-col"
         >
-            {/* Header */}
             {/* Header */}
             <div className="h-12 px-4 border-b border-gray-200 flex items-center justify-between shrink-0 bg-white relative">
                 <div className="flex items-center gap-2">
@@ -308,7 +362,9 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
                     {isCollapsed && <Logo variant="symbol" className="h-6 w-6 mx-auto" />}
                 </div>
 
-                {/* Centered Pill */}
+                {/* Centered Pill with key to force animate on re-render if needed? 
+                    Actually, we rely on internal useEffect of TokenUsagePill.
+                */}
                 {!isCollapsed && view === 'chat' && (
                     <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                         <TokenUsagePill type="chat" />
@@ -317,7 +373,6 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
 
                 {!isCollapsed && (
                     <div className="flex items-center gap-1">
-                        {/* Toggle History View */}
                         <ActionTooltip label={view === 'history' ? "Back to Chat" : "History"}>
                             <Button
                                 variant="ghost"
@@ -335,7 +390,7 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
                                 size="icon"
                                 onClick={() => {
                                     createSession();
-                                    setView('chat'); // Switch back to chat on new session
+                                    setView('chat');
                                 }}
                                 className="h-8 w-8"
                             >
@@ -359,7 +414,6 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
                         </Button>
                     </ActionTooltip>
 
-                    {/* Collapse Mode History Toggle */}
                     <ActionTooltip label="History" side="left">
                         <Button variant="ghost" size="icon" onClick={() => {
                             setIsCollapsed(false);
@@ -393,7 +447,6 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
                         view === 'history' ? "opacity-0 pointer-events-none" : "opacity-100"
                     )}>
                         <div className="flex-1 overflow-hidden relative flex flex-col">
-                            {/* Session Title Bar */}
                             {activeSessionId && (
                                 <div className="px-4 py-2 border-b border-gray-100 bg-white/50 flex items-center justify-between shrink-0">
                                     <div className="text-xs font-medium text-gray-500 truncate max-w-[200px] flex items-center gap-1.5">
@@ -405,12 +458,13 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
 
                             <ScrollArea className="flex-1 p-4">
                                 <div className="space-y-4 pb-2">
-                                    {messages.map((message) => (
+                                    {messages.map((message, index) => (
                                         <ChatBubble
                                             key={message.id}
                                             message={message}
                                             onCitationClick={onNavigateToNote}
                                             compact
+                                            animate={index === messages.length - 1}
                                         />
                                     ))}
                                     {isLoading && (
@@ -461,41 +515,56 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
                                 </div>
                             )}
 
-                            {/* Container Utama: Border dan Shadow ada di sini */}
-                            <div className="flex items-end gap-2 bg-white border border-gray-200 rounded-2xl p-2 shadow-sm focus-within:border-royal-violet-base focus-within:ring-1 focus-within:ring-royal-violet-base transition-all">
+                            {/* Input Container */}
+                            <div className="flex flex-col gap-2 bg-white border border-gray-200 rounded-2xl p-2 shadow-sm focus-within:border-royal-violet-base focus-within:ring-1 focus-within:ring-royal-violet-base transition-all">
 
+                                <div className="flex items-end gap-1 w-full">
+                                    {/* Prefix Helper (only show if no modes?) - Actually it's just a button. Keep it. */}
+                                    <div className="mb-1 ml-1 self-center">
+                                        <PrefixHelper onSelect={handlePrefixSelect} />
+                                    </div>
 
-                                {/* Prefix Helper */}
-                                <div className="mb-0.5 ml-1">
-                                    <PrefixHelper onSelect={handlePrefixSelect} />
+                                    <div className="flex-1 flex flex-wrap items-center gap-1.5 min-w-0">
+                                        {/* Active Mode Pills */}
+                                        {activeModes.map(mode => (
+                                            <div key={mode} className="flex items-center gap-1 bg-purple-100 text-purple-700 px-2 py-1 rounded-md text-xs font-medium animate-in zoom-in-50 duration-200">
+                                                <span>{mode}</span>
+                                                <button
+                                                    onClick={() => removeMode(mode)}
+                                                    className="hover:bg-purple-200 rounded-full p-0.5 transition-colors"
+                                                >
+                                                    <X className="h-3 w-3" />
+                                                </button>
+                                            </div>
+                                        ))}
+
+                                        <Textarea
+                                            ref={textareaRef}
+                                            value={input}
+                                            onChange={(e) => setInput(e.target.value)}
+                                            onKeyDown={handleKeyDown}
+                                            placeholder={activeModes.length > 0 ? "Type your prompt..." : "Ask anything..."}
+                                            className="flex-1 min-w-[50px] min-h-[40px] max-h-[200px] resize-none border-none shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 py-2.5 px-2 bg-transparent text-sm placeholder:text-gray-400 overflow-y-auto"
+                                            disabled={isLoading}
+                                            rows={1}
+                                        />
+                                    </div>
+
+                                    {/* Send Button */}
+                                    <Button
+                                        size="icon"
+                                        onClick={handleSend}
+                                        disabled={(!input.trim() && activeModes.length === 0) || isLoading}
+                                        className={cn(
+                                            "h-10 w-10 rounded-full transition-all shrink-0 mb-0.5",
+                                            (input.trim() || activeModes.length > 0)
+                                                ? "bg-gradient-primary-violet text-white hover:opacity-90 shadow-md"
+                                                : "bg-gray-100 text-gray-400 hover:bg-gray-200"
+                                        )}
+                                    >
+                                        <Send className="h-5 w-5" />
+                                    </Button>
                                 </div>
-
-                                {/* Textarea */}
-                                <Textarea
-                                    ref={textareaRef}
-                                    value={input}
-                                    onChange={(e) => setInput(e.target.value)}
-                                    onKeyDown={handleKeyDown}
-                                    placeholder="Ask anything..."
-                                    className="flex-1 min-h-[44px] max-h-[200px] resize-none border-none shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 py-3 px-3 bg-transparent text-sm placeholder:text-gray-400 overflow-y-auto"
-                                    disabled={isLoading}
-                                    rows={1}
-                                />
-
-                                {/* Tombol Send */}
-                                <Button
-                                    size="icon"
-                                    onClick={handleSend}
-                                    disabled={!input.trim() || isLoading}
-                                    className={cn(
-                                        "h-10 w-10 rounded-full transition-all shrink-0 mb-0.5",
-                                        input.trim()
-                                            ? "bg-gradient-primary-violet text-white hover:opacity-90 shadow-md"
-                                            : "bg-gray-100 text-gray-400 hover:bg-gray-200"
-                                    )}
-                                >
-                                    <Send className="h-5 w-5" />
-                                </Button>
                             </div>
 
                             <div className="text-[10px] text-gray-400 text-center mt-2 font-medium">
@@ -513,7 +582,6 @@ export function RightSidebar({ isOpen, onToggle: _onToggle, onNavigateToNote }: 
                 onConfirm={handleConfirmNewSession}
                 onCancel={() => {
                     setConfirmModalOpen(false);
-                    // Do NOT clear input here so user can edit or just simple-send.
                     setPendingMode("");
                     setPendingMessage("");
                 }}

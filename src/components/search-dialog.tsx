@@ -10,11 +10,12 @@ import {
     CommandList,
     CommandSeparator,
 } from "@/components/shadui/command"
-import { FileText, Loader2, SearchX, Search } from "lucide-react"
+import { FileText, Loader2, SearchX, Search, Clock } from "lucide-react"
 import type { Note } from "../types/note"
 import { apiClient } from "@/api/client/axios.client"
 import type { BaseResponse } from "../dto/base-response"
 import type { GetSemanticSearchResponse } from "../dto/note"
+import { Badge } from "./shadui/badge"
 
 interface SearchDialogProps {
     open: boolean
@@ -23,20 +24,28 @@ interface SearchDialogProps {
     onNoteSelect: (noteId: string) => void
 }
 
-export function SearchDialog({ open, onOpenChange, onNoteSelect }: SearchDialogProps) {
+export function SearchDialog({ open, onOpenChange, onNoteSelect, notes }: SearchDialogProps) {
     const [query, setQuery] = React.useState("")
-    const [results, setResults] = React.useState<Note[]>([])
+    const [semanticResults, setSemanticResults] = React.useState<Note[]>([])
     const [isSearching, setIsSearching] = React.useState(false)
+
+    // Derived state for local search (when query is empty or short, show recent?)
+    // Actually, local notes are passed in `notes` prop.
+    const recentNotes = React.useMemo(() => {
+        return [...notes].sort((a, b) =>
+            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+        ).slice(0, 5);
+    }, [notes]);
 
     React.useEffect(() => {
         if (!query.trim()) {
-            setResults([])
+            setSemanticResults([])
             return
         }
 
         setIsSearching(true)
 
-        // Simulate semantic search with a delay
+        // Debounced Semantic Search
         const searchTimeout = setTimeout(async () => {
             try {
                 const res = await apiClient.get<BaseResponse<GetSemanticSearchResponse[]>>(
@@ -52,10 +61,10 @@ export function SearchDialog({ open, onOpenChange, onNoteSelect }: SearchDialogP
                     updatedAt: new Date(note.updated_at ?? note.created_at)
                 }))
 
-                setResults(data)
+                setSemanticResults(data)
             } catch (error) {
                 console.error("Search failed:", error)
-                setResults([])
+                setSemanticResults([])
             } finally {
                 setIsSearching(false)
             }
@@ -71,73 +80,60 @@ export function SearchDialog({ open, onOpenChange, onNoteSelect }: SearchDialogP
     }
 
     return (
-        <CommandDialog open={open} onOpenChange={onOpenChange}>
-            {/* 
-                We customized CommandDialog in shadui/command.tsx to have specific styling. 
-                But for the 'pulse' and 'blur', we might need to rely on the DialogOverlay inside CommandDialog 
-                or wrapper styles.
-                
-                If the user wants a SPECIFIC "pulse" animation, we can add it to the DialogContent wrapper in shadui/command theoretically,
-                but here we can only control what we pass. 
-                
-                Fortunately, CommandDialog accepts DialogProps.
-                If strict styling is needed, we might need to touch shadui/command.tsx or shadui/dialog.tsx. 
-                However, for now, we will assume standard shadcn behavior is "clean/minimal". 
-                
-                To add the 'pulse' explicitly requested:
-                The standard CommandDialog renders a DialogContent. 
-                We can't easily inject a class into that specific Content from here unless we modify CommandDialog.
-                
-                Let's assume "subtle pulse" refers to the focus ring or a glow. 
-                If strictly needed, I'd edit command.tsx, but I'll stick to the standard beautiful Shadcn UI first.
-            */}
+        <CommandDialog
+            open={open}
+            onOpenChange={onOpenChange}
+            shouldFilter={false} // CRITICAL: Disable client-side filtering since we do server-side/async search!
+        >
             <CommandInput
-                placeholder="Search notes..."
+                placeholder="Search notes (semantic & fuzzy)..."
                 value={query}
                 onValueChange={setQuery}
             />
             <CommandList className="max-h-[500px]">
-                <CommandEmpty className="py-6 text-center text-sm text-muted-foreground outline-none">
-                    {isSearching ? (
-                        <div className="flex flex-col items-center justify-center py-8 gap-2">
-                            <Loader2 className="h-8 w-8 animate-spin text-primary/80" />
-                            <p className="text-xs font-medium text-gray-500">Searching contextually...</p>
-                        </div>
-                    ) : query ? (
-                        <div className="flex flex-col items-center justify-center py-10 text-center animate-in fade-in zoom-in-95 duration-200">
-                            <div className="bg-gray-50 p-4 rounded-full mb-3 ring-1 ring-gray-100">
-                                <SearchX className="h-6 w-6 text-gray-400" />
-                            </div>
-                            <h3 className="text-sm font-semibold text-gray-900">No results found</h3>
-                            <p className="text-xs text-gray-500 mt-1 max-w-[240px] mx-auto">
-                                We couldn't find any notes matching "<span className="font-medium text-gray-700">{query}</span>"
-                            </p>
-                        </div>
-                    ) : (
-                        <div className="flex flex-col items-center justify-center py-12 text-center opacity-80">
-                            <div className="bg-primary/5 p-4 rounded-full mb-3">
-                                <Search className="h-6 w-6 text-primary/60" />
-                            </div>
-                            <p className="text-sm font-medium text-gray-600">Type to search...</p>
-                            <p className="text-xs text-gray-400 mt-1">Search your notes using natural language</p>
-                        </div>
-                    )}
-                </CommandEmpty>
+                {/* Loading State */}
+                {isSearching && (
+                    <div className="flex flex-col items-center justify-center py-8 gap-2 bg-gradient-to-b from-transparent to-gray-50/50">
+                        <Loader2 className="h-6 w-6 animate-spin text-purple-600" />
+                        <p className="text-xs font-medium text-purple-600/80 animate-pulse">Thinking...</p>
+                    </div>
+                )}
 
-                {!isSearching && results.length > 0 && (
-                    <CommandGroup heading="Contextual Matches">
-                        {results.map((note) => (
+                {/* Empty State / No Results */}
+                {!isSearching && query && semanticResults.length === 0 && (
+                    <div className="flex flex-col items-center justify-center py-10 text-center animate-in fade-in zoom-in-95 duration-200">
+                        <div className="bg-gray-50 p-4 rounded-full mb-3 ring-1 ring-gray-100">
+                            <SearchX className="h-6 w-6 text-gray-400" />
+                        </div>
+                        <h3 className="text-sm font-semibold text-gray-900">No matches found</h3>
+                        <p className="text-xs text-gray-500 mt-1 max-w-[240px] mx-auto">
+                            Try rephrasing your search or looking for specific keywords.
+                        </p>
+                    </div>
+                )}
+
+                {/* Semantic Results */}
+                {!isSearching && semanticResults.length > 0 && (
+                    <CommandGroup heading="Contextual Matches" className="text-purple-900">
+                        {semanticResults.map((note) => (
                             <CommandItem
                                 key={note.id}
-                                value={`${note.title} ${note.content}`} // helping fuzzy filter if needed, though we rely on API
+                                value={note.id}
                                 onSelect={() => handleSelect(note.id)}
-                                className="flex flex-col items-start gap-1 py-3 px-4 cursor-pointer"
+                                className="flex flex-col items-start gap-1.5 py-3 px-4 m-1 rounded-lg cursor-pointer aria-selected:bg-purple-50 aria-selected:text-purple-900 border border-transparent aria-selected:border-purple-100/50 transition-all"
                             >
-                                <div className="flex items-center gap-2 w-full">
-                                    <FileText className="h-4 w-4 text-primary shrink-0" />
-                                    <span className="font-medium truncate">{note.title}</span>
+                                <div className="flex items-center gap-2 w-full justify-between">
+                                    <div className="flex items-center gap-2 min-w-0">
+                                        <div className="p-1 rounded bg-purple-100/50 text-purple-600 shrink-0">
+                                            <FileText className="h-3.5 w-3.5" />
+                                        </div>
+                                        <span className="font-medium truncate text-sm">{note.title}</span>
+                                    </div>
+                                    <Badge variant="secondary" className="text-[10px] h-5 bg-purple-100 text-purple-700 hover:bg-purple-200 shadow-none border-0">
+                                        AI Match
+                                    </Badge>
                                 </div>
-                                <p className="text-xs text-muted-foreground line-clamp-2 pl-6">
+                                <p className="text-xs text-muted-foreground line-clamp-2 pl-7 leading-relaxed opacity-90">
                                     {note.content}
                                 </p>
                             </CommandItem>
@@ -145,11 +141,31 @@ export function SearchDialog({ open, onOpenChange, onNoteSelect }: SearchDialogP
                     </CommandGroup>
                 )}
 
-                <CommandSeparator />
-
-                {/* 
-                  Optional: Footer or other groups 
-                */}
+                {/* Recent Items (shown when query is empty) */}
+                {!query && recentNotes.length > 0 && (
+                    <>
+                        <div className="flex flex-col items-center justify-center py-8 text-center opacity-60">
+                            <p className="text-xs text-gray-400 flex items-center gap-1.5">
+                                <Search className="w-3 h-3" />
+                                Type to search specific topics
+                            </p>
+                        </div>
+                        <CommandSeparator className="my-2" />
+                        <CommandGroup heading="Recent Notes">
+                            {recentNotes.map((note) => (
+                                <CommandItem
+                                    key={note.id}
+                                    value={note.id}
+                                    onSelect={() => handleSelect(note.id)}
+                                    className="flex items-center gap-2 py-2.5 px-4 cursor-pointer m-1 rounded-md"
+                                >
+                                    <Clock className="h-3.5 w-3.5 text-gray-400" />
+                                    <span className="text-sm text-gray-700">{note.title}</span>
+                                </CommandItem>
+                            ))}
+                        </CommandGroup>
+                    </>
+                )}
             </CommandList>
         </CommandDialog>
     )

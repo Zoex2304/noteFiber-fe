@@ -22,8 +22,8 @@ export function useChatSystem() {
     const [isLoading, setIsLoading] = useState(false);
     const [showTokenLimitDialog, setShowTokenLimitDialog] = useState(false);
 
-    // Contexts
-    const { tokenUsage, refreshSubscription } = useSubscription();
+    // Contexts (Bridged to Zustand Store)
+    const { tokenUsage, refreshSubscription, checkLimit } = useSubscription();
     const { showPricingModal } = useUsageLimits();
 
     const activeSession = sessions.find((s) => s.id === activeSessionId) || null;
@@ -61,7 +61,6 @@ export function useChatSystem() {
             setSessions((prev) =>
                 prev.map((session) => {
                     if (session.id === sessionId) {
-                        // Merge or replace? Replace is safer for now.
                         return {
                             ...session,
                             messages: res.data.data.map<Message>((data) => ({
@@ -139,19 +138,25 @@ export function useChatSystem() {
     const sendMessage = useCallback(async (content: string, sessionId?: string) => {
         if (!content.trim() || isLoading) return;
 
+        // 1. Strict Limit Check (Pre-flight)
+        // Check local state immediately.
+        const canSend = checkLimit('chat');
+        if (!canSend) {
+            setShowTokenLimitDialog(true);
+            return;
+        }
+
         let currentSessionId = sessionId || activeSessionId;
 
         // Auto-create session if none exists
         if (!currentSessionId) {
-            setIsLoading(true); // Start loading immediately
+            setIsLoading(true);
             const newId = await createSession();
             if (!newId) {
                 setIsLoading(false);
                 return;
             }
             currentSessionId = newId;
-            // Note: createSession -> fetchSessions triggers a state update.
-            // subsequent setSessions here will operate on the queue, so it should see the new session in 'prev'.
         }
 
         setIsLoading(true);
@@ -183,7 +188,6 @@ export function useChatSystem() {
             // Update with real response
             setSessions((prev) => prev.map(s => {
                 if (s.id === currentSessionId) {
-                    // Replace temp message and add reply
                     const realUserMsg = {
                         id: res.data.data.sent.id,
                         content: res.data.data.sent.chat,
@@ -203,12 +207,11 @@ export function useChatSystem() {
                         nuanceKey: res.data.data.nuance_key,
                     };
 
-                    // Filter out our temp message (id starts with temp-)
                     const cleanMessages = s.messages.filter(m => !m.id.startsWith("temp-"));
 
                     return {
                         ...s,
-                        name: res.data.data.title, // Update title if auto-generated
+                        name: res.data.data.title,
                         messages: [...cleanMessages, realUserMsg, replyMsg]
                     };
                 }
@@ -231,10 +234,12 @@ export function useChatSystem() {
                 return s;
             }));
         } finally {
+            // ALWAYS refresh subscription usage after a message attempt (success or fail)
+            // This ensures the pills update immediately.
             await refreshSubscription();
             setIsLoading(false);
         }
-    }, [activeSessionId, isLoading, createSession, refreshSubscription, showPricingModal]);
+    }, [activeSessionId, isLoading, createSession, refreshSubscription, showPricingModal, checkLimit]);
 
 
     // Initialization Effect
@@ -253,7 +258,6 @@ export function useChatSystem() {
         showTokenLimitDialog,
         setShowTokenLimitDialog,
         tokenUsage,
-        // Actions
         fetchSessions,
         selectSession,
         createSession,
