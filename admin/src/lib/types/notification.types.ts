@@ -40,6 +40,8 @@ export type AdminNotificationTypeCode =
     | 'REFUND_REQUESTED'
     | 'REFUND_APPROVED'
     | 'REFUND_REJECTED'
+    | 'SUBSCRIPTION_CANCELLATION_REQUESTED'
+    | 'SUBSCRIPTION_CANCELLATION_PROCESSED'
     | 'AI_LIMIT_UPDATED'
     | 'SYSTEM_BROADCAST'
     | string; // Allow unknown types for forward compatibility
@@ -80,6 +82,8 @@ export const NOTIFICATION_TYPE_ICONS: Record<string, string> = {
     REFUND_REQUESTED: '↩️',
     REFUND_APPROVED: '✅',
     REFUND_REJECTED: '❌',
+    SUBSCRIPTION_CANCELLATION_REQUESTED: '🛑',
+    SUBSCRIPTION_CANCELLATION_PROCESSED: '📝',
     AI_LIMIT_UPDATED: '🤖',
     SYSTEM_BROADCAST: '📢',
 } as const;
