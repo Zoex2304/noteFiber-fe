@@ -25,7 +25,8 @@ export const ENDPOINTS = {
         USAGE_STATUS: '/user/usage-status', // GET /api/user/usage-status
         BILLING: '/user/billing',           // GET, PUT /api/user/billing
         CANCELLATION_REQUEST: '/user/cancellation', // POST /api/user/cancellation
-        CANCELLATION_HISTORY: '/user/cancellations', // GET /api/user/cancellations
+        CANCELLATIONS: '/user/cancellations', // GET /api/user/cancellations
+        CANCELLATION_DETAIL: (id: string) => `/user/cancellations/${id}`,
         // NOTE: Use PAYMENT.STATUS for subscription status (old /user/subscription/status doesn't exist)
     },
     LOCATION: {

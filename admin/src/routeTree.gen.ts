@@ -49,6 +49,7 @@ import { Route as AuthenticatedSettingsAppearanceRouteImport } from './routes/_a
 import { Route as AuthenticatedSettingsAccountRouteImport } from './routes/_authenticated/settings/account'
 import { Route as AuthenticatedRefundsRefundIdRouteImport } from './routes/_authenticated/refunds.$refundId'
 import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenticated/errors/$error'
+import { Route as AuthenticatedCancellationsCancellationIdRouteImport } from './routes/_authenticated/cancellations.$cancellationId'
 
 const AuthenticatedAiNuancesLazyRouteImport = createFileRoute(
   '/_authenticated/ai/nuances',
@@ -274,6 +275,12 @@ const AuthenticatedErrorsErrorRoute =
     path: '/errors/$error',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedCancellationsCancellationIdRoute =
+  AuthenticatedCancellationsCancellationIdRouteImport.update({
+    id: '/$cancellationId',
+    path: '/$cancellationId',
+    getParentRoute: () => AuthenticatedCancellationsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/clerk': typeof ClerkAuthenticatedRouteRouteWithChildren
@@ -288,13 +295,14 @@ export interface FileRoutesByFullPath {
   '/404': typeof errors404Route
   '/500': typeof errors500Route
   '/503': typeof errors503Route
-  '/cancellations': typeof AuthenticatedCancellationsRoute
+  '/cancellations': typeof AuthenticatedCancellationsRouteWithChildren
   '/logs': typeof AuthenticatedLogsRoute
   '/payments': typeof AuthenticatedPaymentsRoute
   '/plans': typeof AuthenticatedPlansRoute
   '/refunds': typeof AuthenticatedRefundsRouteWithChildren
   '/token-usage': typeof AuthenticatedTokenUsageRoute
   '/': typeof AuthenticatedIndexRoute
+  '/cancellations/$cancellationId': typeof AuthenticatedCancellationsCancellationIdRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/refunds/$refundId': typeof AuthenticatedRefundsRefundIdRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
@@ -326,13 +334,14 @@ export interface FileRoutesByTo {
   '/404': typeof errors404Route
   '/500': typeof errors500Route
   '/503': typeof errors503Route
-  '/cancellations': typeof AuthenticatedCancellationsRoute
+  '/cancellations': typeof AuthenticatedCancellationsRouteWithChildren
   '/logs': typeof AuthenticatedLogsRoute
   '/payments': typeof AuthenticatedPaymentsRoute
   '/plans': typeof AuthenticatedPlansRoute
   '/refunds': typeof AuthenticatedRefundsRouteWithChildren
   '/token-usage': typeof AuthenticatedTokenUsageRoute
   '/': typeof AuthenticatedIndexRoute
+  '/cancellations/$cancellationId': typeof AuthenticatedCancellationsCancellationIdRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/refunds/$refundId': typeof AuthenticatedRefundsRefundIdRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
@@ -369,13 +378,14 @@ export interface FileRoutesById {
   '/(errors)/404': typeof errors404Route
   '/(errors)/500': typeof errors500Route
   '/(errors)/503': typeof errors503Route
-  '/_authenticated/cancellations': typeof AuthenticatedCancellationsRoute
+  '/_authenticated/cancellations': typeof AuthenticatedCancellationsRouteWithChildren
   '/_authenticated/logs': typeof AuthenticatedLogsRoute
   '/_authenticated/payments': typeof AuthenticatedPaymentsRoute
   '/_authenticated/plans': typeof AuthenticatedPlansRoute
   '/_authenticated/refunds': typeof AuthenticatedRefundsRouteWithChildren
   '/_authenticated/token-usage': typeof AuthenticatedTokenUsageRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/cancellations/$cancellationId': typeof AuthenticatedCancellationsCancellationIdRoute
   '/_authenticated/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/_authenticated/refunds/$refundId': typeof AuthenticatedRefundsRefundIdRoute
   '/_authenticated/settings/account': typeof AuthenticatedSettingsAccountRoute
@@ -417,6 +427,7 @@ export interface FileRouteTypes {
     | '/refunds'
     | '/token-usage'
     | '/'
+    | '/cancellations/$cancellationId'
     | '/errors/$error'
     | '/refunds/$refundId'
     | '/settings/account'
@@ -455,6 +466,7 @@ export interface FileRouteTypes {
     | '/refunds'
     | '/token-usage'
     | '/'
+    | '/cancellations/$cancellationId'
     | '/errors/$error'
     | '/refunds/$refundId'
     | '/settings/account'
@@ -497,6 +509,7 @@ export interface FileRouteTypes {
     | '/_authenticated/refunds'
     | '/_authenticated/token-usage'
     | '/_authenticated/'
+    | '/_authenticated/cancellations/$cancellationId'
     | '/_authenticated/errors/$error'
     | '/_authenticated/refunds/$refundId'
     | '/_authenticated/settings/account'
@@ -814,6 +827,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedErrorsErrorRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/cancellations/$cancellationId': {
+      id: '/_authenticated/cancellations/$cancellationId'
+      path: '/$cancellationId'
+      fullPath: '/cancellations/$cancellationId'
+      preLoaderRoute: typeof AuthenticatedCancellationsCancellationIdRouteImport
+      parentRoute: typeof AuthenticatedCancellationsRoute
+    }
   }
 }
 
@@ -840,6 +860,21 @@ const AuthenticatedSettingsRouteRouteWithChildren =
     AuthenticatedSettingsRouteRouteChildren,
   )
 
+interface AuthenticatedCancellationsRouteChildren {
+  AuthenticatedCancellationsCancellationIdRoute: typeof AuthenticatedCancellationsCancellationIdRoute
+}
+
+const AuthenticatedCancellationsRouteChildren: AuthenticatedCancellationsRouteChildren =
+  {
+    AuthenticatedCancellationsCancellationIdRoute:
+      AuthenticatedCancellationsCancellationIdRoute,
+  }
+
+const AuthenticatedCancellationsRouteWithChildren =
+  AuthenticatedCancellationsRoute._addFileChildren(
+    AuthenticatedCancellationsRouteChildren,
+  )
+
 interface AuthenticatedRefundsRouteChildren {
   AuthenticatedRefundsRefundIdRoute: typeof AuthenticatedRefundsRefundIdRoute
 }
@@ -853,7 +888,7 @@ const AuthenticatedRefundsRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRouteRoute: typeof AuthenticatedSettingsRouteRouteWithChildren
-  AuthenticatedCancellationsRoute: typeof AuthenticatedCancellationsRoute
+  AuthenticatedCancellationsRoute: typeof AuthenticatedCancellationsRouteWithChildren
   AuthenticatedLogsRoute: typeof AuthenticatedLogsRoute
   AuthenticatedPaymentsRoute: typeof AuthenticatedPaymentsRoute
   AuthenticatedPlansRoute: typeof AuthenticatedPlansRoute
@@ -873,7 +908,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRouteRoute: AuthenticatedSettingsRouteRouteWithChildren,
-  AuthenticatedCancellationsRoute: AuthenticatedCancellationsRoute,
+  AuthenticatedCancellationsRoute: AuthenticatedCancellationsRouteWithChildren,
   AuthenticatedLogsRoute: AuthenticatedLogsRoute,
   AuthenticatedPaymentsRoute: AuthenticatedPaymentsRoute,
   AuthenticatedPlansRoute: AuthenticatedPlansRoute,

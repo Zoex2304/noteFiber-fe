@@ -34,7 +34,7 @@ import { AnimatedCounter } from "@/components/common/AnimatedCounter";
 import { getPlanDisplayFeatures, findPlanByName } from '@/utils/planUtils';
 
 export function SubscriptionManagement() {
-    const { planName, isActive, tokenUsage, subscriptionId, refreshSubscription, isLoading } = useSubscription();
+    const { planName, isActive, tokenUsage, subscriptionId, refreshSubscription, isLoading, validateSubscription, validationStatus } = useSubscription();
     // Access global plans
     const publicPlans = useSubscriptionStore(state => state.publicPlans);
     const fetchPublicPlans = useSubscriptionStore(state => state.fetchPublicPlans);
@@ -47,7 +47,8 @@ export function SubscriptionManagement() {
 
     useEffect(() => {
         fetchPublicPlans();
-    }, [fetchPublicPlans]);
+        validateSubscription();
+    }, [fetchPublicPlans, validateSubscription]);
 
     // Check for pending refund
     useEffect(() => {
@@ -91,6 +92,8 @@ export function SubscriptionManagement() {
     }
 
     const isPaidPlan = planName.toLowerCase().includes('pro') || planName.toLowerCase().includes('enterprise');
+    const isCanceledButValid = validationStatus?.is_valid && validationStatus?.status === 'canceled';
+    const displayActive = isActive || isCanceledButValid;
 
     return (
         <div className="container max-w-5xl mx-auto p-6 space-y-8 animate-in fade-in duration-500">
@@ -123,11 +126,12 @@ export function SubscriptionManagement() {
                 <div className="relative z-10 p-8 md:p-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div>
                         <div className="flex items-center gap-3 mb-2">
-                            <Badge variant={isActive ? 'default' : 'secondary'} className={cn(
+                            <Badge variant={displayActive ? 'default' : 'secondary'} className={cn(
                                 "uppercase tracking-wider text-[10px] font-bold px-2 py-0.5 rounded-sm",
-                                isActive ? "bg-royal-violet-base hover:bg-royal-violet-base" : "bg-gray-100 text-gray-500"
+                                displayActive ? "bg-royal-violet-base hover:bg-royal-violet-base" : "bg-gray-100 text-gray-500",
+                                isCanceledButValid && "bg-orange-500 hover:bg-orange-600"
                             )}>
-                                {isActive ? 'Active' : 'Inactive'}
+                                {isCanceledButValid ? 'Active (Canceled)' : (displayActive ? 'Active' : 'Inactive')}
                             </Badge>
                             {hasPendingRefund && (
                                 <Badge variant="outline" className="text-yellow-600 border-yellow-200">
@@ -151,7 +155,7 @@ export function SubscriptionManagement() {
                             onClick={() => navigate({ to: '/pricing' })}
                             className="w-full sm:w-auto min-w-[140px] font-medium"
                         >
-                            {(!isActive || !isPaidPlan) ? "Upgrade Plan" : "Change Plan"}
+                            {(!displayActive || !isPaidPlan) ? "Upgrade Plan" : (isCanceledButValid ? "Renew Plan" : "Change Plan")}
                         </Button>
                         {isPaidPlan && (
                             <Button

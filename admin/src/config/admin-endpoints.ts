@@ -58,6 +58,7 @@ export const ADMIN_ENDPOINTS = {
     },
     CANCELLATIONS: {
         LIST: '/admin/cancellations',
+        DETAIL: (id: string) => `/admin/cancellations/${id}`,
         PROCESS: (id: string) => `/admin/cancellations/${id}/process`,
     },
 } as const;

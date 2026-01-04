@@ -24,7 +24,17 @@ export const cancellationService = {
      */
     getCancellationHistory: async (): Promise<ApiResponse<UserCancellationListItem[]>> => {
         const response = await apiClient.get<ApiResponse<UserCancellationListItem[]>>(
-            ENDPOINTS.USER.CANCELLATION_HISTORY
+            ENDPOINTS.USER.CANCELLATIONS
+        );
+        return response.data;
+    },
+
+    /**
+     * Get single cancellation request details
+     */
+    async getCancellation(id: string): Promise<ApiResponse<UserCancellationListItem>> {
+        const response = await apiClient.get<ApiResponse<UserCancellationListItem>>(
+            ENDPOINTS.USER.CANCELLATION_DETAIL(id)
         );
         return response.data;
     },

@@ -461,6 +461,16 @@ export const adminCancellationsApi = {
     },
 
     /**
+     * Get a single cancellation request details
+     */
+    async getCancellation(id: string): Promise<AdminCancellation> {
+        const response = await apiClient.get<ApiSuccessResponse<AdminCancellation>>(
+            ADMIN_ENDPOINTS.CANCELLATIONS.DETAIL(id)
+        )
+        return response.data.data
+    },
+
+    /**
      * Process (approve/reject) a cancellation request
      */
     async processCancellation(id: string, data: ProcessCancellationRequest): Promise<AdminCancellation> {

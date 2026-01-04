@@ -22,5 +22,6 @@ export const userCancellationListItemSchema = z.object({
     reason: z.string(),
     status: z.enum(['pending', 'approved', 'rejected']),
     effective_date: z.string(),
+    admin_notes: z.string().optional(),
     created_at: z.string(),
 });
