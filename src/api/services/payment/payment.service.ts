@@ -38,4 +38,10 @@ export const paymentService = {
         const response = await apiClient.get<ApiResponse<Types.UsageStatus>>(ENDPOINTS.USER.USAGE_STATUS);
         return response.data;
     },
+
+    // New: Validate subscription status (v1.6.0)
+    validateSubscription: async (): Promise<ApiResponse<Types.SubscriptionValidationResponse>> => {
+        const response = await apiClient.get<ApiResponse<Types.SubscriptionValidationResponse>>(ENDPOINTS.PAYMENT.VALIDATE);
+        return response.data;
+    },
 };

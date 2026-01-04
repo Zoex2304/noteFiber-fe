@@ -36,6 +36,7 @@ import {
 import { PlanStatusPill } from "@/components/common/PlanStatusPill";
 import { TokenUsagePill } from "@/components/common/TokenUsagePill";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/shadui/card";
+import { BillingInfoCard } from "@/components/user/BillingInfoCard";
 
 const profileSchema = z.object({
     full_name: z.string().min(2, {
@@ -173,6 +174,9 @@ export default function AccountSettings() {
                             </Form>
                         </CardContent>
                     </Card>
+
+                    {/* Billing Information Card */}
+                    <BillingInfoCard />
 
                     {/* Danger Zone Card */}
                     <Card className="border-red-100 bg-red-50/30 shadow-none">

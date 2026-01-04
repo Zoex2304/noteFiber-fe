@@ -412,3 +412,86 @@ export const updateAiNuanceRequestSchema = z.object({
 
 export type UpdateAiNuanceRequest = z.infer<typeof updateAiNuanceRequestSchema>
 
+// =====================================================
+// Admin Billing Types (v1.6.0)
+// =====================================================
+
+export const adminBillingSchema = z.object({
+    id: z.string(),
+    user_id: z.string(),
+    first_name: z.string(),
+    last_name: z.string(),
+    email: z.string(),
+    phone: z.string().optional(),
+    address_line1: z.string(),
+    address_line2: z.string().optional(),
+    city: z.string(),
+    state: z.string(),
+    postal_code: z.string(),
+    country: z.string(),
+    is_default: z.boolean(),
+    created_at: z.string(),
+    updated_at: z.string(),
+})
+
+export type AdminBilling = z.infer<typeof adminBillingSchema>
+
+export const createBillingRequestSchema = z.object({
+    first_name: z.string().min(1, 'First name is required'),
+    last_name: z.string().min(1, 'Last name is required'),
+    email: z.string().email('Invalid email'),
+    phone: z.string().optional(),
+    address_line1: z.string().min(1, 'Address is required'),
+    address_line2: z.string().optional(),
+    city: z.string().min(1, 'City is required'),
+    state: z.string().min(1, 'State is required'),
+    postal_code: z.string().min(1, 'Postal code is required'),
+    country: z.string().min(1, 'Country is required'),
+    is_default: z.boolean().optional(),
+})
+
+export type CreateBillingRequest = z.infer<typeof createBillingRequestSchema>
+
+export const updateBillingRequestSchema = createBillingRequestSchema.partial()
+
+export type UpdateBillingRequest = z.infer<typeof updateBillingRequestSchema>
+
+// =====================================================
+// Admin Cancellation Types (v1.6.0)
+// =====================================================
+
+export const cancellationStatusSchema = z.enum(['pending', 'approved', 'rejected'])
+
+export type CancellationStatus = z.infer<typeof cancellationStatusSchema>
+
+export const adminCancellationSchema = z.object({
+    id: z.string(),
+    subscription_id: z.string(),
+    user_id: z.string(),
+    user_email: z.string().optional(),
+    user_name: z.string().optional(),
+    plan_name: z.string(),
+    reason: z.string(),
+    status: cancellationStatusSchema,
+    admin_notes: z.string().optional(),
+    effective_date: z.string(),
+    processed_at: z.string().optional(),
+    created_at: z.string(),
+})
+
+export type AdminCancellation = z.infer<typeof adminCancellationSchema>
+
+export const cancellationListParamsSchema = z.object({
+    status: cancellationStatusSchema.optional(),
+    page: z.number().default(1),
+    limit: z.number().default(10),
+})
+
+export type CancellationListParams = z.infer<typeof cancellationListParamsSchema>
+
+export const processCancellationRequestSchema = z.object({
+    action: z.enum(['approve', 'reject']),
+    admin_notes: z.string().optional(),
+})
+
+export type ProcessCancellationRequest = z.infer<typeof processCancellationRequestSchema>

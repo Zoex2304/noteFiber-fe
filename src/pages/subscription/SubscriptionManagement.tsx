@@ -20,6 +20,8 @@ import { Check, Calendar, Zap, MoveLeft, Database, Search, Crown, HardDrive, Spa
 import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
 import { RefundRequestModal } from './RefundRequestModal';
+import { CancellationRequestModal } from './CancellationRequestModal';
+import { CancellationHistorySection } from './CancellationHistorySection';
 import { ActionTooltip } from '@/components/common/ActionTooltip';
 import { refundService } from '@/api/services/refund/refund.service';
 import { cn } from '@/lib/utils';
@@ -40,6 +42,7 @@ export function SubscriptionManagement() {
     const navigate = useNavigate();
     const router = useRouter();
     const [refundModalOpen, setRefundModalOpen] = useState(false);
+    const [cancellationModalOpen, setCancellationModalOpen] = useState(false);
     const [hasPendingRefund, setHasPendingRefund] = useState(false);
 
     useEffect(() => {
@@ -71,13 +74,8 @@ export function SubscriptionManagement() {
         return () => window.removeEventListener('refund:status_changed', handleRefundStatusChange);
     }, [subscriptionId]);
 
-    const handleCancelSubscription = async () => {
-        try {
-            // Placeholder: await paymentService.cancelSubscription();
-            toast.success('Cancellation request submitted.');
-        } catch {
-            toast.error('Failed to submit cancellation request.');
-        }
+    const handleCancelClick = () => {
+        setCancellationModalOpen(true);
     };
 
     const handleRefundClick = () => {
@@ -411,27 +409,15 @@ export function SubscriptionManagement() {
                                 <CardContent className="p-6">
                                     <h4 className="font-medium text-red-900 mb-2">Cancel Subscription</h4>
                                     <p className="text-sm text-red-700/80 mb-4">
-                                        Lose access to premium features at the end of billing period.
+                                        Request to cancel your subscription. Your request will be reviewed.
                                     </p>
-                                    <AlertDialog>
-                                        <AlertDialogTrigger asChild>
-                                            <Button variant="destructive" className="w-full bg-white text-red-600 border border-red-200 hover:bg-red-50 hover:text-red-700 shadow-sm">
-                                                Cancel Subscription
-                                            </Button>
-                                        </AlertDialogTrigger>
-                                        <AlertDialogContent>
-                                            <AlertDialogHeader>
-                                                <AlertDialogTitle>Cancel Subscription</AlertDialogTitle>
-                                                <AlertDialogDescription>
-                                                    Are you sure? You will lose access to premium features.
-                                                </AlertDialogDescription>
-                                            </AlertDialogHeader>
-                                            <AlertDialogFooter>
-                                                <AlertDialogCancel>Keep Subscription</AlertDialogCancel>
-                                                <AlertDialogAction onClick={handleCancelSubscription} className="bg-red-600 hover:bg-red-700">Yes, Cancel</AlertDialogAction>
-                                            </AlertDialogFooter>
-                                        </AlertDialogContent>
-                                    </AlertDialog>
+                                    <Button
+                                        variant="destructive"
+                                        onClick={handleCancelClick}
+                                        className="w-full bg-white text-red-600 border border-red-200 hover:bg-red-50 hover:text-red-700 shadow-sm"
+                                    >
+                                        Request Cancellation
+                                    </Button>
                                 </CardContent>
                             </Card>
                         </div>
@@ -446,8 +432,20 @@ export function SubscriptionManagement() {
                             refreshSubscription();
                         }}
                     />
+                    <CancellationRequestModal
+                        open={cancellationModalOpen}
+                        onOpenChange={setCancellationModalOpen}
+                        subscriptionId={subscriptionId}
+                        planName={planName}
+                        onSuccess={() => {
+                            refreshSubscription();
+                        }}
+                    />
                 </div>
             </div>
+
+            {/* Cancellation History */}
+            <CancellationHistorySection />
         </div>
     );
 }

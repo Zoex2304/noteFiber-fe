@@ -18,6 +18,7 @@ import {
   Activity,
   Bot,
   Settings2,
+  Ban,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -77,6 +78,11 @@ export const sidebarData: SidebarData = {
           title: 'Refunds',
           url: '/refunds',
           icon: RotateCcw,
+        },
+        {
+          title: 'Cancellations',
+          url: '/cancellations',
+          icon: Ban,
         },
         {
           title: 'System Logs',

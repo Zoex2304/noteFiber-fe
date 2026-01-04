@@ -50,4 +50,14 @@ export const ADMIN_ENDPOINTS = {
         NUANCE_UPDATE: (id: string) => `/admin/ai/nuances/${id}`,
         NUANCE_DELETE: (id: string) => `/admin/ai/nuances/${id}`,
     },
+    BILLING: {
+        USER_LIST: (userId: string) => `/admin/users/${userId}/billing`,
+        CREATE: (userId: string) => `/admin/users/${userId}/billing`,
+        UPDATE: (id: string) => `/admin/billing/${id}`,
+        DELETE: (id: string) => `/admin/billing/${id}`,
+    },
+    CANCELLATIONS: {
+        LIST: '/admin/cancellations',
+        PROCESS: (id: string) => `/admin/cancellations/${id}/process`,
+    },
 } as const;

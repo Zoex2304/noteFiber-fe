@@ -34,6 +34,14 @@ import type {
     CreateAiNuanceRequest,
     UpdateAiConfigurationRequest,
     UpdateAiNuanceRequest,
+    // Billing Types (v1.6.0)
+    AdminBilling,
+    CreateBillingRequest,
+    UpdateBillingRequest,
+    // Cancellation Types (v1.6.0)
+    AdminCancellation,
+    CancellationListParams,
+    ProcessCancellationRequest,
 } from '../types/admin-api'
 import { ADMIN_ENDPOINTS } from '../../config/admin-endpoints'
 
@@ -393,6 +401,77 @@ export const adminAiNuanceApi = {
     },
 }
 
+// =====================================================
+// Admin Billing API (v1.6.0)
+// =====================================================
+export const adminBillingApi = {
+    /**
+     * Get all billing addresses for a specific user
+     */
+    async getUserBilling(userId: string): Promise<AdminBilling[]> {
+        const response = await apiClient.get<ApiSuccessResponse<AdminBilling[]>>(
+            ADMIN_ENDPOINTS.BILLING.USER_LIST(userId)
+        )
+        return response.data.data ?? []
+    },
+
+    /**
+     * Create a new billing address for a user
+     */
+    async createBilling(userId: string, data: CreateBillingRequest): Promise<AdminBilling> {
+        const response = await apiClient.post<ApiSuccessResponse<AdminBilling>>(
+            ADMIN_ENDPOINTS.BILLING.CREATE(userId),
+            data
+        )
+        return response.data.data
+    },
+
+    /**
+     * Update an existing billing address
+     */
+    async updateBilling(id: string, data: UpdateBillingRequest): Promise<AdminBilling> {
+        const response = await apiClient.put<ApiSuccessResponse<AdminBilling>>(
+            ADMIN_ENDPOINTS.BILLING.UPDATE(id),
+            data
+        )
+        return response.data.data
+    },
+
+    /**
+     * Delete a billing address
+     */
+    async deleteBilling(id: string): Promise<void> {
+        await apiClient.delete(ADMIN_ENDPOINTS.BILLING.DELETE(id))
+    },
+}
+
+// =====================================================
+// Admin Cancellations API (v1.6.0)
+// =====================================================
+export const adminCancellationsApi = {
+    /**
+     * Get list of cancellation requests with optional filtering
+     */
+    async getCancellations(params?: CancellationListParams): Promise<AdminCancellation[]> {
+        const response = await apiClient.get<ApiSuccessResponse<AdminCancellation[]>>(
+            ADMIN_ENDPOINTS.CANCELLATIONS.LIST,
+            { params }
+        )
+        return response.data.data ?? []
+    },
+
+    /**
+     * Process (approve/reject) a cancellation request
+     */
+    async processCancellation(id: string, data: ProcessCancellationRequest): Promise<AdminCancellation> {
+        const response = await apiClient.post<ApiSuccessResponse<AdminCancellation>>(
+            ADMIN_ENDPOINTS.CANCELLATIONS.PROCESS(id),
+            data
+        )
+        return response.data.data
+    },
+}
+
 // Error handling helper
 export function handleApiError(error: unknown): string {
     if (axios.isAxiosError(error)) {
@@ -404,3 +483,4 @@ export function handleApiError(error: unknown): string {
     }
     return 'An unknown error occurred'
 }
+

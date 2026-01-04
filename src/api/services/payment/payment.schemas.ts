@@ -138,3 +138,14 @@ export const limitExceededErrorSchema = z.object({
     reset_after: z.string().optional(),
     show_modal_pricing: z.boolean().optional(),
 });
+
+// ========== Subscription Validation (v1.6.0) ==========
+export const subscriptionValidationResponseSchema = z.object({
+    is_valid: z.boolean(),
+    status: z.enum(['active', 'grace_period', 'expired', 'free_tier', 'canceled', 'inactive']),
+    renewal_required: z.boolean(),
+    current_period_end: z.string().optional(),
+    days_remaining: z.number().optional(),
+    grace_period_end: z.string().optional(),
+    plan_name: z.string().optional(),
+});

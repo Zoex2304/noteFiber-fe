@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { paymentService } from '@/api/services/payment/payment.service';
-import type { PublicPlan } from '@/api/services/payment/payment.types';
+import type { PublicPlan, SubscriptionValidationResponse } from '@/api/services/payment/payment.types';
 
 interface UsageMetric {
     used: number;
@@ -41,9 +41,13 @@ interface SubscriptionState {
         };
     };
 
+    // Subscription Validation (v1.6.0)
+    validationStatus: SubscriptionValidationResponse | null;
+
     // Actions
     fetchSubscription: () => Promise<void>;
     fetchPublicPlans: () => Promise<void>;
+    validateSubscription: () => Promise<void>;
     checkPermission: (feature: 'ai_chat' | 'semantic_search') => boolean;
     checkLimit: (type: 'chat' | 'search' | 'notes' | 'notebooks') => boolean;
 }
@@ -66,6 +70,7 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
             notebooks: defaultMetric,
         }
     },
+    validationStatus: null,
 
     fetchPublicPlans: async () => {
         // Prevent concurrent or redundant fetches if already have data? 
@@ -164,6 +169,17 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
             console.error("Subscription Sync Error:", error);
         } finally {
             set({ isLoading: false });
+        }
+    },
+
+    validateSubscription: async () => {
+        try {
+            const response = await paymentService.validateSubscription();
+            if (response.success && response.data) {
+                set({ validationStatus: response.data });
+            }
+        } catch (error) {
+            console.warn("Subscription validation failed:", error);
         }
     },
 
