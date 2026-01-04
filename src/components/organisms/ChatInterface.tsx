@@ -82,7 +82,7 @@ export function ChatInterface({
     // Auto-scroll when messages change or during loading (syncs with typewriter)
     useEffect(() => {
         // Only auto-scroll if user is near bottom or it's a new message
-        if (isNearBottom || isLoading) {
+        if (isNearBottom) {
             scrollToBottom("smooth");
         }
     }, [lastMessageContent, isLoading, isNearBottom, scrollToBottom]);

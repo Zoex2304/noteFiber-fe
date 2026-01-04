@@ -202,7 +202,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
             id: tempId,
             content,
             role: "user",
-            timestamp: new Date()
+            timestamp: new Date(),
+            citations: preloadedReferences.map(n => ({
+                noteId: n.id,
+                title: n.title
+            }))
         };
 
         set(state => ({
