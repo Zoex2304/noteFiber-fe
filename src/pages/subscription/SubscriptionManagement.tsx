@@ -1,33 +1,23 @@
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/shadui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/shadui/card';
 import { Button } from '@/components/shadui/button';
 import { Badge } from '@/components/shadui/badge';
 import { Skeleton } from '@/components/shadui/skeleton';
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from '@/components/shadui/alert-dialog';
+
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useNavigate, useRouter } from '@tanstack/react-router';
-import { Check, Calendar, Zap, MoveLeft, Database, Search, Crown, HardDrive, Sparkles, Book, X, RotateCcw } from 'lucide-react';
+import { Check, Calendar, Zap, MoveLeft, Database, Search, Crown, HardDrive, Sparkles, Book, RotateCcw, ArrowRight, FileText } from 'lucide-react';
 
 import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
 import { RefundRequestModal } from './RefundRequestModal';
 import { CancellationRequestModal } from './CancellationRequestModal';
-import { CancellationHistorySection } from './CancellationHistorySection';
+import { useCancellationHistory } from '@/hooks/user/useCancellations';
 import { GradientPill } from '@/components/common/GradientPill';
 import { ActionTooltip } from '@/components/common/ActionTooltip';
 import { refundService } from '@/api/services/refund/refund.service';
 import { cn } from '@/lib/utils';
 import { TokenUsageIndicator } from '@/components/common/TokenUsageIndicator';
-import { Progress } from '@/components/shadui/progress';
+
 import HeaderGradient from '@/assets/images/common/header gradient_v2.svg';
 import { motion } from 'framer-motion';
 import { useSubscriptionStore } from '@/stores/useSubscriptionStore';
@@ -45,6 +35,16 @@ export function SubscriptionManagement() {
     const [refundModalOpen, setRefundModalOpen] = useState(false);
     const [cancellationModalOpen, setCancellationModalOpen] = useState(false);
     const [hasPendingRefund, setHasPendingRefund] = useState(false);
+
+    const { data: cancellationHistory = [] } = useCancellationHistory();
+    const latestCancellation = cancellationHistory.length > 0 ? cancellationHistory[0] : null;
+
+    const isPaidPlan = planName.toLowerCase().includes('pro') || planName.toLowerCase().includes('enterprise');
+    const isCanceledButValid = validationStatus?.is_valid && validationStatus?.status === 'canceled';
+    const displayActive = isActive || isCanceledButValid;
+
+    // Derived state for billing clarity
+    const showEffectiveDate = latestCancellation && latestCancellation.status === 'approved' && latestCancellation.effective_date;
 
     useEffect(() => {
         fetchPublicPlans();
@@ -92,9 +92,8 @@ export function SubscriptionManagement() {
         return <div className="p-8 space-y-4 max-w-5xl mx-auto"><Skeleton className="h-48 w-full" /><Skeleton className="h-32 w-full" /></div>;
     }
 
-    const isPaidPlan = planName.toLowerCase().includes('pro') || planName.toLowerCase().includes('enterprise');
-    const isCanceledButValid = validationStatus?.is_valid && validationStatus?.status === 'canceled';
-    const displayActive = isActive || isCanceledButValid;
+    // Determine if Danger Zone should be shown
+    const showDangerZone = isPaidPlan && !isCanceledButValid && (!latestCancellation || latestCancellation.status === 'rejected');
 
     return (
         <div className="container max-w-5xl mx-auto p-6 space-y-8 animate-in fade-in duration-500">
@@ -129,13 +128,14 @@ export function SubscriptionManagement() {
                         <div className="flex items-center gap-3 mb-2">
                             <Badge variant={displayActive ? 'default' : 'secondary'} className={cn(
                                 "uppercase tracking-wider text-[10px] font-bold px-2 py-0.5 rounded-sm",
+                                "transition-all duration-300",
                                 displayActive ? "bg-royal-violet-base hover:bg-royal-violet-base" : "bg-gray-100 text-gray-500",
                                 isCanceledButValid && "bg-orange-500 hover:bg-orange-600"
                             )}>
                                 {isCanceledButValid ? 'Active (Canceled)' : (displayActive ? 'Active' : 'Inactive')}
                             </Badge>
                             {hasPendingRefund && (
-                                <Badge variant="outline" className="text-yellow-600 border-yellow-200">
+                                <Badge variant="outline" className="text-yellow-600 border-yellow-200 animate-pulse">
                                     Refund Pending
                                 </Badge>
                             )}
@@ -186,10 +186,10 @@ export function SubscriptionManagement() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
                     {/* AI Chat Tokens */}
-                    <Card className="shadow-sm border-gray-100 bg-white">
+                    <Card className="shadow-sm border-gray-100 bg-white hover:shadow-md transition-all duration-300">
                         <CardHeader className="pb-2">
                             <CardTitle className="text-sm font-medium text-gray-500 flex items-center gap-2">
-                                <Zap className="h-4 w-4" />
+                                <Zap className="h-4 w-4 text-amber-500" />
                                 AI Chat Tokens
                             </CardTitle>
                         </CardHeader>
@@ -219,10 +219,10 @@ export function SubscriptionManagement() {
                     </Card>
 
                     {/* Search Tokens */}
-                    <Card className="shadow-sm border-gray-100 bg-white">
+                    <Card className="shadow-sm border-gray-100 bg-white hover:shadow-md transition-all duration-300">
                         <CardHeader className="pb-2">
                             <CardTitle className="text-sm font-medium text-gray-500 flex items-center gap-2">
-                                <Search className="h-4 w-4" />
+                                <Search className="h-4 w-4 text-blue-500" />
                                 Search Tokens
                             </CardTitle>
                         </CardHeader>
@@ -254,10 +254,10 @@ export function SubscriptionManagement() {
                     </Card>
 
                     {/* Note Storage */}
-                    <Card className="shadow-sm border-gray-100 bg-white">
+                    <Card className="shadow-sm border-gray-100 bg-white hover:shadow-md transition-all duration-300">
                         <CardHeader className="pb-2">
                             <CardTitle className="text-sm font-medium text-gray-500 flex items-center gap-2">
-                                <Database className="h-4 w-4" />
+                                <Database className="h-4 w-4 text-purple-500" />
                                 Note Storage
                             </CardTitle>
                         </CardHeader>
@@ -296,10 +296,10 @@ export function SubscriptionManagement() {
                     </Card>
 
                     {/* Notebook Storage */}
-                    <Card className="shadow-sm border-gray-100 bg-white">
+                    <Card className="shadow-sm border-gray-100 bg-white hover:shadow-md transition-all duration-300">
                         <CardHeader className="pb-2">
                             <CardTitle className="text-sm font-medium text-gray-500 flex items-center gap-2">
-                                <Book className="h-4 w-4" />
+                                <Book className="h-4 w-4 text-pink-500" />
                                 Notebooks
                             </CardTitle>
                         </CardHeader>
@@ -387,44 +387,141 @@ export function SubscriptionManagement() {
                 </div>
             </div>
 
-            {/* Billing & Danger Zone */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pt-4">
-                <div className="lg:col-span-2 space-y-6">
-                    {/* Billing Info */}
-                    <Card className="shadow-none border-0 bg-transparent">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Billing Information</h3>
-                        <div className="bg-white border border-gray-100 rounded-xl p-6">
-                            <div className="flex items-start gap-4">
-                                <div className="h-10 w-10 rounded-full bg-orange-50 flex items-center justify-center shrink-0">
-                                    <Calendar className="h-5 w-5 text-orange-500" />
+            {/* Billing & Danger Zone & History */}
+            {/* If Danger Zone hidden, grid becomes simpler */}
+            <div className={cn(
+                "grid grid-cols-1 gap-8 pt-4",
+                showDangerZone ? "lg:grid-cols-3" : "lg:grid-cols-1"
+            )}>
+                <div className={cn(
+                    "space-y-6",
+                    showDangerZone ? "lg:col-span-2" : "w-full"
+                )}>
+                    {/* Billing Information - Redesigned */}
+                    <Card className="shadow-sm border-gray-100 bg-white overflow-hidden">
+                        <CardHeader className="bg-gray-50/50 border-b border-gray-100 pb-4">
+                            <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                                <Calendar className="h-5 w-5 text-purple-600" />
+                                Billing Information
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="space-y-1">
+                                    <h4 className="text-sm font-medium text-gray-500 uppercase tracking-wider">Current Status</h4>
+                                    <div className="flex items-center gap-2">
+                                        <Badge variant={displayActive ? 'default' : 'secondary'} className={cn(
+                                            "capitalize px-2.5 py-0.5 text-sm font-semibold",
+                                            displayActive ? "bg-green-100 text-green-700 hover:bg-green-100" : "bg-gray-100 text-gray-600",
+                                            isCanceledButValid && "bg-orange-100 text-orange-700 hover:bg-orange-100"
+                                        )}>
+                                            {isCanceledButValid ? 'Canceling' : (displayActive ? 'Active' : 'Inactive')}
+                                        </Badge>
+                                        {hasPendingRefund && (
+                                            <Badge variant="outline" className="border-yellow-200 text-yellow-700 bg-yellow-50">
+                                                Refund Pending
+                                            </Badge>
+                                        )}
+                                    </div>
                                 </div>
-                                <div>
-                                    <h4 className="text-sm font-medium text-gray-900">Next Invoice</h4>
-                                    <p className="text-sm text-gray-500 mt-1">
-                                        {isPaidPlan
-                                            ? `Your next bill is scheduled for ${new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString()}.`
-                                            : "You are on the Free plan. No upcoming charges."}
-                                    </p>
-                                </div>
+
+                                {showEffectiveDate ? (
+                                    <div className="space-y-1">
+                                        <h4 className="text-sm font-medium text-gray-500 uppercase tracking-wider">Cancellation Effective</h4>
+                                        <p className="text-lg font-bold text-gray-900">
+                                            {new Date(latestCancellation!.effective_date!).toLocaleDateString()}
+                                        </p>
+                                        <p className="text-xs text-gray-500">Access continues until this date</p>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-1">
+                                        <h4 className="text-sm font-medium text-gray-500 uppercase tracking-wider">
+                                            {isPaidPlan ? 'Next Invoice' : 'Next Billing'}
+                                        </h4>
+                                        <p className="text-lg font-bold text-gray-900">
+                                            {isPaidPlan
+                                                ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString()
+                                                : "No upcoming charges"}
+                                        </p>
+                                        {isPaidPlan && <p className="text-xs text-gray-500">Auto-renews on this date</p>}
+                                    </div>
+                                )}
                             </div>
-                        </div>
+                        </CardContent>
                     </Card>
+
+                    {/* Latest Cancellation & History Link */}
+                    {latestCancellation && (
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                                <h3 className="text-lg font-semibold text-gray-900">Latest Cancellation Request</h3>
+                                <Button
+                                    variant="link"
+                                    className="text-purple-600 p-0 h-auto font-medium hover:text-purple-700"
+                                    onClick={() => navigate({ to: '/app/subscription/history' })}
+                                >
+                                    View all history <ArrowRight className="ml-1 h-3 w-3" />
+                                </Button>
+                            </div>
+
+                            <Card
+                                className="shadow-sm border-gray-100 hover:shadow-md transition-shadow cursor-pointer group"
+                                onClick={() => navigate({ to: '/app/subscription/cancellation/$cancellationId', params: { cancellationId: latestCancellation.id } })}
+                            >
+                                <CardContent className="p-5 flex items-center justify-between gap-4">
+                                    <div className="flex items-start gap-4">
+                                        <div className={cn(
+                                            "h-10 w-10 rounded-full flex items-center justify-center shrink-0",
+                                            latestCancellation.status === 'pending' ? "bg-yellow-50 text-yellow-600" :
+                                                latestCancellation.status === 'approved' ? "bg-green-50 text-green-600" :
+                                                    "bg-red-50 text-red-600"
+                                        )}>
+                                            <FileText className="h-5 w-5" />
+                                        </div>
+                                        <div>
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <span className="font-semibold text-gray-900">Cancellation for {latestCancellation.plan_name}</span>
+                                                <Badge variant={
+                                                    latestCancellation.status === 'pending' ? 'secondary' :
+                                                        latestCancellation.status === 'approved' ? 'default' : 'destructive'
+                                                } className="text-[10px] px-1.5 py-0 h-5">
+                                                    {latestCancellation.status}
+                                                </Badge>
+                                            </div>
+                                            <p className="text-sm text-gray-500 line-clamp-1 max-w-md">
+                                                {latestCancellation.reason}
+                                            </p>
+                                            <p className="text-xs text-gray-400 mt-1">
+                                                Submitted on {new Date(latestCancellation.created_at).toLocaleDateString()}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <ArrowRight className="h-5 w-5 text-gray-300 group-hover:text-purple-500 transition-colors" />
+                                </CardContent>
+                            </Card>
+                        </div>
+                    )}
                 </div>
 
                 <div className="space-y-6">
-                    {isPaidPlan && (
+                    {/* Danger Zone */}
+                    {/* Hide if plan is free OR if canceling is already valid OR if there is a pending/approved request */}
+                    {showDangerZone && (
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Danger Zone</h3>
-                            <Card className="border-red-100 bg-red-50/50 shadow-none">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Management</h3>
+                            <Card className="border-red-100 bg-white shadow-sm overflow-hidden">
+                                <CardHeader className="bg-red-50/50 border-b border-red-100 py-4">
+                                    <CardTitle className="text-base font-medium text-red-900">Danger Zone</CardTitle>
+                                </CardHeader>
                                 <CardContent className="p-6">
-                                    <h4 className="font-medium text-red-900 mb-2">Cancel Subscription</h4>
-                                    <p className="text-sm text-red-700/80 mb-4">
-                                        Request to cancel your subscription. Your request will be reviewed.
+                                    <h4 className="font-medium text-gray-900 mb-2">Cancel Subscription</h4>
+                                    <p className="text-sm text-gray-500 mb-4">
+                                        Request to cancel your subscription. You will lose access to premium features at the end of your billing period.
                                     </p>
                                     <Button
                                         variant="destructive"
                                         onClick={handleCancelClick}
-                                        className="w-full bg-white text-red-600 border border-red-200 hover:bg-red-50 hover:text-red-700 shadow-sm"
+                                        className="w-full shadow-sm"
                                     >
                                         Request Cancellation
                                     </Button>
@@ -432,6 +529,7 @@ export function SubscriptionManagement() {
                             </Card>
                         </div>
                     )}
+
                     <RefundRequestModal
                         open={refundModalOpen}
                         onOpenChange={setRefundModalOpen}
@@ -453,9 +551,6 @@ export function SubscriptionManagement() {
                     />
                 </div>
             </div>
-
-            {/* Cancellation History */}
-            <CancellationHistorySection />
         </div>
     );
 }
