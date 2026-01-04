@@ -1,6 +1,5 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { SubscriptionManagement } from '@/pages/subscription/SubscriptionManagement'
+import { createFileRoute, Outlet } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_authenticated/app/subscription')({
-    component: SubscriptionManagement,
+    component: () => <Outlet />,
 })

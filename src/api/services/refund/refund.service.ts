@@ -22,4 +22,12 @@ export const refundService = {
         const response = await apiClient.get<ApiResponse<UserRefund[]>>(ENDPOINTS.REFUND.LIST);
         return response.data;
     },
+
+    /**
+     * Get single refund request details
+     */
+    getRefund: async (id: string): Promise<ApiResponse<UserRefund>> => {
+        const response = await apiClient.get<ApiResponse<UserRefund>>(ENDPOINTS.REFUND.DETAIL(id));
+        return response.data;
+    },
 };

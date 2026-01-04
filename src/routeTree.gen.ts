@@ -27,11 +27,14 @@ import { Route as AuthenticatedRefundsRefundIdRouteImport } from './routes/_auth
 import { Route as AuthenticatedCancellationsCancellationIdRouteImport } from './routes/_authenticated/cancellations.$cancellationId'
 import { Route as AuthenticatedAppSubscriptionRouteImport } from './routes/_authenticated/app.subscription'
 import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/app.settings'
+import { Route as AuthenticatedAppSubscriptionIndexRouteImport } from './routes/_authenticated/app.subscription.index'
 import { Route as AuthenticatedAppUsersUserIdRouteImport } from './routes/_authenticated/app.users.$userId'
 import { Route as AuthenticatedAppSubscriptionHistoryRouteImport } from './routes/_authenticated/app.subscription.history'
 import { Route as AuthenticatedAppRefundsRefundIdRouteImport } from './routes/_authenticated/app.refunds.$refundId'
 import { Route as AuthenticatedAppNoteNoteIdRouteImport } from './routes/_authenticated/app.note.$noteId'
 import { Route as AuthenticatedAppCancellationsCancellationIdRouteImport } from './routes/_authenticated/app.cancellations.$cancellationId'
+import { Route as AuthenticatedAppSubscriptionRefundsHistoryRouteImport } from './routes/_authenticated/app.subscription.refunds.history'
+import { Route as AuthenticatedAppSubscriptionRefundsRefundIdRouteImport } from './routes/_authenticated/app.subscription.refunds.$refundId'
 import { Route as AuthenticatedAppSubscriptionCancellationCancellationIdRouteImport } from './routes/_authenticated/app.subscription.cancellation.$cancellationId'
 
 const LandingRoute = LandingRouteImport.update({
@@ -128,6 +131,12 @@ const AuthenticatedAppSettingsRoute =
     path: '/settings',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppSubscriptionIndexRoute =
+  AuthenticatedAppSubscriptionIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAppSubscriptionRoute,
+  } as any)
 const AuthenticatedAppUsersUserIdRoute =
   AuthenticatedAppUsersUserIdRouteImport.update({
     id: '/users/$userId',
@@ -157,6 +166,18 @@ const AuthenticatedAppCancellationsCancellationIdRoute =
     id: '/cancellations/$cancellationId',
     path: '/cancellations/$cancellationId',
     getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppSubscriptionRefundsHistoryRoute =
+  AuthenticatedAppSubscriptionRefundsHistoryRouteImport.update({
+    id: '/refunds/history',
+    path: '/refunds/history',
+    getParentRoute: () => AuthenticatedAppSubscriptionRoute,
+  } as any)
+const AuthenticatedAppSubscriptionRefundsRefundIdRoute =
+  AuthenticatedAppSubscriptionRefundsRefundIdRouteImport.update({
+    id: '/refunds/$refundId',
+    path: '/refunds/$refundId',
+    getParentRoute: () => AuthenticatedAppSubscriptionRoute,
   } as any)
 const AuthenticatedAppSubscriptionCancellationCancellationIdRoute =
   AuthenticatedAppSubscriptionCancellationCancellationIdRouteImport.update({
@@ -188,7 +209,10 @@ export interface FileRoutesByFullPath {
   '/app/refunds/$refundId': typeof AuthenticatedAppRefundsRefundIdRoute
   '/app/subscription/history': typeof AuthenticatedAppSubscriptionHistoryRoute
   '/app/users/$userId': typeof AuthenticatedAppUsersUserIdRoute
+  '/app/subscription/': typeof AuthenticatedAppSubscriptionIndexRoute
   '/app/subscription/cancellation/$cancellationId': typeof AuthenticatedAppSubscriptionCancellationCancellationIdRoute
+  '/app/subscription/refunds/$refundId': typeof AuthenticatedAppSubscriptionRefundsRefundIdRoute
+  '/app/subscription/refunds/history': typeof AuthenticatedAppSubscriptionRefundsHistoryRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -202,7 +226,6 @@ export interface FileRoutesByTo {
   '/pricing': typeof AuthenticatedPricingRoute
   '/admin/$': typeof AdminSplatRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
-  '/app/subscription': typeof AuthenticatedAppSubscriptionRouteWithChildren
   '/cancellations/$cancellationId': typeof AuthenticatedCancellationsCancellationIdRoute
   '/refunds/$refundId': typeof AuthenticatedRefundsRefundIdRoute
   '/users/$userId': typeof AuthenticatedUsersUserIdRoute
@@ -212,7 +235,10 @@ export interface FileRoutesByTo {
   '/app/refunds/$refundId': typeof AuthenticatedAppRefundsRefundIdRoute
   '/app/subscription/history': typeof AuthenticatedAppSubscriptionHistoryRoute
   '/app/users/$userId': typeof AuthenticatedAppUsersUserIdRoute
+  '/app/subscription': typeof AuthenticatedAppSubscriptionIndexRoute
   '/app/subscription/cancellation/$cancellationId': typeof AuthenticatedAppSubscriptionCancellationCancellationIdRoute
+  '/app/subscription/refunds/$refundId': typeof AuthenticatedAppSubscriptionRefundsRefundIdRoute
+  '/app/subscription/refunds/history': typeof AuthenticatedAppSubscriptionRefundsHistoryRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -239,7 +265,10 @@ export interface FileRoutesById {
   '/_authenticated/app/refunds/$refundId': typeof AuthenticatedAppRefundsRefundIdRoute
   '/_authenticated/app/subscription/history': typeof AuthenticatedAppSubscriptionHistoryRoute
   '/_authenticated/app/users/$userId': typeof AuthenticatedAppUsersUserIdRoute
+  '/_authenticated/app/subscription/': typeof AuthenticatedAppSubscriptionIndexRoute
   '/_authenticated/app/subscription/cancellation/$cancellationId': typeof AuthenticatedAppSubscriptionCancellationCancellationIdRoute
+  '/_authenticated/app/subscription/refunds/$refundId': typeof AuthenticatedAppSubscriptionRefundsRefundIdRoute
+  '/_authenticated/app/subscription/refunds/history': typeof AuthenticatedAppSubscriptionRefundsHistoryRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -266,7 +295,10 @@ export interface FileRouteTypes {
     | '/app/refunds/$refundId'
     | '/app/subscription/history'
     | '/app/users/$userId'
+    | '/app/subscription/'
     | '/app/subscription/cancellation/$cancellationId'
+    | '/app/subscription/refunds/$refundId'
+    | '/app/subscription/refunds/history'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -280,7 +312,6 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/admin/$'
     | '/app/settings'
-    | '/app/subscription'
     | '/cancellations/$cancellationId'
     | '/refunds/$refundId'
     | '/users/$userId'
@@ -290,7 +321,10 @@ export interface FileRouteTypes {
     | '/app/refunds/$refundId'
     | '/app/subscription/history'
     | '/app/users/$userId'
+    | '/app/subscription'
     | '/app/subscription/cancellation/$cancellationId'
+    | '/app/subscription/refunds/$refundId'
+    | '/app/subscription/refunds/history'
   id:
     | '__root__'
     | '/'
@@ -316,7 +350,10 @@ export interface FileRouteTypes {
     | '/_authenticated/app/refunds/$refundId'
     | '/_authenticated/app/subscription/history'
     | '/_authenticated/app/users/$userId'
+    | '/_authenticated/app/subscription/'
     | '/_authenticated/app/subscription/cancellation/$cancellationId'
+    | '/_authenticated/app/subscription/refunds/$refundId'
+    | '/_authenticated/app/subscription/refunds/history'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -459,6 +496,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppSettingsRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/subscription/': {
+      id: '/_authenticated/app/subscription/'
+      path: '/'
+      fullPath: '/app/subscription/'
+      preLoaderRoute: typeof AuthenticatedAppSubscriptionIndexRouteImport
+      parentRoute: typeof AuthenticatedAppSubscriptionRoute
+    }
     '/_authenticated/app/users/$userId': {
       id: '/_authenticated/app/users/$userId'
       path: '/users/$userId'
@@ -494,6 +538,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppCancellationsCancellationIdRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/subscription/refunds/history': {
+      id: '/_authenticated/app/subscription/refunds/history'
+      path: '/refunds/history'
+      fullPath: '/app/subscription/refunds/history'
+      preLoaderRoute: typeof AuthenticatedAppSubscriptionRefundsHistoryRouteImport
+      parentRoute: typeof AuthenticatedAppSubscriptionRoute
+    }
+    '/_authenticated/app/subscription/refunds/$refundId': {
+      id: '/_authenticated/app/subscription/refunds/$refundId'
+      path: '/refunds/$refundId'
+      fullPath: '/app/subscription/refunds/$refundId'
+      preLoaderRoute: typeof AuthenticatedAppSubscriptionRefundsRefundIdRouteImport
+      parentRoute: typeof AuthenticatedAppSubscriptionRoute
+    }
     '/_authenticated/app/subscription/cancellation/$cancellationId': {
       id: '/_authenticated/app/subscription/cancellation/$cancellationId'
       path: '/cancellation/$cancellationId'
@@ -506,15 +564,24 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAppSubscriptionRouteChildren {
   AuthenticatedAppSubscriptionHistoryRoute: typeof AuthenticatedAppSubscriptionHistoryRoute
+  AuthenticatedAppSubscriptionIndexRoute: typeof AuthenticatedAppSubscriptionIndexRoute
   AuthenticatedAppSubscriptionCancellationCancellationIdRoute: typeof AuthenticatedAppSubscriptionCancellationCancellationIdRoute
+  AuthenticatedAppSubscriptionRefundsRefundIdRoute: typeof AuthenticatedAppSubscriptionRefundsRefundIdRoute
+  AuthenticatedAppSubscriptionRefundsHistoryRoute: typeof AuthenticatedAppSubscriptionRefundsHistoryRoute
 }
 
 const AuthenticatedAppSubscriptionRouteChildren: AuthenticatedAppSubscriptionRouteChildren =
   {
     AuthenticatedAppSubscriptionHistoryRoute:
       AuthenticatedAppSubscriptionHistoryRoute,
+    AuthenticatedAppSubscriptionIndexRoute:
+      AuthenticatedAppSubscriptionIndexRoute,
     AuthenticatedAppSubscriptionCancellationCancellationIdRoute:
       AuthenticatedAppSubscriptionCancellationCancellationIdRoute,
+    AuthenticatedAppSubscriptionRefundsRefundIdRoute:
+      AuthenticatedAppSubscriptionRefundsRefundIdRoute,
+    AuthenticatedAppSubscriptionRefundsHistoryRoute:
+      AuthenticatedAppSubscriptionRefundsHistoryRoute,
   }
 
 const AuthenticatedAppSubscriptionRouteWithChildren =

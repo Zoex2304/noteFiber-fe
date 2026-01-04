@@ -52,5 +52,6 @@ export const ENDPOINTS = {
     REFUND: {
         REQUEST: '/user/refund/request',
         LIST: '/user/refunds',
+        DETAIL: (id: string) => `/user/refunds/${id}`,
     },
 } as const;

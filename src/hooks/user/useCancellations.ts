@@ -43,3 +43,21 @@ export function useRequestCancellation() {
         },
     });
 }
+
+/**
+ * Hook to fetch single cancellation request details
+ */
+export function useCancellationDetail(id: string) {
+    return useQuery<UserCancellationListItem, Error>({
+        queryKey: ['user', 'cancellations', id],
+        queryFn: async () => {
+            const response = await cancellationService.getCancellation(id);
+            if (!response.success || !response.data) {
+                throw new Error(response.message || 'Failed to fetch cancellation details');
+            }
+            return response.data;
+        },
+        enabled: !!id,
+        staleTime: 30000,
+    });
+}

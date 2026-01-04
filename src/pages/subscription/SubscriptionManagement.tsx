@@ -4,8 +4,8 @@ import { Badge } from '@/components/shadui/badge';
 import { Skeleton } from '@/components/shadui/skeleton';
 
 import { useSubscription } from '@/contexts/SubscriptionContext';
-import { useNavigate, useRouter } from '@tanstack/react-router';
-import { Check, Calendar, Zap, MoveLeft, Database, Search, Crown, HardDrive, Sparkles, Book, RotateCcw, ArrowRight, FileText } from 'lucide-react';
+import { useNavigate, useRouter, Link } from '@tanstack/react-router';
+import { Check, Calendar, Zap, MoveLeft, Database, Search, Crown, HardDrive, Sparkles, Book, RotateCcw, ArrowRight, FileText, Receipt } from 'lucide-react';
 
 import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
@@ -455,13 +455,12 @@ export function SubscriptionManagement() {
                         <div className="space-y-3">
                             <div className="flex items-center justify-between">
                                 <h3 className="text-lg font-semibold text-gray-900">Latest Cancellation Request</h3>
-                                <Button
-                                    variant="link"
-                                    className="text-purple-600 p-0 h-auto font-medium hover:text-purple-700"
-                                    onClick={() => navigate({ to: '/app/subscription/history' })}
+                                <Link
+                                    to="/app/subscription/history"
+                                    className="text-purple-600 font-medium hover:text-purple-700 hover:underline flex items-center text-sm"
                                 >
                                     View all history <ArrowRight className="ml-1 h-3 w-3" />
-                                </Button>
+                                </Link>
                             </div>
 
                             <Card
@@ -504,15 +503,22 @@ export function SubscriptionManagement() {
                 </div>
 
                 <div className="space-y-6">
+                    {/* Refund History Link */}
+                    <div className="flex justify-end">
+                        <Link
+                            to="/app/subscription/refunds/history"
+                            className="text-sm text-gray-500 hover:text-purple-600 hover:underline flex items-center gap-1 transition-colors"
+                        >
+                            <Receipt className="h-4 w-4" />
+                            View Refund History
+                        </Link>
+                    </div>
+
                     {/* Danger Zone */}
-                    {/* Hide if plan is free OR if canceling is already valid OR if there is a pending/approved request */}
                     {showDangerZone && (
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Management</h3>
-                            <Card className="border-red-100 bg-white shadow-sm overflow-hidden">
-                                <CardHeader className="bg-red-50/50 border-b border-red-100 py-4">
-                                    <CardTitle className="text-base font-medium text-red-900">Danger Zone</CardTitle>
-                                </CardHeader>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Danger Zone</h3>
+                            <Card className="border-red-100 bg-red-50/50 shadow-none">
                                 <CardContent className="p-6">
                                     <h4 className="font-medium text-gray-900 mb-2">Cancel Subscription</h4>
                                     <p className="text-sm text-gray-500 mb-4">
