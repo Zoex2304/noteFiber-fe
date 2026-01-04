@@ -94,7 +94,10 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				'soft-purple': '#F8F6F9'
+				'soft-purple': '#F8F6F9',
+				'shiny-pink': '#FF649A',
+				'shiny-white': '#FFFFFF',
+				'shiny-purple': '#7050F0',
 			},
 			backgroundImage: {
 				'gradient-primary-violet': 'linear-gradient(360deg, #7050f0 0%, #b7aaee 100%)',
@@ -162,6 +165,16 @@ export default {
 						height: '0',
 						opacity: '0'
 					}
+				},
+				'shiny-text': {
+					'0%, 100%': {
+						'background-size': '200% 200%',
+						'background-position': 'left center'
+					},
+					'50%': {
+						'background-size': '200% 200%',
+						'background-position': 'right center'
+					}
 				}
 			},
 			animation: {
@@ -171,7 +184,8 @@ export default {
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				shimmer: 'shimmer 2s infinite',
 				'collapsible-down': 'collapsible-down 0.2s ease-out',
-				'collapsible-up': 'collapsible-up 0.2s ease-out'
+				'collapsible-up': 'collapsible-up 0.2s ease-out',
+				'shiny-text': 'shiny-text 8s ease infinite',
 			},
 			fontFamily: {
 				sans: [

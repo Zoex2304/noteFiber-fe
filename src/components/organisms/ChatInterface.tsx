@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState, useCallback } from "react";
 import { Bot, MessageSquare, ArrowDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import ChatbotBackground from "@/assets/images/common/chatbot_gradient_background_v2.svg";
 
 import { ChatBubble } from "@/components/molecules/ChatBubble";
 import { PixelLoader } from "@/components/molecules/PixelLoader";
@@ -125,7 +126,14 @@ export function ChatInterface({
     const buttonVisible = showScrollButton && (mouseNearBottomRight || !isNearBottom);
 
     return (
-        <div className="flex flex-col flex-1 h-full">
+        <div className="flex flex-col flex-1 h-full relative z-0">
+            {/* Background Gradient */}
+            <img
+                src={ChatbotBackground}
+                alt=""
+                className="absolute inset-0 w-full h-full object-cover pointer-events-none -z-10 opacity-50"
+            />
+
             {/* Content Container - strictly bounded */}
             <div className="flex-1 flex flex-col min-h-0 w-full overflow-hidden relative">
                 {/* Session Header */}

@@ -1,7 +1,7 @@
 import { UserProfileMenu } from "@/components/common/UserProfileMenu";
-import { ActionTooltip } from "@/components/common/ActionTooltip";
+
 import { Button } from "@/components/shadui/button";
-import { MessageSquare, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { NotificationDropdown } from "@/components/organisms/NotificationDropdown";
 import AiLogo from "@/assets/images/landing/logo/logo_symbol.svg";
@@ -65,8 +65,10 @@ export const TopBar = ({ onSearchClick, onChatClick }: TopBarProps) => {
                 )}
 
                 {showChat && (
-                    <GradientPill onClick={onChatClick}>
-                        <img src={AiLogo} alt="AI" className="w-3.5 h-3.5 brightness-0 invert" />
+                    <GradientPill
+                        onClick={onChatClick}
+                        icon={<img src={AiLogo} alt="AI" className="w-3.5 h-3.5 brightness-0 invert" />}
+                    >
                         <span className="tracking-tight font-bold text-shadow-sm font-sans">Ask AI</span>
                     </GradientPill>
                 )}

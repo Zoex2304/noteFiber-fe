@@ -36,11 +36,12 @@ export function ChatEmptyState({
                 transition={{ type: "spring", stiffness: 260, damping: 20 }}
                 className="rounded-full overflow-hidden"
             >
-                <div className="w-48 h-48">
+                <div className="w-full max-w-[300px] aspect-video relative flex items-center justify-center">
                     <DotLottieReact
                         src="https://lottie.host/b00c932e-94d9-407f-9893-8e00ce7a55f3/hanmwXSGzz.lottie"
                         loop
                         autoplay
+                        className="w-full h-full"
                     />
                 </div>
             </motion.div>

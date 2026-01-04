@@ -15,13 +15,14 @@ import {
 } from '@/components/shadui/alert-dialog';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useNavigate, useRouter } from '@tanstack/react-router';
-import { Check, Calendar, Zap, MoveLeft, Database, Search, Crown, HardDrive, Sparkles, Book, X } from 'lucide-react';
+import { Check, Calendar, Zap, MoveLeft, Database, Search, Crown, HardDrive, Sparkles, Book, X, RotateCcw } from 'lucide-react';
 
 import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
 import { RefundRequestModal } from './RefundRequestModal';
 import { CancellationRequestModal } from './CancellationRequestModal';
 import { CancellationHistorySection } from './CancellationHistorySection';
+import { GradientPill } from '@/components/common/GradientPill';
 import { ActionTooltip } from '@/components/common/ActionTooltip';
 import { refundService } from '@/api/services/refund/refund.service';
 import { cn } from '@/lib/utils';
@@ -151,21 +152,26 @@ export function SubscriptionManagement() {
                     </div>
 
                     <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-                        <Button
+                        <GradientPill
                             onClick={() => navigate({ to: '/pricing' })}
-                            className="w-full sm:w-auto min-w-[140px] font-medium"
+                            className="w-full sm:w-auto min-w-[140px]"
+                            icon={(!displayActive || !isPaidPlan) ? <Crown className="h-4 w-4" /> : <Sparkles className="h-4 w-4" />}
+                            size="lg"
                         >
                             {(!displayActive || !isPaidPlan) ? "Upgrade Plan" : (isCanceledButValid ? "Renew Plan" : "Change Plan")}
-                        </Button>
+                        </GradientPill>
                         {isPaidPlan && (
-                            <Button
-                                variant="outline"
+                            <GradientPill
                                 onClick={handleRefundClick}
-                                disabled={hasPendingRefund}
-                                className="w-full sm:w-auto border-gray-200 text-gray-600 hover:text-gray-900"
+                                variant="invert"
+                                animation="none"
+                                className="w-full sm:w-auto"
+                                showGlow={false}
+                                icon={<RotateCcw className="h-4 w-4" />}
+                                size="lg"
                             >
                                 Request Refund
-                            </Button>
+                            </GradientPill>
                         )}
                     </div>
                 </div>

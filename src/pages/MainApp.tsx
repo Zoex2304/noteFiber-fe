@@ -3,8 +3,12 @@
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import "@/App.css";
 import { useNoteOrchestratorContext } from "@/contexts/NoteOrchestratorContext";
+import { useSidebarStore } from "@/stores/useSidebarStore";
 import { NoteEditor } from "@/components/note-editor";
 import HeaderGradient from "@/assets/images/common/header gradient_v2.svg";
+
+import { GradientPill } from "@/components/common/GradientPill";
+import { Plus } from "lucide-react";
 
 export default function MainApp() {
   const {
@@ -39,13 +43,22 @@ export default function MainApp() {
           className="w-full h-auto"
         />
       </div>
-      <div className="text-center space-y-2 max-w-md relative z-10">
-        <h2 className="text-2xl font-semibold text-gray-800 tracking-tight">
+      <div className="text-center space-y-2 max-w-2xl relative z-10 w-full flex flex-col items-center">
+        <h2 className="text-2xl md:text-3xl font-semibold mb-2 text-gray-800 tracking-tight">
           Select a note to start editing
         </h2>
-        <p className="text-gray-500 text-base">
+        <p className="text-gray-500 text-base mb-6 max-w-md">
           Choose a note from the sidebar or create a new one to begin capturing your thoughts.
         </p>
+        <GradientPill
+          size="lg"
+          icon={<Plus className="h-4 w-4" />}
+          onClick={() => {
+            useSidebarStore.getState().setLeftSidebarOpen(true);
+          }}
+        >
+          Get Started
+        </GradientPill>
       </div>
     </div>
   );
