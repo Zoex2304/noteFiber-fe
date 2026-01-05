@@ -15,6 +15,11 @@ interface PricingSectionProps {
    * - 'app': Show "Current plan" / "Upgrade to X"
    */
   context?: 'landing' | 'app';
+  /**
+   * User's current plan slug from Zustand store.
+   * Used to determine which card shows "Current Plan".
+   */
+  currentPlanSlug?: string;
 }
 
 /**
@@ -29,6 +34,7 @@ export function PricingSection({
   cardsData,
   isPulsing,
   context = 'app',
+  currentPlanSlug,
 }: PricingSectionProps) {
   return (
     // Layout: Centered flex container with gap between fixed-width cards
@@ -44,6 +50,7 @@ export function PricingSection({
           key={data.title}
           data={data}
           context={context}
+          currentPlanSlug={currentPlanSlug}
         />
       ))}
     </div>

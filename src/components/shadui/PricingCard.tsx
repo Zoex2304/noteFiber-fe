@@ -31,6 +31,11 @@ interface PricingCardProps {
    * - 'app': Show "Current plan" / "Upgrade to X" based on plan
    */
   context?: 'landing' | 'app';
+  /**
+   * User's current plan slug from Zustand store.
+   * Used to determine which card shows "Current Plan".
+   */
+  currentPlanSlug?: string;
 }
 
 /**
@@ -48,7 +53,7 @@ interface PricingCardProps {
  * Fixed dimensions: 320px width × 480px height on desktop
  * Light card background (existing theme preserved)
  */
-export function PricingCard({ data, className, context = 'app' }: PricingCardProps) {
+export function PricingCard({ data, className, context = 'app', currentPlanSlug }: PricingCardProps) {
   const {
     title,
     price,
@@ -63,8 +68,7 @@ export function PricingCard({ data, className, context = 'app' }: PricingCardPro
     tierBadge,
   } = data;
 
-  // Determine the target URL
-  const isFree = slug === 'free' || price === '$0.00' || price === 'Rp0';
+  // Determine the plan slug for checkout URL
   const planSlug = slug || title.toLowerCase().replace(/\s+/g, "-");
 
   // Render button based on context
@@ -106,8 +110,30 @@ export function PricingCard({ data, className, context = 'app' }: PricingCardPro
       );
     }
 
-    // App context: Free plan = "Current plan", others = "Upgrade"
-    if (isFree) {
+    // App context: Check if this card is the user's current plan
+    // Uses currentPlanSlug from Zustand store (single source of truth)
+    const cardSlug = slug || title.toLowerCase().replace(/\s+plan$/i, '').replace(/\s+/g, '-');
+    const isCurrentPlan = currentPlanSlug && (
+      cardSlug === currentPlanSlug ||
+      slug === currentPlanSlug ||
+      planSlug === currentPlanSlug
+    );
+
+    // Plan tier hierarchy for comparison
+    const tierHierarchy: Record<string, number> = {
+      'free': 0,
+      'pro': 1,
+      'enterprise': 2,
+    };
+
+    // Get tier level for current user's plan and this card's plan
+    const currentTier = tierHierarchy[currentPlanSlug || 'free'] ?? 0;
+    const cardTier = tierHierarchy[cardSlug] ?? tierHierarchy[planSlug] ?? 0;
+
+    // Check if this card is a lower tier than user's current plan
+    const isLowerTier = currentPlanSlug && cardTier < currentTier;
+
+    if (isCurrentPlan) {
       return (
         <Link to="/app" className="w-full">
           <Button
@@ -121,7 +147,13 @@ export function PricingCard({ data, className, context = 'app' }: PricingCardPro
       );
     }
 
-    // App context: Paid plans
+    // Don't show upgrade button for lower tier plans (including Free when user is on Pro/Enterprise)
+    // This prevents confusing "Upgrade to Free" scenarios
+    if (isLowerTier) {
+      return null; // No button rendered - you can't "upgrade" to a lower tier
+    }
+
+    // App context: Upgrade to higher tier plans only
     return (
       <Link
         to="/checkout"

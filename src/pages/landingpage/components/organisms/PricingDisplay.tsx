@@ -4,7 +4,6 @@ import type { PricingCardData } from "@/components/shadui/PricingCard";
 import { PricingSection } from "@/components/shadui/PricingSection";
 import { useSubscriptionStore } from "@/stores/useSubscriptionStore";
 import { Loader2 } from "lucide-react";
-import { getPlanDisplayFeatures } from "@/utils/planUtils";
 
 interface PricingDisplayProps {
     // Optional customization for button behavior (e.g., in modal)
@@ -42,8 +41,14 @@ export function PricingDisplay({
     const [period, setPeriod] = useState<PricingPeriod>("monthly");
     const [isPulsing, setIsPulsing] = useState(false);
 
-    // Fetch public plans from Global Store
-    const { publicPlans, fetchPublicPlans } = useSubscriptionStore();
+    // Fetch public plans and user's current plan from Global Store
+    const { publicPlans, fetchPublicPlans, planName } = useSubscriptionStore();
+
+    // Derive user's current plan slug from their actual subscription
+    // This is the single source of truth for "Current Plan" determination
+    const userPlanSlug = currentPlanSlug ||
+        planName?.toLowerCase().replace(/\s+plan$/i, '').replace(/\s+/g, '-') ||
+        'free';
 
     useEffect(() => {
         fetchPublicPlans();
@@ -160,7 +165,12 @@ export function PricingDisplay({
                         <Loader2 className="h-8 w-8 animate-spin text-royal-violet-base" />
                     </div>
                 ) : dataToDisplay.length > 0 ? (
-                    <PricingSection cardsData={dataToDisplay} isPulsing={isPulsing} context={context} />
+                    <PricingSection
+                        cardsData={dataToDisplay}
+                        isPulsing={isPulsing}
+                        context={context}
+                        currentPlanSlug={context === 'app' ? userPlanSlug : undefined}
+                    />
                 ) : (
                     <div className="text-center py-12">
                         <p className="text-gray-500">No {period} plans available at the moment.</p>

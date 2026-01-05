@@ -29,8 +29,8 @@ export function TokenUsageIndicator({
         return 'bg-green-600';
     };
 
-    // If no limit set (unlimited), don't show indicator
-    if (dailyLimit === 0) {
+    // If no limit set or unlimited (-1), don't show indicator
+    if (dailyLimit === 0 || dailyLimit === -1) {
         return null;
     }
 

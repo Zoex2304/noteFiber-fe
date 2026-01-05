@@ -1,7 +1,6 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
 import { PricingModal } from '@/components/modals/PricingModal';
-import { useCanUseFeature } from '@/hooks/payment';
-import { useAuthContext } from '@/contexts/AuthContext';
+import { useSubscriptionStore } from '@/stores/useSubscriptionStore';
 
 interface LimitExceededInfo {
     featureName: string;
@@ -21,9 +20,6 @@ interface UsageLimitsContextType {
     checkCanCreateNote: () => Promise<boolean>;
     checkCanUseAiChat: () => Promise<boolean>;
     checkCanUseSemanticSearch: () => Promise<boolean>;
-
-    // Raw usage data
-    usage: ReturnType<typeof useCanUseFeature>;
 }
 
 const UsageLimitsContext = createContext<UsageLimitsContextType | undefined>(undefined);
@@ -32,14 +28,23 @@ interface UsageLimitsProviderProps {
     children: ReactNode;
 }
 
+/**
+ * UsageLimitsProvider
+ * 
+ * Provides usage limit checking functions that read from the Zustand store
+ * (single source of truth) and show upgrade modals when limits are exceeded.
+ * 
+ * All usage data comes from useSubscriptionStore.tokenUsage, which is fetched
+ * once on authentication and can be refreshed via fetchSubscription().
+ */
 export function UsageLimitsProvider({ children }: UsageLimitsProviderProps) {
-    const { isAuthenticated } = useAuthContext();
     const [isPricingModalOpen, setIsPricingModalOpen] = useState(false);
     const [modalFeatureName, setModalFeatureName] = useState<string>('This feature');
     const [modalLimitInfo, setModalLimitInfo] = useState<Omit<LimitExceededInfo, 'featureName'> | undefined>();
 
-    // Only fetch usage status when user is authenticated
-    const usage = useCanUseFeature({ enabled: isAuthenticated });
+    // Read from Zustand store - single source of truth
+    const fetchSubscription = useSubscriptionStore(s => s.fetchSubscription);
+    const planName = useSubscriptionStore(s => s.planName);
 
     const showPricingModal = useCallback((featureName = 'This feature', limitInfo?: Omit<LimitExceededInfo, 'featureName'>) => {
         setModalFeatureName(featureName);
@@ -52,60 +57,69 @@ export function UsageLimitsProvider({ children }: UsageLimitsProviderProps) {
         setModalLimitInfo(undefined);
     }, []);
 
-    // Check functions that auto-show modal on failure
+    // Check functions that refresh Zustand and auto-show modal on failure
     const checkCanCreateNotebook = useCallback(async () => {
-        const result = await usage.refetch();
-        const freshData = result.data?.data;
-        const canUse = freshData?.storage.notebooks.can_use ?? false;
-        if (!canUse && freshData?.storage?.notebooks) {
+        // Refresh from backend to ensure fresh data
+        await fetchSubscription();
+        // Read fresh state from Zustand
+        const freshUsage = useSubscriptionStore.getState().tokenUsage;
+        const canUse = freshUsage.storage.notebooks.can_use;
+
+        if (!canUse) {
             showPricingModal('notebooks', {
-                used: freshData.storage.notebooks.used,
-                limit: freshData.storage.notebooks.limit,
+                used: freshUsage.storage.notebooks.used,
+                limit: freshUsage.storage.notebooks.limit,
             });
         }
         return canUse;
-    }, [usage, showPricingModal]);
+    }, [fetchSubscription, showPricingModal]);
 
     const checkCanCreateNote = useCallback(async () => {
-        const result = await usage.refetch();
-        const freshData = result.data?.data;
-        const canUse = freshData?.storage.notes.can_use ?? false;
-        if (!canUse && freshData?.storage?.notes) {
+        await fetchSubscription();
+        const freshUsage = useSubscriptionStore.getState().tokenUsage;
+        const canUse = freshUsage.storage.notes.can_use;
+
+        if (!canUse) {
             showPricingModal('notes per notebook', {
-                used: freshData.storage.notes.used,
-                limit: freshData.storage.notes.limit,
+                used: freshUsage.storage.notes.used,
+                limit: freshUsage.storage.notes.limit,
             });
         }
         return canUse;
-    }, [usage, showPricingModal]);
+    }, [fetchSubscription, showPricingModal]);
 
     const checkCanUseAiChat = useCallback(async () => {
-        const result = await usage.refetch();
-        const freshData = result.data?.data;
-        const canUse = freshData?.daily.ai_chat.can_use ?? false;
-        if (!canUse && freshData?.daily?.ai_chat) {
+        await fetchSubscription();
+        const freshUsage = useSubscriptionStore.getState().tokenUsage;
+        const canUse = freshUsage.chat.can_use;
+
+        if (!canUse) {
             showPricingModal('AI chat messages', {
-                used: freshData.daily.ai_chat.used,
-                limit: freshData.daily.ai_chat.limit,
-                resetsAt: freshData.daily.ai_chat.resets_at,
+                used: freshUsage.chat.used,
+                limit: freshUsage.chat.limit,
+                resetsAt: freshUsage.chat.resets_at,
             });
         }
         return canUse;
-    }, [usage, showPricingModal]);
+    }, [fetchSubscription, showPricingModal]);
 
     const checkCanUseSemanticSearch = useCallback(async () => {
-        const result = await usage.refetch();
-        const freshData = result.data?.data;
-        const canUse = freshData?.daily.semantic_search.can_use ?? false;
-        if (!canUse && freshData?.daily?.semantic_search) {
+        await fetchSubscription();
+        const freshUsage = useSubscriptionStore.getState().tokenUsage;
+        const canUse = freshUsage.search.can_use;
+
+        if (!canUse) {
             showPricingModal('semantic searches', {
-                used: freshData.daily.semantic_search.used,
-                limit: freshData.daily.semantic_search.limit,
-                resetsAt: freshData.daily.semantic_search.resets_at,
+                used: freshUsage.search.used,
+                limit: freshUsage.search.limit,
+                resetsAt: freshUsage.search.resets_at,
             });
         }
         return canUse;
-    }, [usage, showPricingModal]);
+    }, [fetchSubscription, showPricingModal]);
+
+    // Derive current plan slug for pricing modal
+    const currentPlanSlug = planName?.toLowerCase().replace(/\s+plan$/i, '').replace(/\s+/g, '-') || 'free';
 
     return (
         <UsageLimitsContext.Provider
@@ -117,7 +131,6 @@ export function UsageLimitsProvider({ children }: UsageLimitsProviderProps) {
                 checkCanCreateNote,
                 checkCanUseAiChat,
                 checkCanUseSemanticSearch,
-                usage,
             }}
         >
             {children}
@@ -126,7 +139,7 @@ export function UsageLimitsProvider({ children }: UsageLimitsProviderProps) {
                 onClose={hidePricingModal}
                 featureName={modalFeatureName}
                 limitInfo={modalLimitInfo}
-                currentPlanSlug={usage.plan?.slug}
+                currentPlanSlug={currentPlanSlug}
             />
         </UsageLimitsContext.Provider>
     );

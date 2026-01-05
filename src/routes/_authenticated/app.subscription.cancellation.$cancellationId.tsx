@@ -1,15 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { CancellationDetail } from '@/pages/subscription/CancellationDetail'
 
 export const Route = createFileRoute(
   '/_authenticated/app/subscription/cancellation/$cancellationId',
 )({
-  component: RouteComponent,
+  component: CancellationDetail,
 })
-
-function RouteComponent() {
-  return (
-    <div>
-      Hello "/_authenticated/app/subscription/cancellation/$cancellationId"!
-    </div>
-  )
-}

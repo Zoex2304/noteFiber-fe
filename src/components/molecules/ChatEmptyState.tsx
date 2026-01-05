@@ -36,7 +36,7 @@ export function ChatEmptyState({
                 transition={{ type: "spring", stiffness: 260, damping: 20 }}
                 className="rounded-full overflow-hidden"
             >
-                <div className="w-full max-w-[300px] aspect-video relative flex items-center justify-center">
+                <div className="w-[280px] h-[180px] relative flex items-center justify-center">
                     <DotLottieReact
                         src="https://lottie.host/b00c932e-94d9-407f-9893-8e00ce7a55f3/hanmwXSGzz.lottie"
                         loop
@@ -47,7 +47,7 @@ export function ChatEmptyState({
             </motion.div>
 
             <div className="space-y-1">
-                <h3 className="text-gray-900 font-medium text-lg">{title}</h3>
+                <h3 className="text-gray-900 font-semibold text-xl">{title}</h3>
                 <p className="text-sm text-gray-500 max-w-[250px] mx-auto">{description}</p>
             </div>
 
