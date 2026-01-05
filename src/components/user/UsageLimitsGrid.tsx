@@ -16,9 +16,24 @@ interface UsageCardProps {
 }
 
 function UsageCard({ icon: Icon, title, used, limit, limitLabel, colorClass = "text-primary", isDaily }: UsageCardProps) {
-    // Calculate percentage, max 100
-    const percentage = limit > 0 ? Math.min(Math.round((used / limit) * 100), 100) : 0;
+    // Calculate percentage
+    const rawPercentage = limit > 0 ? (used / limit) * 100 : 0;
     const isUnlimited = limit === -1;
+
+    // Determine display string
+    let displayString = "0%";
+    if (isUnlimited) {
+        displayString = "∞";
+    } else if (used > 0 && rawPercentage < 1) {
+        displayString = `${rawPercentage.toFixed(2)}%`;
+    } else {
+        displayString = `${Math.min(Math.round(rawPercentage), 100)}%`;
+    }
+
+    // Determine progress bar value (ensure at least 1% visible if used > 0)
+    const progressValue = limit > 0
+        ? Math.min(Math.round(rawPercentage), 100)
+        : 0;
 
     return (
         <Card className="shadow-sm border-border/60">
@@ -32,7 +47,7 @@ function UsageCard({ icon: Icon, title, used, limit, limitLabel, colorClass = "t
                 {/* Big Stat */}
                 <div className="flex items-baseline justify-between">
                     <span className="text-3xl font-bold tracking-tight">
-                        {isUnlimited ? '∞' : `${percentage}%`}
+                        {displayString}
                     </span>
                     <span className="text-xs text-muted-foreground font-medium">
                         {isDaily ? 'daily used' : 'used'}
@@ -41,7 +56,7 @@ function UsageCard({ icon: Icon, title, used, limit, limitLabel, colorClass = "t
 
                 {/* Progress Bar */}
                 <Progress
-                    value={percentage}
+                    value={progressValue}
                     className="h-2"
                     indicatorClassName={colorClass?.replace("text-", "bg-")}
                 />

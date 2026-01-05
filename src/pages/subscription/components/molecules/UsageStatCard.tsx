@@ -1,6 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/shadui/card';
 import { UsageProgressBar } from '@/components/layout/UsageProgressBar';
-import { AnimatedCounter } from '@/components/common/AnimatedCounter';
 import { TokenUsageIndicator } from '@/components/common/TokenUsageIndicator';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -50,7 +49,6 @@ export function UsageStatCard({
     // Unlimited is ONLY when limit === -1 (backend convention)
     // Do NOT treat high numbers (like 20000) as unlimited
     const showUnlimited = isUnlimited || usage.limit === -1;
-    const displayValue = showUnlimited ? "Active" : null;
     const displayLabel = showUnlimited ? "Unlimited" : unitLabel;
 
     return (
@@ -70,13 +68,18 @@ export function UsageStatCard({
                     {/* Main Value Display */}
                     <div className="flex items-baseline justify-between">
                         <div className="text-2xl font-bold text-gray-900">
-                            {displayValue || (
-                                <AnimatedCounter
-                                    value={usage.percentage}
-                                    initialValue={100}
-                                    formatter={(v) => `${v}%`}
-                                />
-                            )}
+                            {(() => {
+                                if (showUnlimited) return "Active";
+
+                                const limit = usage.limit;
+                                const used = usage.used;
+                                const rawPercentage = limit > 0 ? (used / limit) * 100 : 0;
+
+                                if (used > 0 && rawPercentage < 1) {
+                                    return `${rawPercentage.toFixed(2)}%`;
+                                }
+                                return `${Math.min(Math.round(rawPercentage), 100)}%`;
+                            })()}
                         </div>
                         <span className="text-sm text-gray-500">{displayLabel}</span>
                     </div>
