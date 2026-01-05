@@ -1,4 +1,4 @@
-import { User, Bot, Copy, Check } from "lucide-react";
+import { User, Bot, Copy, Check, FileText } from "lucide-react";
 import ReactMarkdown from 'react-markdown';
 import type { Message } from "@/types/ai-chat";
 import { cn } from "@/lib/utils";
@@ -120,6 +120,25 @@ export function ChatBubble({ message, onCitationClick, compact, animate = false 
                     ) : (
                         <div className="whitespace-pre-wrap break-words">
                             {message.content}
+
+                            {/* User References */}
+                            {message.references && message.references.length > 0 && (
+                                <div className="mt-3 pt-2 border-t border-white/20">
+                                    <p className="text-[10px] uppercase tracking-wider font-semibold opacity-70 mb-2">Referenced Notes</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {message.references.map((ref) => (
+                                            <div
+                                                key={ref.note_id}
+                                                className="bg-white/20 text-white text-xs px-2.5 py-1 rounded-md flex items-center gap-1.5 cursor-pointer hover:bg-white/30 transition-colors border border-white/10"
+                                                onClick={() => onCitationClick?.(ref.note_id)}
+                                            >
+                                                <FileText size={12} strokeWidth={2.5} />
+                                                <span className="truncate max-w-[150px]">{ref.title}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
 

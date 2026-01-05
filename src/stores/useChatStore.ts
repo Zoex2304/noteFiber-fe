@@ -101,6 +101,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
                                     noteId: c.note_id,
                                     title: c.title,
                                 })),
+                                references: data.references?.map((r) => ({
+                                    note_id: r.note_id,
+                                    title: r.title,
+                                    resolved: r.resolved,
+                                })),
                                 mode: data.mode,
                                 nuanceKey: data.nuance_key,
                             })),
@@ -174,6 +179,24 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
         if (!content.trim() || get().isLoading) return;
 
+        // -------------------------------------------------------------------------
+        // State Capture & Immediate Cleanup (Optimistic UI)
+        // -------------------------------------------------------------------------
+        // We capture references NOW and clear the store immediately to make the UI feel reactive ("Released").
+        // This avoids prop drilling references through components.
+        const { preloadedReferences, setPreloadedReferences } = get();
+        const capturedReferences = [...preloadedReferences];
+        setPreloadedReferences([]); // Clear pills immediately
+
+        const references = capturedReferences.map(note => ({
+            note_id: note.id,
+            source_type: "export" as const
+        }));
+
+        // -------------------------------------------------------------------------
+        // Session Management
+        // -------------------------------------------------------------------------
+
         let currentSessionId = sessionId || activeSessionId;
 
         // Auto-create session if none exists
@@ -182,19 +205,14 @@ export const useChatStore = create<ChatState>((set, get) => ({
             const newId = await get().createSession();
             if (!newId) {
                 set({ isLoading: false });
+                // If failed, maybe restore references? 
+                // For now, we assume user can re-select if session creation drastically fails.
                 return;
             }
             currentSessionId = newId;
         }
 
         set({ isLoading: true, isGenerating: true });
-
-        // Get references if any
-        const { preloadedReferences, setPreloadedReferences } = get();
-        const references = preloadedReferences.map(note => ({
-            note_id: note.id,
-            source_type: "export" as const
-        }));
 
         // Optimistic Update
         const tempId = "temp-" + Date.now();
@@ -203,9 +221,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
             content,
             role: "user",
             timestamp: new Date(),
-            citations: preloadedReferences.map(n => ({
-                noteId: n.id,
-                title: n.title
+            references: capturedReferences.map(n => ({
+                note_id: n.id,
+                title: n.title,
+                resolved: true,
+                source_type: "export"
             }))
         };
 
@@ -227,15 +247,17 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
             const res = await apiClient.post<BaseResponse<SendChatResponse>>(`/chatbot/v1/send-chat`, request);
 
-            // Clear references after successful send
-            setPreloadedReferences([]);
-
             // Update with real response
-            const realUserMsg = {
+            const realUserMsg: Message = {
                 id: res.data.data.sent.id,
                 content: res.data.data.sent.chat,
-                role: "user" as const,
-                timestamp: new Date(res.data.data.sent.created_at)
+                role: "user",
+                timestamp: new Date(res.data.data.sent.created_at),
+                references: res.data.data.sent.references?.map(r => ({
+                    note_id: r.note_id,
+                    title: r.title,
+                    resolved: r.resolved
+                }))
             };
             const replyMsg: Message = {
                 id: res.data.data.reply.id,

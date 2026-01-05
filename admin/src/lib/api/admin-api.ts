@@ -228,6 +228,32 @@ export const adminUsersApi = {
         )
         return response.data.data
     },
+    /**
+     * Create a single user
+     */
+    async createUser(data: any): Promise<User> {
+        const response = await apiClient.post<ApiSuccessResponse<User>>(ADMIN_ENDPOINTS.USERS.CREATE, data)
+        return response.data.data
+    },
+
+    /**
+     * Bulk create users via JSON file
+     */
+    async bulkCreateUsers(file: File): Promise<any> {
+        const formData = new FormData()
+        formData.append('file', file)
+
+        const response = await apiClient.post<ApiSuccessResponse<any>>(
+            ADMIN_ENDPOINTS.USERS.BULK,
+            formData,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            }
+        )
+        return response.data
+    },
 }
 
 // Logging Management API

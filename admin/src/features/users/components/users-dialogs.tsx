@@ -1,3 +1,4 @@
+import { CreateUserDialog } from './create-user-dialog'
 import { UsersActionDialog } from './users-action-dialog'
 import { UsersDeleteDialog } from './users-delete-dialog'
 import { UsersPurgeDialog } from './users-purge-dialog'
@@ -8,6 +9,12 @@ export function UsersDialogs() {
   const { open, setOpen, currentRow, setCurrentRow } = useUsers()
   return (
     <>
+      <CreateUserDialog
+        key='user-create'
+        open={open === 'create-user'}
+        onOpenChange={(isOpen) => setOpen(isOpen ? 'create-user' : null)}
+      />
+
       <UsersActionDialog
         key='user-add'
         open={open === 'add'}

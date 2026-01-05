@@ -26,6 +26,7 @@ import {
     Clock,
     MessageSquarePlus
 } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 interface SearchDialogProps {
     open: boolean
@@ -166,50 +167,85 @@ export function SearchDialog({ open, onOpenChange, onNoteSelect, notes }: Search
 
                         {/* Semantic Results */}
                         {!isSearching && semanticResults.length > 0 && (
-                            <CommandGroup heading="Contextual Matches" className="text-purple-900">
-                                {semanticResults.map((note) => (
-                                    <div
-                                        key={note.id}
-                                        className="flex items-start gap-2 px-2 m-1 rounded-lg hover:bg-gray-100/50 transition-colors group"
-                                    >
-                                        <div className="pt-4 shrink-0">
-                                            <Checkbox
-                                                checked={selectedNotes.has(note.id)}
-                                                onCheckedChange={(checked) => {
-                                                    const newSelected = new Set(selectedNotes)
-                                                    if (checked) {
-                                                        if (newSelected.size >= 5) return
-                                                        newSelected.add(note.id)
-                                                    } else {
-                                                        newSelected.delete(note.id)
-                                                    }
-                                                    setSelectedNotes(newSelected)
-                                                }}
-                                                className="data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
-                                            />
-                                        </div>
+                            <CommandGroup heading="Contextual Matches" className="px-2 pb-2 text-violet-900 group-heading:text-xs group-heading:font-bold group-heading:uppercase group-heading:tracking-wider">
+                                {semanticResults.map((note, index) => {
+                                    const isSelected = selectedNotes.has(note.id);
+                                    return (
                                         <CommandItem
+                                            key={note.id}
                                             value={note.id}
                                             onSelect={() => handleSelect(note.id)}
-                                            className="flex-1 flex flex-col items-start gap-1.5 py-3 px-2 cursor-pointer !bg-transparent aria-selected:bg-transparent"
+                                            className={cn(
+                                                "relative flex items-start gap-3 p-3 mb-2 rounded-xl border shadow-sm transition-all cursor-pointer group aria-selected:bg-transparent data-[disabled]:opacity-100 !opacity-100 !pointer-events-auto",
+                                                "animate-in slide-in-from-bottom-2 fade-in duration-300",
+                                                isSelected
+                                                    ? "border-violet-500 bg-violet-50/40 shadow-violet-100 ring-1 ring-violet-500/20"
+                                                    : "border-gray-100 bg-white hover:shadow-md hover:border-violet-200 hover:bg-violet-50/10"
+                                            )}
+                                            style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'both' }}
                                         >
-                                            <div className="flex items-center gap-2 w-full justify-between">
-                                                <div className="flex items-center gap-2 min-w-0">
-                                                    <div className="p-1 rounded bg-purple-100/50 text-purple-600 shrink-0">
-                                                        <FileText className="h-3.5 w-3.5" />
-                                                    </div>
-                                                    <span className="font-medium truncate text-sm">{note.title}</span>
-                                                </div>
-                                                <Badge variant="secondary" className="text-[10px] h-5 bg-purple-100 text-purple-700 shadow-none border-0">
-                                                    AI Match
-                                                </Badge>
+                                            {/* Selection Checkbox - Stop propagation to prevent navigation */}
+                                            <div
+                                                className="pt-0.5 shrink-0 z-10"
+                                                onClick={(e) => e.stopPropagation()}
+                                            >
+                                                <Checkbox
+                                                    checked={isSelected}
+                                                    onCheckedChange={(checked) => {
+                                                        const newSelected = new Set(selectedNotes)
+                                                        if (checked) {
+                                                            if (newSelected.size >= 5) return
+                                                            newSelected.add(note.id)
+                                                        } else {
+                                                            newSelected.delete(note.id)
+                                                        }
+                                                        setSelectedNotes(newSelected)
+                                                    }}
+                                                    className={cn(
+                                                        "h-4 w-4 transition-all !text-white",
+                                                        isSelected
+                                                            ? "!bg-violet-600 !border-violet-600"
+                                                            : "border-gray-300 data-[state=checked]:!bg-violet-600 data-[state=checked]:!border-violet-600"
+                                                    )}
+                                                />
                                             </div>
-                                            <p className="text-xs text-muted-foreground line-clamp-2 pl-7 leading-relaxed opacity-90">
-                                                {note.content}
-                                            </p>
+
+                                            {/* Content Container - Clicking here triggers CommandItem onSelect */}
+                                            <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+                                                {/* Header */}
+                                                <div className="flex items-center justify-between gap-2">
+                                                    <div className="flex items-center gap-2 min-w-0">
+                                                        <div className={cn(
+                                                            "p-1 px-1.5 rounded-md shrink-0 transition-colors",
+                                                            isSelected
+                                                                ? "bg-violet-100 text-violet-700"
+                                                                : "bg-gradient-to-br from-violet-100 to-indigo-50 text-violet-600"
+                                                        )}>
+                                                            <FileText className="h-3.5 w-3.5" />
+                                                        </div>
+                                                        <span className={cn(
+                                                            "font-semibold truncate text-sm transition-colors",
+                                                            isSelected ? "text-violet-900" : "text-gray-900 group-hover:text-violet-700"
+                                                        )}>
+                                                            {note.title}
+                                                        </span>
+                                                    </div>
+                                                    <Badge
+                                                        variant="secondary"
+                                                        className="text-[10px] px-1.5 h-5 bg-gradient-to-r from-violet-100/80 to-indigo-100/80 text-violet-700 shadow-none border border-violet-100/50"
+                                                    >
+                                                        AI Match
+                                                    </Badge>
+                                                </div>
+
+                                                {/* Snippet - Always Gray */}
+                                                <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed font-medium pl-1">
+                                                    {note.content}
+                                                </p>
+                                            </div>
                                         </CommandItem>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </CommandGroup>
                         )}
 

@@ -3,12 +3,20 @@ export interface Citation {
     title: string;
 }
 
+export interface ResolvedReference {
+    note_id: string;
+    title: string;
+    resolved: boolean;
+    source_type?: "export" | "inline" | "autocomplete";
+}
+
 export interface Message {
     id: string
     role: "user" | "assistant"
     content: string
     timestamp: Date
     citations?: Citation[]
+    references?: ResolvedReference[]
     mode?: "rag" | "bypass" | "nuance"
     nuanceKey?: string
 }

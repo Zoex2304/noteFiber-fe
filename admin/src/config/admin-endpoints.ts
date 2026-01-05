@@ -21,6 +21,8 @@ export const ADMIN_ENDPOINTS = {
         UPDATE_PROFILE: (id: string) => `/admin/users/${id}`,
         DELETE: (id: string) => `/admin/users/${id}`,
         PURGE: '/admin/users/purge',
+        CREATE: '/admin/users',
+        BULK: '/admin/users/bulk',
     },
     FEATURES: {
         LIST: '/admin/features',

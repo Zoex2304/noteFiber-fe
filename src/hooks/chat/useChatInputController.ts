@@ -196,7 +196,6 @@ export function useChatInputController({
         const content = buildMessageContent(value);
         clearModes();
         onChange("");
-        setPreloadedReferences([]);
 
         if (textareaRef.current) {
             textareaRef.current.style.height = 'auto';

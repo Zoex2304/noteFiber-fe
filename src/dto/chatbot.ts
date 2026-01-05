@@ -5,12 +5,19 @@ export interface GetAllSessionsResponse {
     updated_at: Date | null;
 }
 
+export interface ResolvedReferenceDTO {
+    note_id: string;
+    title: string;
+    resolved: boolean;
+}
+
 export interface GetChatHistoryResponse {
     id: string;
     role: string;
     chat: string;
     created_at: Date;
     citations?: CitationResponse[];
+    references?: ResolvedReferenceDTO[];
     mode?: "rag" | "bypass" | "nuance";
     nuance_key?: string;
 }
@@ -45,6 +52,7 @@ export interface SendChatResponseChat {
     role: string;
     created_at: Date;
     citations?: CitationResponse[];
+    references?: ResolvedReferenceDTO[];
 }
 
 export interface SendChatResponse {
