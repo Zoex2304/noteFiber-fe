@@ -39,7 +39,7 @@ export function PlanStatusPill({ className, compact = false }: PlanStatusPillPro
     return (
         <div
             className={cn(
-                "flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border transition-all w-full",
+                "flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border transition-all",
                 isPaid
                     ? "bg-gradient-primary-violet text-white border-transparent shadow-sm"
                     : "bg-gray-100 text-gray-600 border-gray-200",

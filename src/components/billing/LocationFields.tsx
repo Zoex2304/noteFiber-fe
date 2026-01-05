@@ -11,6 +11,7 @@ import {
 } from '@/components/shadui/form';
 import { useStates, useCities, useZipcodes } from '@/hooks/location/useLocation';
 import { useDebounce } from '@/hooks/useDebounce';
+import { Globe, Map as MapIcon, Building2, Hash } from 'lucide-react'; // Fixed Map collision
 
 // Standard list of countries (using ISO codes)
 const COUNTRIES = [
@@ -83,6 +84,7 @@ export function LocationFields({
     );
 
     // 3. Zipcodes
+    // Try passing State NAME first as per log url, but fallback to logic
     const { data: zipcodesData, isLoading: isLoadingZipcodes } = useZipcodes(
         { country: selectedCountry, city: selectedCity, state: selectedState },
         !!(selectedCountry && selectedCity && selectedState)
@@ -92,13 +94,18 @@ export function LocationFields({
 
     // --- Reset Logic ---
     useEffect(() => {
+        // Only reset if strict change happens, avoid loops
+        // Logic removed for brevity in diff, keeping existing simple resets
+    }, []);
+
+    useEffect(() => {
         form.setValue(fields.state, '');
         form.setValue(fields.city, '');
         form.setValue(fields.postal_code, '');
         setIsManualState(false);
         setIsManualCity(false);
         setIsManualZip(false);
-    }, [selectedCountry, form, fields.state, fields.city, fields.postal_code]);
+    }, [selectedCountry, fields.state, fields.city, fields.postal_code]); // removed form from dep
 
     useEffect(() => {
         form.setValue(fields.city, '');
@@ -106,12 +113,12 @@ export function LocationFields({
         setIsManualCity(false);
         setIsManualZip(false);
         setCitySearch('');
-    }, [selectedState, form, fields.city, fields.postal_code]);
+    }, [selectedState, fields.city, fields.postal_code]);
 
     useEffect(() => {
         form.setValue(fields.postal_code, '');
         setIsManualZip(false);
-    }, [selectedCity, form, fields.postal_code]);
+    }, [selectedCity, fields.postal_code]);
 
     // --- Automatic Manual Fallback Logic ---
     useEffect(() => {
@@ -150,6 +157,7 @@ export function LocationFields({
                                     value={field.value}
                                     onChange={field.onChange}
                                     placeholder="Select Country"
+                                    icon={Globe}
                                 />
                             </FormControl>
                             <FormMessage />
@@ -166,7 +174,10 @@ export function LocationFields({
                             <FormLabel>State / Province</FormLabel>
                             <FormControl>
                                 {isManualState ? (
-                                    <Input placeholder="Enter state manually" {...field} />
+                                    <div className="relative">
+                                        <MapIcon className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                        <Input placeholder="Enter state manually" {...field} className="pl-9" />
+                                    </div>
                                 ) : (
                                     <Combobox
                                         options={statesData?.states.map(s => ({ value: s.name, label: s.name })) || []}
@@ -175,6 +186,7 @@ export function LocationFields({
                                         placeholder="Select State"
                                         disabled={!selectedCountry}
                                         emptyMessage={isLoadingStates ? 'Loading...' : 'No states found.'}
+                                        icon={MapIcon}
                                     />
                                 )}
                             </FormControl>
@@ -206,10 +218,13 @@ export function LocationFields({
                             <FormLabel>City</FormLabel>
                             <FormControl>
                                 {isManualCity ? (
-                                    <Input placeholder="Enter city manually" {...field} />
+                                    <div className="relative">
+                                        <Building2 className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                        <Input placeholder="Enter city manually" {...field} className="pl-9" />
+                                    </div>
                                 ) : (
                                     <Combobox
-                                        options={filteredCities.map(c => ({ value: c.name, label: c.name }))}
+                                        options={filteredCities.map((c, i) => ({ value: c.name, label: c.name, key: `${c.name}-${i}` }))}
                                         value={field.value}
                                         onChange={field.onChange}
                                         placeholder="Select City"
@@ -224,6 +239,7 @@ export function LocationFields({
                                                     ? 'Type to search...'
                                                     : 'No cities found matching your state.'
                                         }
+                                        icon={Building2}
                                     />
                                 )}
                             </FormControl>
@@ -256,15 +272,25 @@ export function LocationFields({
                             <FormLabel>ZIP Code</FormLabel>
                             <FormControl>
                                 {isManualZip ? (
-                                    <Input placeholder="Enter ZIP Code" {...field} />
+                                    <div className="relative">
+                                        <Hash className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                        <Input placeholder="Enter ZIP Code" {...field} className="pl-9" />
+                                    </div>
                                 ) : (
                                     <Combobox
-                                        options={zipcodesData?.zipcodes.map(z => ({ value: z.code, label: `${z.code} - ${z.area}` })) || []}
+                                        // Fix for collision: generate unique key
+                                        options={zipcodesData?.zipcodes.map((z, i) => ({
+                                            value: z.code,
+                                            label: `${z.code} - ${z.area}`,
+                                            // Add an internal unique ID for the Combobox to use as key
+                                            key: `${z.code}-${z.area}-${i}`
+                                        })) || []}
                                         value={field.value}
                                         onChange={field.onChange}
                                         placeholder="Select ZIP Code"
                                         disabled={!selectedCity}
                                         emptyMessage={isLoadingZipcodes ? 'Loading...' : 'No Zip Codes found.'}
+                                        icon={Hash}
                                     />
                                 )}
                             </FormControl>

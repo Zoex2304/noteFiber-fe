@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
-import { CreditCard, Edit2, MapPin, Loader2 } from 'lucide-react';
+import { CreditCard, Edit2, MapPin, Loader2, User, Mail, Phone } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/shadui/card';
 import { Button } from '@/components/shadui/button';
 import { Skeleton } from '@/components/shadui/skeleton';
@@ -167,7 +167,10 @@ export function BillingInfoCard() {
                                         <FormItem>
                                             <FormLabel>First Name</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="John" {...field} />
+                                                <div className="relative">
+                                                    <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                                    <Input placeholder="John" {...field} className="pl-9" />
+                                                </div>
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -180,7 +183,10 @@ export function BillingInfoCard() {
                                         <FormItem>
                                             <FormLabel>Last Name</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="Doe" {...field} />
+                                                <div className="relative">
+                                                    <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                                    <Input placeholder="Doe" {...field} className="pl-9" />
+                                                </div>
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -196,7 +202,10 @@ export function BillingInfoCard() {
                                     <FormItem>
                                         <FormLabel>Email</FormLabel>
                                         <FormControl>
-                                            <Input type="email" placeholder="john@example.com" {...field} />
+                                            <div className="relative">
+                                                <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                                <Input type="email" placeholder="john@example.com" {...field} className="pl-9" />
+                                            </div>
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -209,7 +218,10 @@ export function BillingInfoCard() {
                                     <FormItem>
                                         <FormLabel>Phone (optional)</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="08123456789" {...field} />
+                                            <div className="relative">
+                                                <Phone className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                                <Input placeholder="08123456789" {...field} className="pl-9" />
+                                            </div>
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -224,7 +236,10 @@ export function BillingInfoCard() {
                                     <FormItem>
                                         <FormLabel>Address</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="123 Main St" {...field} />
+                                            <div className="relative">
+                                                <MapPin className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                                <Input placeholder="123 Main St" {...field} className="pl-9" />
+                                            </div>
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

@@ -19,18 +19,20 @@ import {
   ZoomIn,
   ZoomOut,
 } from "lucide-react";
-import { ActionTooltip } from "./ActionTooltip";
+
 
 interface AvatarUploaderProps {
   currentAvatarUrl?: string | null;
   onUpload: (blob: Blob) => Promise<void>;
   isUploading?: boolean;
+  className?: string; // Add className prop
 }
 
 export function AvatarUploader({
   currentAvatarUrl,
   onUpload,
   isUploading = false,
+  className,
 }: AvatarUploaderProps) {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -82,8 +84,8 @@ export function AvatarUploader({
   };
 
   return (
-    <div className="flex flex-col items-center gap-4">
-      <div className="relative group">
+    <div className={`flex flex-col items-center gap-4 ${className ? className : ''}`}>
+      <div className={`relative group ${isUploading ? 'pointer-events-none' : ''}`}>
         <input
           type="file"
           accept="image/*"
@@ -93,7 +95,12 @@ export function AvatarUploader({
           aria-label="Upload image file"
         />
 
-        <div className="h-32 w-32 rounded-full overflow-hidden border-4 border-white shadow-lg bg-gray-100 flex items-center justify-center relative">
+        {/* 
+           Container for the avatar image. 
+           We expect the parent to handle sizing (w/h) and outer border (ring).
+           This component fills the parent.
+        */}
+        <div className="w-full h-full rounded-full overflow-hidden bg-gray-100 flex items-center justify-center relative">
           {currentAvatarUrl ? (
             <img
               src={currentAvatarUrl}
@@ -114,22 +121,6 @@ export function AvatarUploader({
             <Camera className="h-8 w-8 text-white" />
           </div>
         </div>
-
-        <ActionTooltip label="Upload new photo">
-          <Button
-            variant="secondary"
-            size="icon"
-            className="absolute bottom-0 right-0 rounded-full shadow-md h-10 w-10 border-2 border-white"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isUploading}
-          >
-            {isUploading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Camera className="h-4 w-4" />
-            )}
-          </Button>
-        </ActionTooltip>
       </div>
 
       <Dialog
