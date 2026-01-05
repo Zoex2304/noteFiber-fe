@@ -7,8 +7,8 @@ export interface ChatEmptyStateProps {
     title?: string;
     /** Optional custom description */
     description?: string;
-    /** Handler for quick actions */
-    onAction?: (action: string) => void;
+    /** Handler for quick actions - receives prompt and whether to trigger note selection */
+    onAction?: (prompt: string, triggerNoteSelection?: boolean) => void;
 }
 
 /**
@@ -22,10 +22,10 @@ export function ChatEmptyState({
 }: ChatEmptyStateProps) {
 
     const actions = [
-        { label: "Summarize note...", icon: FileText, prompt: "Summarize the key points of @notes:" },
-        { label: "Explain concept...", icon: Lightbulb, prompt: "Explain the concept of " },
-        { label: "Draft content...", icon: PenTool, prompt: "Draft a blog post about " },
-        { label: "Brainstorm...", icon: Sparkles, prompt: "Brainstorm ideas for " },
+        { label: "Summarize note...", icon: FileText, prompt: "Summarize the key points of @", triggerNotes: true },
+        { label: "Explain concept...", icon: Lightbulb, prompt: "Explain the concept from @", triggerNotes: true },
+        { label: "Draft content...", icon: PenTool, prompt: "Draft content based on @", triggerNotes: true },
+        { label: "Answer questions...", icon: Sparkles, prompt: "Answer all the questions in the following @", triggerNotes: true },
     ];
 
     return (
@@ -59,7 +59,7 @@ export function ChatEmptyState({
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 + (index * 0.05) }}
-                        onClick={() => onAction?.(action.prompt)}
+                        onClick={() => onAction?.(action.prompt, action.triggerNotes)}
                         className="flex flex-col items-center justify-center p-3 gap-2 bg-white border border-gray-100 rounded-xl hover:bg-purple-50 hover:border-purple-100 hover:text-purple-700 transition-all group shadow-sm hover:shadow-md"
                     >
                         <action.icon className="h-5 w-5 text-gray-400 group-hover:text-purple-600 transition-colors" />

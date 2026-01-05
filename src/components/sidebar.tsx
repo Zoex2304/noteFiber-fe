@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { ChevronRight, ChevronDown, Folder, FolderOpen, FileText, Edit2, Trash2 } from "lucide-react"
+import { ChevronRight, ChevronDown, Folder, FolderOpen, FileText, Edit2, Trash2, Plus } from "lucide-react"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import {
@@ -29,6 +29,7 @@ interface SidebarProps {
     onNotebookSelect: (notebookId: string) => void
     onNoteSelect: (noteId: string) => void
     onNotebookUpdate: (notebookId: string, updates: Partial<Notebook>) => void
+    onNoteUpdate?: (noteId: string, updates: Partial<Note>) => void
     onDeleteNotebook: (notebookId: string) => void
     onDeleteNote: (noteId: string) => void
     onMoveNote: (noteId: string, targetNotebookId: string) => void
@@ -36,8 +37,9 @@ interface SidebarProps {
     expandedNotebooks: Set<string>
     setExpandedNotebooks: (expanded: Set<string>) => void
     isProcessingMove: boolean
-    isDeletingNotebook: string | null // New prop
-    isDeletingNote: string | null // New prop
+    isDeletingNotebook: string | null
+    isDeletingNote: string | null
+    onCreateNote?: (notebookId: string) => void
 }
 
 export function Sidebar({
@@ -56,14 +58,18 @@ export function Sidebar({
     setExpandedNotebooks,
     isProcessingMove,
     isDeletingNotebook, // Destructure new prop
-    isDeletingNote, // Destructure new prop
+    isDeletingNote,
+    onCreateNote,
+    onNoteUpdate,
 }: SidebarProps) {
     const [editingNotebook, setEditingNotebook] = useState<string | null>(null)
+    const [editingNote, setEditingNote] = useState<string | null>(null)
     const [editingName, setEditingName] = useState("")
     const [draggedItem, setDraggedItem] = useState<{ type: "notebook" | "note"; id: string } | null>(null)
     console.log(draggedItem); // Temporary usage to bypass unused var check pending full implementation
     const [dragOverItem, setDragOverItem] = useState<{ type: "notebook" | "note"; id: string } | null>(null)
     const [isSavingNotebookName, setIsSavingNotebookName] = useState(false)
+    const [isSavingNoteName, setIsSavingNoteName] = useState(false)
 
     const toggleNotebook = (notebookId: string) => {
         const newExpanded = new Set(expandedNotebooks)
@@ -109,6 +115,33 @@ export function Sidebar({
 
     const cancelEditingNotebook = () => {
         setEditingNotebook(null)
+        setEditingName("")
+    }
+
+    const startEditingNote = (note: Note) => {
+        setEditingNote(note.id)
+        setEditingName(note.title)
+    }
+
+    const saveNoteName = async () => {
+        if (editingNote && editingName.trim()) {
+            setIsSavingNoteName(true)
+
+            if (onNoteUpdate) {
+                // Optimistic update via parent
+                onNoteUpdate(editingNote, { title: editingName.trim() })
+                setIsSavingNoteName(false)
+            } else {
+                // Fallback if no parent handler (though we expect one)
+                setIsSavingNoteName(false)
+            }
+        }
+        setEditingNote(null)
+        setEditingName("")
+    }
+
+    const cancelEditingNote = () => {
+        setEditingNote(null)
         setEditingName("")
     }
 
@@ -222,6 +255,12 @@ export function Sidebar({
                                         }
                                     }
                                 }}
+                                onDoubleClick={(e) => {
+                                    e.stopPropagation()
+                                    if (!isEditing && !isProcessingMove && !isThisNotebookDeleting) {
+                                        startEditingNotebook(notebook)
+                                    }
+                                }}
                                 disabled={isProcessingMove || isThisNotebookDeleting}
                             >
                                 <div className="w-4 flex justify-center mr-1">
@@ -267,6 +306,15 @@ export function Sidebar({
                         </div>
                     </ContextMenuTrigger>
                     <ContextMenuContent>
+                        {onCreateNote && (
+                            <ContextMenuItem
+                                onClick={() => onCreateNote(notebook.id)}
+                                disabled={isProcessingMove || isThisNotebookDeleting}
+                            >
+                                <Plus className="h-3 w-3 mr-2" />
+                                New Note
+                            </ContextMenuItem>
+                        )}
                         <ContextMenuItem
                             onClick={() => startEditingNotebook(notebook)}
                             disabled={isSavingNotebookName || isProcessingMove || isThisNotebookDeleting}
@@ -305,6 +353,7 @@ export function Sidebar({
                         {notebookNotes.map((note) => {
                             const isDragOverNote = dragOverItem?.type === "note" && dragOverItem.id === note.id
                             const isThisNoteDeleting = isDeletingNote === note.id
+                            const isEditingNote = editingNote === note.id
 
                             return (
                                 <ContextMenu key={note.id}>
@@ -312,10 +361,10 @@ export function Sidebar({
                                         <div
                                             className={cn(
                                                 "flex items-center group min-w-fit",
-                                                isDragOverNote && "bg-royal-violet-base/10 border-2 border-royal-violet-base border-dashed rounded", // Updated drag state
+                                                isDragOverNote && "bg-royal-violet-base/10 border-2 border-royal-violet-base border-dashed rounded",
                                             )}
                                             style={{ paddingLeft: `${(level + 1) * 16}px` }}
-                                            draggable={!isProcessingMove && !isThisNoteDeleting}
+                                            draggable={!isProcessingMove && !isThisNoteDeleting && !isEditingNote}
                                             onDragStart={(e) => handleDragStart(e, "note", note.id)}
                                             onDragOver={(e) => handleDragOver(e, "note", note.id)}
                                             onDragLeave={handleDragLeave}
@@ -325,24 +374,63 @@ export function Sidebar({
                                                 variant="ghost"
                                                 className={cn(
                                                     "flex-1 justify-start h-8 px-2 font-normal text-gray-600 transition-all duration-200 whitespace-nowrap shrink-0",
-                                                    selectedNote === note.id && "text-royal-violet-base font-medium", // Removed background background, only text color
+                                                    selectedNote === note.id && "text-royal-violet-base font-medium",
                                                     selectedNote !== note.id && "hover:bg-gray-50 text-gray-700",
                                                 )}
                                                 onClick={() => {
-                                                    if (!isProcessingMove && !isThisNoteDeleting) {
+                                                    if (!isProcessingMove && !isThisNoteDeleting && !isEditingNote) {
                                                         onNoteSelect(note.id)
                                                         onNotebookSelect(notebook.id)
+                                                    }
+                                                }}
+                                                onDoubleClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if (!isProcessingMove && !isThisNoteDeleting && !isEditingNote) {
+                                                        startEditingNote(note);
                                                     }
                                                 }}
                                                 disabled={isProcessingMove || isThisNoteDeleting}
                                             >
                                                 <div className="w-4 mr-1"></div>
                                                 <FileText className="h-3.5 w-3.5 mr-2 text-gray-500" />
-                                                <span className="text-sm flex-1 text-left whitespace-nowrap">{note.title}</span>
+
+                                                {isEditingNote ? (
+                                                    <div className="flex items-center flex-1">
+                                                        <Input
+                                                            value={editingName}
+                                                            onChange={(e) => setEditingName(e.target.value)}
+                                                            onBlur={saveNoteName}
+                                                            onKeyDown={(e) => {
+                                                                e.stopPropagation()
+                                                                if (e.key === "Enter") {
+                                                                    saveNoteName()
+                                                                } else if (e.key === "Escape") {
+                                                                    cancelEditingNote()
+                                                                }
+                                                            }}
+                                                            className="h-6 text-sm border-none p-0 focus-visible:ring-1 focus-visible:ring-royal-violet-base flex-1"
+                                                            autoFocus
+                                                            onClick={(e) => e.stopPropagation()}
+                                                            disabled={isSavingNoteName}
+                                                        />
+                                                        {isSavingNoteName && (
+                                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-royal-violet-base ml-2"></div>
+                                                        )}
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-sm flex-1 text-left whitespace-nowrap">{note.title}</span>
+                                                )}
                                             </Button>
                                         </div>
                                     </ContextMenuTrigger>
                                     <ContextMenuContent>
+                                        <ContextMenuItem
+                                            onClick={() => startEditingNote(note)}
+                                            disabled={isSavingNoteName || isProcessingMove || isThisNoteDeleting}
+                                        >
+                                            <Edit2 className="h-3 w-3 mr-2" />
+                                            Rename
+                                        </ContextMenuItem>
                                         <ContextMenuItem
                                             onClick={() => onDeleteNote(note.id)}
                                             className="text-red-600 focus:text-red-600"

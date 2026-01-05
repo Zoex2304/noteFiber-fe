@@ -25,6 +25,7 @@ export interface AppSidebarProps {
     onNotebookSelect: (notebookId: string) => void;
     onNoteSelect: (noteId: string) => void;
     onNotebookUpdate: (notebookId: string, updates: Partial<Notebook>) => void;
+    onNoteUpdate?: (noteId: string, updates: Partial<Note>) => void;
     onDeleteNotebook: (notebookId: string) => void;
     onDeleteNote: (noteId: string) => void;
     onMoveNote: (noteId: string, targetNotebookId: string) => void;
@@ -36,6 +37,7 @@ export interface AppSidebarProps {
     isDeletingNote: string | null;
     onCreateNotebook: () => void;
     onCreateNote: () => void;
+    onCreateNoteInNotebook?: (notebookId: string) => void;
     isCreatingNotebook: boolean;
     isCreatingNote: boolean;
     onClearSelection: () => void;
@@ -49,6 +51,7 @@ export function AppSidebar({
     onNotebookSelect,
     onNoteSelect,
     onNotebookUpdate,
+    onNoteUpdate,
     onDeleteNotebook,
     onDeleteNote,
     onMoveNote,
@@ -60,6 +63,7 @@ export function AppSidebar({
     isDeletingNote,
     onCreateNotebook,
     onCreateNote,
+    onCreateNoteInNotebook,
     isCreatingNotebook,
     isCreatingNote,
     onClearSelection,
@@ -75,18 +79,24 @@ export function AppSidebar({
 
     const sidebarRef = useRef<HTMLDivElement>(null);
 
-    // Click outside to clear selection
+    // Click on empty area to clear selection
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             const target = event.target as HTMLElement;
-            // Only clear if calling on the sidebar background, not on items
-            if (
-                sidebarRef.current &&
-                sidebarRef.current.contains(target) &&
-                target === sidebarRef.current
-            ) {
-                onClearSelection();
+
+            // Must be within sidebar
+            if (!sidebarRef.current || !sidebarRef.current.contains(target)) {
+                return;
             }
+
+            // Don't clear if clicking on interactive elements
+            const isInteractive = target.closest('button, [role="button"], a, input, [data-sidebar-item]');
+            if (isInteractive) {
+                return;
+            }
+
+            // Clear selection when clicking on empty areas
+            onClearSelection();
         };
 
         document.addEventListener("mousedown", handleClickOutside);
@@ -275,6 +285,7 @@ export function AppSidebar({
                         onNotebookSelect={onNotebookSelect}
                         onNoteSelect={onNoteSelect}
                         onNotebookUpdate={onNotebookUpdate}
+                        onNoteUpdate={onNoteUpdate}
                         onDeleteNotebook={onDeleteNotebook}
                         onDeleteNote={onDeleteNote}
                         onMoveNote={onMoveNote}
@@ -284,6 +295,7 @@ export function AppSidebar({
                         isProcessingMove={isProcessingMove}
                         isDeletingNotebook={isDeletingNotebook}
                         isDeletingNote={isDeletingNote}
+                        onCreateNote={onCreateNoteInNotebook}
                     />
                 )}
             </div>

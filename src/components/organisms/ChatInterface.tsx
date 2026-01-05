@@ -174,7 +174,7 @@ export function ChatInterface({
 
                         {/* Empty State */}
                         {messages.length === 0 && !isLoading && (
-                            <ChatEmptyState onAction={onInputChange} />
+                            <ChatEmptyState onAction={(prompt) => onInputChange(prompt)} />
                         )}
 
                         {/* Scroll anchor */}

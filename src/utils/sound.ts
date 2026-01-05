@@ -1,4 +1,4 @@
-export const NOTIFICATION_SOUND_URL = '/sounds/notif.mp3';
+export const NOTIFICATION_SOUND_URL = '/sounds/notif_v2.mp3';
 
 // Keep track of active audio instances to prevent garbage collection
 const activeAudio = new Set<HTMLAudioElement>();

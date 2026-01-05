@@ -14,7 +14,7 @@ import { adminNotificationService } from '../services/admin-notification.service
 import type { AdminNotification } from '@admin/lib/types/notification.types';
 
 // Sound configuration
-const NOTIFICATION_SOUND_URL = '/sounds/notif.mp3';
+const NOTIFICATION_SOUND_URL = '/sounds/notif_v2.mp3';
 
 interface UseAdminNotificationsResult {
     /** List of notifications */

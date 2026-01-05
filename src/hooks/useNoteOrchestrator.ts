@@ -72,6 +72,29 @@ export function useNoteOrchestrator() {
         }
     };
 
+    // Create note in a specific notebook (from context menu)
+    const handleCreateNoteInNotebook = async (notebookId: string) => {
+        if (sidebar.isCreatingNote) return;
+
+        const canCreate = await checkCanCreateNote();
+        if (!canCreate) return;
+
+        sidebar.setIsCreatingNote(true);
+        try {
+            const newNote = await noteSystem.createNote({
+                title: "Untitled Note",
+                content: "# Untitled Note\n\nStart writing...",
+                notebook_id: notebookId,
+            });
+
+            navigate({ to: "/app/note/$noteId", params: { noteId: newNote.id } });
+            sidebar.setExpandedNotebooks((prev) => new Set([...prev, notebookId]));
+            sidebar.setSelectedNotebook(notebookId);
+        } finally {
+            sidebar.setIsCreatingNote(false);
+        }
+    };
+
     const handleCreateNotebook = async () => {
         if (sidebar.isCreatingNotebook) return;
 
@@ -223,6 +246,7 @@ export function useNoteOrchestrator() {
         onNotebookSelect: sidebar.setSelectedNotebook,
         onNoteSelect: navigateToNote,
         onNotebookUpdate: noteSystem.fetchAllNotebooks,
+        onNoteUpdate: handleNoteUpdate,
         onDeleteNotebook: handleDeleteNotebook,
         onDeleteNote: handleDeleteNote,
         onMoveNote: handleMoveNote,
@@ -234,9 +258,13 @@ export function useNoteOrchestrator() {
         isDeletingNote: sidebar.isDeletingNote,
         onCreateNotebook: handleCreateNotebook,
         onCreateNote: handleCreateNote,
+        onCreateNoteInNotebook: handleCreateNoteInNotebook,
         isCreatingNotebook: sidebar.isCreatingNotebook,
         isCreatingNote: sidebar.isCreatingNote,
-        onClearSelection: () => navigate({ to: "/app" }),
+        onClearSelection: () => {
+            sidebar.setSelectedNotebook(null);
+            sidebar.setSelectedNote(null);
+        },
     };
 
     return {

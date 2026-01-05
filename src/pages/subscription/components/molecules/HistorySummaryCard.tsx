@@ -30,20 +30,30 @@ interface HistorySummaryCardProps {
     className?: string;
 }
 
-const statusConfig: Record<StatusType, { variant: 'default' | 'secondary' | 'destructive'; label: string }> = {
+const statusConfig: Record<string, { variant: 'default' | 'secondary' | 'destructive'; label: string }> = {
     pending: { variant: 'secondary', label: 'Processing' },
     approved: { variant: 'default', label: 'Approved' },
-    rejected: { variant: 'destructive', label: 'Declined' }
+    rejected: { variant: 'destructive', label: 'Declined' },
+    // Fallbacks for potential other statuses
+    canceled: { variant: 'secondary', label: 'Canceled' },
+    failed: { variant: 'destructive', label: 'Failed' },
+    completed: { variant: 'default', label: 'Completed' },
+    succeeded: { variant: 'default', label: 'Succeeded' },
 };
 
-const iconConfig: Record<HistoryType, { icon: typeof FileText; headerIcon: typeof RotateCcw; bgClass: Record<StatusType, string> }> = {
+const iconConfig: Record<HistoryType, { icon: typeof FileText; headerIcon: typeof RotateCcw; bgClass: Record<string, string> }> = {
     refund: {
         icon: Receipt,
         headerIcon: RotateCcw,
         bgClass: {
             pending: 'bg-yellow-50 text-yellow-600',
             approved: 'bg-green-50 text-green-600',
-            rejected: 'bg-red-50 text-red-600'
+            rejected: 'bg-red-50 text-red-600',
+            // Default/Fallback
+            canceled: 'bg-gray-50 text-gray-600',
+            failed: 'bg-red-50 text-red-600',
+            completed: 'bg-green-50 text-green-600',
+            succeeded: 'bg-green-50 text-green-600',
         }
     },
     cancellation: {
@@ -52,7 +62,11 @@ const iconConfig: Record<HistoryType, { icon: typeof FileText; headerIcon: typeo
         bgClass: {
             pending: 'bg-yellow-50 text-yellow-600',
             approved: 'bg-green-50 text-green-600',
-            rejected: 'bg-red-50 text-red-600'
+            rejected: 'bg-red-50 text-red-600',
+            canceled: 'bg-gray-50 text-gray-600',
+            failed: 'bg-red-50 text-red-600',
+            completed: 'bg-green-50 text-green-600',
+            succeeded: 'bg-green-50 text-green-600',
         }
     }
 };
@@ -74,8 +88,12 @@ export function HistorySummaryCard({
 }: HistorySummaryCardProps) {
     const Icon = iconConfig[type].icon;
     const HeaderIcon = iconConfig[type].headerIcon;
-    const iconBgClass = iconConfig[type].bgClass[status];
-    const { variant, label } = statusConfig[status];
+    // Safe access for background class
+    const iconBgClass = (iconConfig[type].bgClass as any)[status] || 'bg-gray-50 text-gray-600';
+
+    // Safe access for config
+    const config = statusConfig[status] || statusConfig['pending'];
+    const { variant, label } = config;
     const isRefund = type === 'refund';
     const title = `${isRefund ? 'Refund' : 'Cancellation'} for ${planName}`;
     const headerTitle = `Latest ${isRefund ? 'Refund' : 'Cancellation'} Request`;
