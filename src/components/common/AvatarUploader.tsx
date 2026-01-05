@@ -85,7 +85,7 @@ export function AvatarUploader({
 
   return (
     <div className={`flex flex-col items-center gap-4 ${className ? className : ''}`}>
-      <div className={`relative group ${isUploading ? 'pointer-events-none' : ''}`}>
+      <div className={`relative group w-full h-full ${isUploading ? 'pointer-events-none' : ''}`}>
         <input
           type="file"
           accept="image/*"
