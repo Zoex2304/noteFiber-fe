@@ -68,6 +68,18 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
               <Trash2 size={16} />
             </DropdownMenuShortcut>
           </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              setCurrentRow(row.original)
+              setOpen('purge')
+            }}
+            className='text-red-500! focus:text-red-500! focus:bg-red-50'
+          >
+            Deep Purge
+            <DropdownMenuShortcut>
+              <Trash2 size={16} />
+            </DropdownMenuShortcut>
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </>

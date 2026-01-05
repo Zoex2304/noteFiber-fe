@@ -15,6 +15,8 @@ import type {
     User,
     UserListParams,
     UpdateUserRequest,
+    PurgeUsersRequest,
+    PurgeUsersResponse,
     SystemLog,
     LogDetail,
     LogListParams,
@@ -214,6 +216,17 @@ export const adminUsersApi = {
      */
     async deleteUser(id: string): Promise<void> {
         await apiClient.delete(ADMIN_ENDPOINTS.USERS.DELETE(id))
+    },
+
+    /**
+     * Deep purge users (Irreversible)
+     */
+    async purgeUsers(data: PurgeUsersRequest): Promise<PurgeUsersResponse> {
+        const response = await apiClient.post<ApiSuccessResponse<PurgeUsersResponse>>(
+            ADMIN_ENDPOINTS.USERS.PURGE,
+            data
+        )
+        return response.data.data
     },
 }
 

@@ -1,5 +1,6 @@
 import { UsersActionDialog } from './users-action-dialog'
 import { UsersDeleteDialog } from './users-delete-dialog'
+import { UsersPurgeDialog } from './users-purge-dialog'
 import { UsersStatusDialog } from './users-status-dialog'
 import { useUsers } from './users-provider'
 
@@ -44,6 +45,18 @@ export function UsersDialogs() {
             open={open === 'delete'}
             onOpenChange={() => {
               setOpen('delete')
+              setTimeout(() => {
+                setCurrentRow(null)
+              }, 500)
+            }}
+            currentRow={currentRow}
+          />
+
+          <UsersPurgeDialog
+            key={`user-purge-${currentRow.id}`}
+            open={open === 'purge'}
+            onOpenChange={() => {
+              setOpen('purge')
               setTimeout(() => {
                 setCurrentRow(null)
               }, 500)

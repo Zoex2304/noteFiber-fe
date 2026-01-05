@@ -12,6 +12,7 @@ import {
 import { DataTableBulkActions as BulkActionsToolbar } from '@admin/components/data-table'
 import { type User } from '../data/schema'
 import { UsersMultiDeleteDialog } from './users-multi-delete-dialog'
+import { UsersMultiPurgeDialog } from './users-multi-purge-dialog'
 
 type DataTableBulkActionsProps<TData> = {
   table: Table<TData>
@@ -21,6 +22,7 @@ export function DataTableBulkActions<TData>({
   table,
 }: DataTableBulkActionsProps<TData>) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [showPurgeConfirm, setShowPurgeConfirm] = useState(false)
   const selectedRows = table.getFilteredSelectedRowModel().rows
 
   const handleBulkStatusChange = (status: 'active' | 'inactive') => {
@@ -127,12 +129,37 @@ export function DataTableBulkActions<TData>({
             <p>Delete selected users</p>
           </TooltipContent>
         </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant='destructive'
+              size='icon'
+              onClick={() => setShowPurgeConfirm(true)}
+              className='size-8 border-2 border-red-900' // Visual distinction?
+              aria-label='Deep Purge selected users'
+              title='Deep Purge selected users'
+            >
+              <Trash2 className="text-red-900 fill-red-900" />
+              <span className='sr-only'>Deep Purge selected users</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Deep Purge selected users (Irreversible)</p>
+          </TooltipContent>
+        </Tooltip>
       </BulkActionsToolbar>
 
       <UsersMultiDeleteDialog
         table={table}
         open={showDeleteConfirm}
         onOpenChange={setShowDeleteConfirm}
+      />
+
+      <UsersMultiPurgeDialog
+        table={table}
+        open={showPurgeConfirm}
+        onOpenChange={setShowPurgeConfirm}
       />
     </>
   )

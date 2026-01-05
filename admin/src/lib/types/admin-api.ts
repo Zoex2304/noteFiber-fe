@@ -223,6 +223,24 @@ export const updateUserProfileSchema = z.object({
 
 export type UpdateUserRequest = z.infer<typeof updateUserProfileSchema>
 
+export const purgeUsersRequestSchema = z.object({
+    user_ids: z.array(z.string().min(1)),
+})
+
+export type PurgeUsersRequest = z.infer<typeof purgeUsersRequestSchema>
+
+export const purgeUsersResponseSchema = z.object({
+    deleted_count: z.number(),
+    failed_users: z.array(
+        z.object({
+            user_id: z.string(),
+            error: z.string(),
+        })
+    ),
+})
+
+export type PurgeUsersResponse = z.infer<typeof purgeUsersResponseSchema>
+
 // Logging Types
 export const logListParamsSchema = z.object({
     page: z.number().default(1),

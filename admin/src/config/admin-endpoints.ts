@@ -20,6 +20,7 @@ export const ADMIN_ENDPOINTS = {
         UPDATE_STATUS: (id: string) => `/admin/users/${id}/status`,
         UPDATE_PROFILE: (id: string) => `/admin/users/${id}`,
         DELETE: (id: string) => `/admin/users/${id}`,
+        PURGE: '/admin/users/purge',
     },
     FEATURES: {
         LIST: '/admin/features',

@@ -85,3 +85,24 @@ export function useDeleteUser() {
         },
     })
 }
+
+export function usePurgeUsers() {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: (ids: string[]) => adminUsersApi.purgeUsers({ user_ids: ids }),
+        onSuccess: (data) => {
+            const failed = data.failed_users?.length || 0
+            if (failed > 0) {
+                toast.warning(`Purged ${data.deleted_count} users with ${failed} errors`)
+            } else {
+                toast.success(`Successfully purged ${data.deleted_count} users`)
+            }
+            queryClient.invalidateQueries({ queryKey: userKeys.all })
+        },
+        onError: (error) => {
+            toast.error('Failed to purge users')
+            console.error(error)
+        },
+    })
+}
