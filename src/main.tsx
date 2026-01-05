@@ -6,6 +6,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { UsageLimitsProvider } from './contexts/UsageLimitsContext';
 import { TooltipProvider } from '@/components/shadui/tooltip';
 import './index.css';
+import 'katex/dist/katex.min.css';
 
 // Import the generated route tree
 import { routeTree } from './routeTree.gen';

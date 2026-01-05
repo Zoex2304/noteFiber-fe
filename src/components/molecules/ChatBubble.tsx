@@ -1,5 +1,7 @@
 import { User, Bot, Copy, Check, FileText } from "lucide-react";
 import ReactMarkdown from 'react-markdown';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 import type { Message } from "@/types/ai-chat";
 import { cn } from "@/lib/utils";
 import { Citation } from "./Citation";
@@ -28,6 +30,21 @@ export function ChatBubble({ message, onCitationClick, compact, animate = false 
     // Only animate if requested AND it's the assistant
     const shouldAnimate = animate && isAssistant;
     const { displayedText } = useTypewriter(message.content, 10, shouldAnimate);
+
+    // Normalize LaTeX delimiters for react-markdown
+    const normalizeLatex = (text: string) => {
+        // Replace \[ ... \] with $$ ... $$ for block math
+        // Replace \( ... \) with $ ... $ for inline math
+        // We use a specific order to avoid double replacement issues if they existed, 
+        // though here the patterns are distinct.
+        return text
+            .replace(/\\\[/g, '$$$$')
+            .replace(/\\\]/g, '$$$$')
+            .replace(/\\\(/g, '$')
+            .replace(/\\\)/g, '$');
+    };
+
+    const processedContent = normalizeLatex(displayedText);
 
     const handleCopy = () => {
         navigator.clipboard.writeText(message.content);
@@ -79,6 +96,8 @@ export function ChatBubble({ message, onCitationClick, compact, animate = false 
                     {isAssistant ? (
                         <div className="markdown-content break-words min-w-0">
                             <ReactMarkdown
+                                remarkPlugins={[remarkMath]}
+                                rehypePlugins={[rehypeKatex]}
                                 components={{
                                     p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
                                     ul: ({ children }) => <ul className="list-disc pl-4 mb-2 space-y-1">{children}</ul>,
@@ -114,7 +133,7 @@ export function ChatBubble({ message, onCitationClick, compact, animate = false 
                                     ),
                                 }}
                             >
-                                {displayedText}
+                                {processedContent}
                             </ReactMarkdown>
                         </div>
                     ) : (
