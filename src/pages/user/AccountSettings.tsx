@@ -2,27 +2,27 @@ import * as React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useUpdateProfile } from "@/hooks/user/useUpdateProfile";
-import { useDeleteAccount } from "@/hooks/user/useDeleteAccount";
-import { useAuth } from "@/hooks/auth/useAuth";
-import { apiClient } from "@/api/client/axios.client";
-import { userService } from "@/api/services/user/user.service";
+import { AlertTriangle, Loader2, MoveLeft, Shield, User, Copy, Eye, EyeOff, Check } from "lucide-react";
+import { toast } from "sonner";
+import { useRouter } from "@tanstack/react-router";
 import { Button } from "@/components/shadui/button";
-import { ActionTooltip } from "@/components/common/ActionTooltip";
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from "@/components/shadui/card";
 import {
     Form,
     FormControl,
-    FormDescription,
     FormField,
     FormItem,
     FormLabel,
     FormMessage,
 } from "@/components/shadui/form";
 import { Input } from "@/components/shadui/input";
-import { Skeleton } from "@/components/shadui/skeleton";
-import { Loader2, MoveLeft, User, Shield, AlertTriangle, Copy, Check, Eye, EyeOff, Sparkles } from "lucide-react";
-import { useRouter, Link } from "@tanstack/react-router";
-import { AvatarUploader } from "@/components/common/AvatarUploader";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/shadui/tabs";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -34,14 +34,22 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/shadui/alert-dialog";
-import { PlanStatusPill } from "@/components/common/PlanStatusPill";
-import { TokenUsagePill } from "@/components/common/TokenUsagePill";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/shadui/card";
-import { BillingInfoCard } from "@/components/user/BillingInfoCard";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/shadui/tabs";
-import HeaderGradient from '@/assets/images/common/header gradient_v2.svg';
-import { toast } from "sonner"; // Fixed: imported toast
+import { Skeleton } from "@/components/shadui/skeleton";
+import { ActionTooltip } from "@/components/common/ActionTooltip";
+
+import { useAuth } from "@/hooks/auth/useAuth";
+import { useUpdateProfile } from "@/hooks/user/useUpdateProfile";
+import { useDeleteAccount } from "@/hooks/user/useDeleteAccount";
 import { useSubscriptionStore } from "@/stores/useSubscriptionStore";
+import { apiClient } from "@/api/client/axios.client";
+import { userService } from "@/api/services/user/user.service";
+
+import { AvatarUploader } from "@/components/common/AvatarUploader";
+import { PlanStatusPill } from "@/components/common/PlanStatusPill";
+import { BillingInfoCard } from "@/components/user/BillingInfoCard";
+import { UsageLimitsGrid } from "@/components/user/UsageLimitsGrid";
+
+import HeaderGradient from '@/assets/images/common/header gradient_v2.svg';
 
 const profileSchema = z.object({
     full_name: z.string().min(2, {
@@ -111,10 +119,6 @@ export default function AccountSettings() {
     const router = useRouter();
     const { mutate: updateProfile, isPending: isUpdating } = useUpdateProfile();
     const { mutate: deleteAccount, isPending: isDeleting } = useDeleteAccount();
-    const { checkPermission } = useSubscriptionStore();
-
-    const canUseChat = checkPermission('ai_chat');
-    const canUseSearch = checkPermission('semantic_search');
 
     const form = useForm<ProfileFormValues>({
         resolver: zodResolver(profileSchema),
@@ -247,152 +251,121 @@ export default function AccountSettings() {
                         </TabsTrigger>
                     </TabsList>
 
-                    {/* Content Area */}
-
-                    {/* ... (Keep existing content structure) ... */}
-
-                    {/* Sidebar Usage Update */}
-                    {/* Replacing the entire Tabs content block isn't efficient, I'll targeting just the Grid Layout or Sidebar part if I can match it, but context is large. 
-                           I will target the usage sidebar specifically if I can find unique context.
-                           Actually I will reuse "grid grid-cols-1 lg:grid-cols-3 gap-8" as anchor.
-                        */}
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        {/* Main Content (2 cols) */}
-                        <div className="lg:col-span-2 space-y-6">
-
-                            {/* TAB: PROFILE */}
-                            <TabsContent value="profile" className="space-y-6 m-0 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                <Card className="shadow-sm border-gray-100">
-                                    <CardHeader>
-                                        <CardTitle>Personal Information</CardTitle>
-                                        <CardDescription>Update your public profile details.</CardDescription>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <Form {...form}>
-                                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                                                <FormField
-                                                    control={form.control}
-                                                    name="full_name"
-                                                    render={({ field }) => (
-                                                        <FormItem>
-                                                            <FormLabel>Full Name</FormLabel>
-                                                            <FormControl>
-                                                                <Input placeholder="Your name" {...field} className="max-w-md" />
-                                                            </FormControl>
-                                                            <FormDescription>This name will be displayed on your profile.</FormDescription>
-                                                            <FormMessage />
-                                                        </FormItem>
-                                                    )}
-                                                />
-                                                <div className="flex justify-start">
-                                                    <Button type="submit" disabled={isUpdating}>
-                                                        {isUpdating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                                        Save Changes
-                                                    </Button>
-                                                </div>
-                                            </form>
-                                        </Form>
-                                    </CardContent>
-                                </Card>
-                            </TabsContent>
-
-                            {/* TAB: BILLING */}
-                            <TabsContent value="billing" className="space-y-6 m-0 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                <BillingInfoCard />
-                            </TabsContent>
-
-                            {/* TAB: ACCOUNT */}
-                            <TabsContent value="account" className="space-y-6 m-0 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                <Card className="border-red-100 bg-red-50/30 shadow-none">
-                                    <CardHeader>
-                                        <CardTitle className="flex items-center gap-2 text-red-700 text-lg">
-                                            <AlertTriangle className="h-5 w-5" />
-                                            Danger Zone
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="flex items-center justify-between">
-                                            <div className="space-y-1">
-                                                <h4 className="font-medium text-gray-900">Delete Account</h4>
-                                                <p className="text-sm text-gray-500">Permanently delete your account and all data.</p>
-                                            </div>
-                                            <AlertDialog>
-                                                <AlertDialogTrigger asChild>
-                                                    <Button variant="destructive" size="sm">Delete Account</Button>
-                                                </AlertDialogTrigger>
-                                                <AlertDialogContent>
-                                                    <AlertDialogHeader>
-                                                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                                        <AlertDialogDescription>
-                                                            This action cannot be undone. This will permanently delete your
-                                                            account and remove your data from our servers.
-                                                        </AlertDialogDescription>
-                                                    </AlertDialogHeader>
-                                                    <AlertDialogFooter>
-                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                        <AlertDialogAction
-                                                            onClick={() => deleteAccount()}
-                                                            className="bg-red-600 hover:bg-red-700 disabled:opacity-50"
-                                                            disabled={isDeleting}
-                                                        >
-                                                            {isDeleting ? "Deleting..." : "Delete Account"}
-                                                        </AlertDialogAction>
-                                                    </AlertDialogFooter>
-                                                </AlertDialogContent>
-                                            </AlertDialog>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            </TabsContent>
-                        </div>
-
-                        {/* Sidebar Column */}
-                        <div className="space-y-6">
-                            <Card className="shadow-sm border-gray-100 bg-gray-50/50 sticky top-6">
+                    {/* Content Area - Full Width now */}
+                    <div className="mt-8">
+                        {/* TAB: PROFILE */}
+                        <TabsContent value="profile" className="space-y-6 m-0 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            {/* ... Profile Form Content ... */}
+                            <Card className="shadow-sm border-gray-100">
                                 <CardHeader>
-                                    <CardTitle className="flex items-center gap-2 text-lg">
-                                        <Shield className="h-5 w-5 text-royal-violet-base" />
-                                        Usage Overview
+                                    <CardTitle>Personal Information</CardTitle>
+                                    <CardDescription>
+                                        Update your personal information and profile picture.
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <Form {...form}>
+                                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-xl">
+                                            <FormField
+                                                control={form.control}
+                                                name="full_name"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>Full Name</FormLabel>
+                                                        <FormControl>
+                                                            <div className="relative">
+                                                                <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                                                                <Input placeholder="Your full name" {...field} className="pl-10" />
+                                                            </div>
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <div className="space-y-2">
+                                                    <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Email</label>
+                                                    <div className="relative">
+                                                        <div className="absolute left-3 top-3 h-4 w-4 text-gray-400 flex items-center justify-center">@</div>
+                                                        <Input value={user?.email} disabled className="pl-10 bg-gray-50 text-gray-500" />
+                                                    </div>
+                                                    <p className="text-[0.8rem] text-muted-foreground">Email address cannot be changed.</p>
+                                                </div>
+
+                                                <div className="space-y-2">
+                                                    <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Role</label>
+                                                    <div className="relative">
+                                                        <Shield className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                                                        <Input value={user?.role} disabled className="pl-10 capitalize bg-gray-50 text-gray-500" />
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex justify-end pt-4">
+                                                <Button type="submit" disabled={isUpdating} className="min-w-[120px]">
+                                                    {isUpdating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                                    Save Changes
+                                                </Button>
+                                            </div>
+                                        </form>
+                                    </Form>
+                                </CardContent>
+                            </Card>
+                        </TabsContent>
+
+                        {/* TAB: BILLING */}
+                        <TabsContent value="billing" className="space-y-8 m-0 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            {/* New Usage Limits Grid */}
+                            <UsageLimitsGrid />
+
+                            {/* Existing Billing Form */}
+                            <BillingInfoCard />
+                        </TabsContent>
+
+                        {/* TAB: ACCOUNT */}
+                        <TabsContent value="account" className="space-y-6 m-0 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            <Card className="border-red-100 bg-red-50/30 shadow-none">
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2 text-red-700 text-lg">
+                                        <AlertTriangle className="h-5 w-5" />
+                                        Danger Zone
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent className="space-y-4">
-                                    <div className="space-y-4">
-                                        {/* Storage Usage (Available for all plans) */}
-                                        <div>
-                                            <label className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Storage</label>
-                                            <div className="space-y-2 mt-1.5">
-                                                <TokenUsagePill type="notes" className="w-full" />
-                                                <TokenUsagePill type="notebooks" className="w-full" />
-                                            </div>
+                                <CardContent>
+                                    <div className="flex items-center justify-between">
+                                        <div className="space-y-1">
+                                            <h4 className="font-medium text-gray-900">Delete Account</h4>
+                                            <p className="text-sm text-gray-500">Permanently delete your account and all data.</p>
                                         </div>
-
-                                        {/* AI Features (Pro only) */}
-                                        {(canUseChat || canUseSearch) && (
-                                            <div className="pt-2">
-                                                <label className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">AI Capabilities</label>
-                                                <div className="space-y-2 mt-1.5">
-                                                    {canUseChat && <TokenUsagePill type="chat" className="w-full" />}
-                                                    {canUseSearch && <TokenUsagePill type="search" className="w-full" />}
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {!canUseChat && !canUseSearch && (
-                                            <div className="py-3 px-3 mt-2 text-xs text-gray-500 bg-violet-50/50 rounded-lg border border-violet-100 flex items-center gap-2">
-                                                <Sparkles className="h-3.5 w-3.5 text-royal-violet-500" />
-                                                <span>Upgrade to unlock AI features</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="pt-4 border-t border-gray-100">
-                                        <Link to="/app/subscription" className="text-sm text-royal-violet-600 hover:text-royal-violet-800 font-medium flex items-center gap-1 group">
-                                            Manage Subscription
-                                            <MoveLeft className="h-3 w-3 rotate-180 transition-transform group-hover:translate-x-1" />
-                                        </Link>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button variant="destructive" size="sm">Delete Account</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This action cannot be undone. This will permanently delete your
+                                                        account and remove your data from our servers.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction
+                                                        onClick={() => deleteAccount()}
+                                                        className="bg-red-600 hover:bg-red-700 disabled:opacity-50"
+                                                        disabled={isDeleting}
+                                                    >
+                                                        {isDeleting ? "Deleting..." : "Delete Account"}
+                                                    </AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     </div>
                                 </CardContent>
                             </Card>
-                        </div>
+                        </TabsContent>
                     </div>
                 </Tabs>
             </div>
