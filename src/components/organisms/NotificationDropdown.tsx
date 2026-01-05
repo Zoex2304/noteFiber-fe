@@ -43,7 +43,7 @@ export function NotificationDropdown() {
             // Normalize specific backend paths to frontend routes
             let targetUrl = actionUrl;
             if (actionUrl === '/settings') targetUrl = '/app/settings';
-            else if (actionUrl.startsWith('/refunds/')) targetUrl = `/app${actionUrl}`;
+            else if (actionUrl.startsWith('/refunds/')) targetUrl = `/app/subscription${actionUrl}`;
             else if (actionUrl.startsWith('/users/')) targetUrl = `/app${actionUrl}`;
 
             navigate({ to: targetUrl });

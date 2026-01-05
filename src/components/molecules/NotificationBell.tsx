@@ -3,6 +3,7 @@ import { useNotifications } from '@/contexts/NotificationContext';
 import { RingingIcon } from '@/components/common/RingingIcon';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
+import { playNotificationSound } from '@/utils/sound';
 
 interface NotificationBellProps {
     /** Click handler (typically opens dropdown) */
@@ -15,7 +16,7 @@ interface NotificationBellProps {
  * NotificationBell - Bell icon with unread count badge and ring animation
  * 
  * Displays the notification bell icon with a badge showing
- * the number of unread notifications. Animates when new
+ * the number of unread notifications. Animates and plays sound when new
  * notifications arrive.
  */
 export function NotificationBell({ onClick, className }: NotificationBellProps) {
@@ -27,12 +28,23 @@ export function NotificationBell({ onClick, className }: NotificationBellProps) 
     useEffect(() => {
         if (unreadCount > prevUnreadCount) {
             setIsRinging(true);
-            // Stop ringing after animation completes
+            playNotificationSound();
             const timer = setTimeout(() => setIsRinging(false), 1000);
             return () => clearTimeout(timer);
         }
         setPrevUnreadCount(unreadCount);
     }, [unreadCount, prevUnreadCount]);
+
+    // Dev testing: Listen for custom event to trigger ring
+    useEffect(() => {
+        const handleTestRing = () => {
+            setIsRinging(true);
+            playNotificationSound();
+            setTimeout(() => setIsRinging(false), 1000);
+        };
+        window.addEventListener('test-notification-ring', handleTestRing);
+        return () => window.removeEventListener('test-notification-ring', handleTestRing);
+    }, []);
 
     return (
         <button

@@ -1,6 +1,10 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { RefundDetail } from '@/pages/refunds/RefundDetail';
+import { createFileRoute, redirect } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/_authenticated/app/refunds/$refundId')({
-    component: RefundDetail,
+    beforeLoad: ({ params }) => {
+        throw redirect({
+            to: '/app/subscription/refunds/$refundId',
+            params: { refundId: params.refundId },
+        });
+    },
 });

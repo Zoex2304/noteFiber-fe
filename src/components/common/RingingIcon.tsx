@@ -97,7 +97,6 @@ export function RingingIcon({
     highlightOnRing = true,
     highlightClassName = 'text-amber-500',
     duration,
-    repeatCount = 1,
     className,
     onClick
 }: RingingIconProps) {
@@ -109,6 +108,7 @@ export function RingingIcon({
         ring: {
             ...variants.ring,
             transition: {
+                // @ts-ignore - Safe because we know the structure of our variants
                 ...(variants.ring as any).transition,
                 duration,
             }
@@ -144,6 +144,7 @@ export function RingingIcon({
                         scale: [0.8, 1.3, 1.2, 1.3, 0.8]
                     }}
                     transition={{
+                        // @ts-ignore
                         duration: customVariants.ring?.transition?.duration || 0.8,
                         ease: "easeInOut"
                     }}

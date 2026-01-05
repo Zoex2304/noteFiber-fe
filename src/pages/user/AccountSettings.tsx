@@ -21,7 +21,6 @@ import { Input } from "@/components/shadui/input";
 import { Loader2, MoveLeft, User, Shield, AlertTriangle } from "lucide-react";
 import { useRouter, Link } from "@tanstack/react-router";
 import { AvatarUploader } from "@/components/common/AvatarUploader";
-import { toast } from "sonner";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -62,10 +61,10 @@ export default function AccountSettings() {
     function onSubmit(data: ProfileFormValues) {
         updateProfile(data, {
             onSuccess: () => {
-                toast.success("Profile updated successfully");
+                toaster.success("Profile updated successfully");
             },
             onError: () => {
-                toast.error("Failed to update profile");
+                toaster.error("Failed to update profile");
             }
         });
     }
@@ -87,10 +86,10 @@ export default function AccountSettings() {
                     updateUser(profileResponse.data);
                 }
             }
-            toast.success("Avatar updated successfully");
+            toaster.success("Avatar updated successfully");
         } catch (error) {
             console.error(error);
-            toast.error("Failed to upload avatar");
+            toaster.error("Failed to upload avatar");
         }
     };
 

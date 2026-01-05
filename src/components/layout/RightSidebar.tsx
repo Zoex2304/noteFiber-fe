@@ -63,6 +63,18 @@ export function RightSidebar({
     const setView = useSidebarStore(s => s.setRightView);
     const expand = () => useSidebarStore.getState().setRightCollapsed(false);
 
+    // Permission Check
+    const { checkPermission } = useSubscription();
+    const canUseChat = checkPermission('ai_chat');
+
+    // Force close if permission revoked (React to real-time updates)
+    useEffect(() => {
+        if (!canUseChat && isOpen) {
+            useSidebarStore.getState().setRightSidebarOpen(false);
+        }
+    }, [canUseChat, isOpen]);
+
+
     // Chat System State
     const {
         activeSessionId,
@@ -171,16 +183,27 @@ export function RightSidebar({
     // Render
     // -------------------------------------------------------------------------
 
+    // Access Control: Strict Lock (Wrapper Level)
+    // We return null here (after loops) to ensure hooks are always called, preventing violations.
+    if (!canUseChat) return null;
+
+    // Dynamic width calculation for smooth open/close animation
+    // When closed (!isOpen), we treat it as collapsed with 0 width.
+    const effectiveCollapsed = !isOpen || isCollapsed;
+    const effectiveWidth = isOpen ? (hasWideContent ? 600 : 380) : 0;
+    const effectiveCollapsedWidth = isOpen ? 64 : 0;
+
     return (
         <SidebarLayout
             side="right"
-            width={hasWideContent ? 600 : 380}
-            collapsedWidth={64}
-            isCollapsed={isCollapsed}
+            width={effectiveWidth}
+            collapsedWidth={effectiveCollapsedWidth}
+            isCollapsed={effectiveCollapsed}
             onToggle={toggleCollapse}
+            showToggle={isOpen}
             className={cn(
                 "border-l border-gray-200 h-full shadow-xl z-30 flex flex-col",
-                !isOpen && "hidden"
+                !isOpen && "border-none" // Hide border when width is 0 to avoid artifacts
             )}
         >
             {/* Header */}

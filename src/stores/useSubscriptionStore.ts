@@ -143,23 +143,40 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
                 const uData = usageResponse.data;
                 const daily = uData.daily;
                 const storage = uData.storage;
+                const subData = subResponse.data; // Access subscription data for correct limits
 
-                const mapMetric = (source: any): UsageMetric => {
+                // Helper to map metric with correct limit source
+                const mapMetric = (source: any, authoritativeLimit?: number): UsageMetric => {
                     if (!source) return defaultMetric;
                     const used = Number(source.used) || 0;
-                    const limit = Number(source.limit) || 0;
-                    const can_use = source.can_use !== false;
+
+                    // Priority: Authoritative Limit (from payment/status) > Source Limit (usage-status)
+                    // If authorativeLimit is provided (and valid >= 0), use it.
+                    let limit = Number(source.limit) || 0;
+                    if (authoritativeLimit !== undefined && authoritativeLimit >= 0) {
+                        limit = authoritativeLimit;
+                    }
+
+                    const can_use = source.can_use !== false; // Keep usage-status can_use flags? 
+                    // Actually, if limit is high, can_use SHOULD be true, but usage-status might say false.
+                    // If we trust the limit, we should re-evaluate can_use.
+                    // But user asked to "Consume", not "Override". 
+                    // However, if limit is 20000 and used is 0, then can_use IS true mathematically.
+                    // usage-status saying false is contradictory to the Limit.
+                    // The safer bet is to re-calculate can_use if we have a valid positive limit.
+                    const derivedCanUse = limit > 0 ? used < limit : can_use;
+
                     const pct = limit > 0 ? Math.min((used / limit) * 100, 100) : 0;
-                    return { used, limit, can_use, resets_at: source.resets_at, percentage: pct };
+                    return { used, limit, can_use: derivedCanUse, resets_at: source.resets_at, percentage: pct };
                 };
 
                 set({
                     tokenUsage: {
-                        chat: mapMetric(daily.ai_chat),
-                        search: mapMetric(daily.semantic_search),
+                        chat: mapMetric(daily.ai_chat, subData?.ai_chat_daily_limit),
+                        search: mapMetric(daily.semantic_search, subData?.semantic_search_daily_limit),
                         storage: {
-                            notes: mapMetric(storage?.notes),
-                            notebooks: mapMetric(storage?.notebooks),
+                            notes: mapMetric(storage?.notes, subData?.features?.max_notes_per_notebook),
+                            notebooks: mapMetric(storage?.notebooks, subData?.features?.max_notebooks),
                         }
                     }
                 });

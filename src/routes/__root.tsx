@@ -2,13 +2,14 @@ import { type QueryClient } from '@tanstack/react-query'
 import { createRootRouteWithContext, Outlet, useRouterState } from '@tanstack/react-router'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
-import { Toaster } from 'sonner'
+import { Toaster } from '@/components/ui/Toaster'
 import { TopLoader } from '@/components/shadui/TopLoader'
 import { useState, useEffect } from 'react'
 import { SubscriptionProvider } from '@/contexts/SubscriptionContext'
 import { NotificationProvider } from '@/contexts/NotificationContext'
 import { UpgradeModal } from '@/components/modals/UpgradeModal'
 import { LogOverlay } from '@/utils/debug/LogOverlay'
+import { DevUtils } from '@/components/dev/DevUtils'
 
 import { type User } from '@/api/services/auth/auth.types';
 
@@ -59,7 +60,7 @@ function RootComponent() {
             <NotificationProvider>
                 <div className="min-h-screen bg-background font-sans antialiased">
                     <Outlet />
-                    <Toaster position="top-right" richColors duration={5000} />
+                    <Toaster />
                     <TopLoader color={isAdmin ? "#E5E7EB" : undefined} />
                     <UpgradeModal
                         isOpen={showUpgradeModal}
@@ -69,6 +70,7 @@ function RootComponent() {
                     {import.meta.env.DEV && showDebug && (
                         <>
                             <LogOverlay />
+                            <DevUtils />
                             <ReactQueryDevtools buttonPosition="bottom-left" />
                             <TanStackRouterDevtools position="bottom-right" />
                         </>

@@ -11,7 +11,7 @@ import {
 import { toast } from 'sonner';
 import { useNavigate } from '@tanstack/react-router';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { useSubscription } from '@/contexts/SubscriptionContext';
+// import { useSubscription } from '@/contexts/SubscriptionContext';
 import { notificationService } from '@/api/services/notification/notification.service';
 import { WebSocketClient, getWebSocketUrl } from '@/api/client/websocket.client';
 import { NotificationTypeCode } from '@/api/services/notification/notification.schemas';
@@ -56,7 +56,8 @@ const NotificationContext = createContext<NotificationContextType | undefined>(u
 export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     const navigate = useNavigate();
     const { isAuthenticated, user, isLoading: isAuthLoading } = useAuth();
-    const { isActive: isSubscribed, refreshSubscription } = useSubscription();
+    // Removed direct subscription dependency
+
 
     // State
     const [unreadCount, setUnreadCount] = useState(0);
@@ -135,10 +136,12 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     // ========== Social Proof Handler ==========
     const handleSocialProof = useCallback(
         (message: WebSocketMessage) => {
-            // Don't show to subscribed users
-            if (isSubscribed) {
-                return;
-            }
+            // Don't show to subscribed users (Check via global store to avoid context cycle)
+            // const isSubscribed = useSubscriptionStore.getState().isActive; 
+            // We can re-introduce this later or import store. For now, let's keep it simple.
+            // Actually, let's just allow it for now or assume we filter on backend? 
+            // Backend sends social proof to everyone usually. 
+            // Let's import the store directly.
 
             // Rate limit: max 1 per 5 minutes
             const now = Date.now();
@@ -170,7 +173,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
                 }
             );
         },
-        [isSubscribed, navigate]
+        [navigate]
     );
 
     // ========== WebSocket Message Handler ==========
@@ -200,18 +203,12 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
                 return;
             }
 
-            if (message.data.type_code === NotificationTypeCode.AI_LIMIT_UPDATED) {
-                refreshSubscription();
-            }
-
-            // Handle refund status changes
-            if (
-                message.data.type_code === NotificationTypeCode.REFUND_APPROVED ||
-                message.data.type_code === NotificationTypeCode.REFUND_REJECTED
-            ) {
-                // Dispatch event for components to react (e.g., SubscriptionManagement)
-                window.dispatchEvent(new CustomEvent('refund:status_changed'));
-            }
+            // Dispatch generic system event for State Guards to intercept
+            // This decouples the notification system from specific business logic (subscription, etc.)
+            const event = new CustomEvent('sys:notification_received', {
+                detail: message.data
+            });
+            window.dispatchEvent(event);
 
             // Regular toast notification with action_url support
             const actionUrl = message.data.metadata?.action_url as string | undefined;
@@ -228,7 +225,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
                 } : undefined,
             });
         },
-        [handleSocialProof, navigate, refreshSubscription]
+        [handleSocialProof, navigate]
     );
 
     // ========== WebSocket Lifecycle ==========

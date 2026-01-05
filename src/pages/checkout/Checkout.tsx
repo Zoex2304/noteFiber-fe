@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import { toast } from "sonner";
+import { toaster } from "@/hooks/useToaster";
 import { Loader2 } from "lucide-react";
 
 import { CheckoutLayout } from "./components/CheckoutLayout";
@@ -64,7 +64,7 @@ export default function Checkout() {
         if (!isLoadingPlans && selectedPlan) {
             // Check if it's a free plan (price 0 OR slug 'free')
             if (selectedPlan.price === 0 || selectedPlan.slug === 'free') {
-                toast.info("Free plan selected. Redirecting to dashboard...");
+                toaster.info("Free plan selected. Redirecting to dashboard...");
                 navigate({ to: "/app" });
             }
         }
@@ -76,7 +76,7 @@ export default function Checkout() {
 
     async function handleCheckout(data: CheckoutFormValues) {
         if (!selectedPlan?.id) {
-            toast.error("Invalid plan selected");
+            toaster.error("Invalid plan selected");
             return;
         }
 
@@ -93,34 +93,34 @@ export default function Checkout() {
                     if (window.snap) {
                         window.snap.pay(snap_token, {
                             onSuccess: function () {
-                                toast.success("Payment successful!");
+                                toaster.success("Payment successful!");
                                 navigate({ to: "/app" });
                             },
                             onPending: function () {
-                                toast.info("Payment pending...");
+                                toaster.info("Payment pending...");
                                 navigate({ to: "/app" });
                             },
                             onError: function (result) {
-                                toast.error("Payment failed");
+                                toaster.error("Payment failed");
                                 console.error(result);
                             },
                             onClose: function () {
-                                toast.warning("Payment window closed");
+                                toaster.warning("Payment window closed");
                             }
                         });
                     } else if (snap_redirect_url) {
                         // Fallback
                         window.location.href = snap_redirect_url;
                     } else {
-                        toast.error("Payment gateway not initialized");
+                        toaster.error("Payment gateway not initialized");
                     }
                 } else {
-                    toast.error("Failed to initiate checkout");
+                    toaster.error("Failed to initiate checkout");
                 }
             },
             onError: (error) => {
                 console.error("Checkout error:", error);
-                toast.error(error.message || "An error occurred during checkout");
+                toaster.error(error.message || "An error occurred during checkout");
             }
         });
     }

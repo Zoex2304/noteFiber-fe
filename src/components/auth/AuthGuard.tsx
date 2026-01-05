@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate, Outlet, useRouter } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/auth/useAuth";
+import { SubscriptionStateGuard } from "@/components/guards/SubscriptionStateGuard";
 
 export const AuthGuard = () => {
     const { isAuthenticated, isLoading } = useAuth();
@@ -28,5 +29,10 @@ export const AuthGuard = () => {
         return null; // Will redirect via useEffect
     }
 
-    return <Outlet />;
+    return (
+        <>
+            <SubscriptionStateGuard />
+            <Outlet />
+        </>
+    );
 };

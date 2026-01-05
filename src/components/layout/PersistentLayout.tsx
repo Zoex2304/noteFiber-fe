@@ -8,7 +8,6 @@ import { useNoteOrchestratorContext } from "@/contexts/NoteOrchestratorContext";
 import { useChatStore } from "@/stores/useChatStore";
 import { useSidebarStore } from "@/stores/useSidebarStore";
 import { useEffect, useRef } from "react";
-import { toast } from "sonner";
 import { playNotificationSound } from "@/utils/sound";
 
 export function PersistentLayout() {
@@ -50,7 +49,7 @@ export function PersistentLayout() {
 
             if (shouldNotify) {
                 playNotificationSound();
-                toast.success("Response Ready", {
+                toaster.success("Response Ready", {
                     description: "The AI has finished processing your request.",
                     action: {
                         label: "Open Chat",

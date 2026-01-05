@@ -74,11 +74,13 @@ export function SubscriptionHeroSection({
             className
         )}>
             {/* Background Gradient */}
-            <img
-                src={HeaderGradient}
-                alt=""
-                className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
-            />
+            {isPaidPlan && (
+                <img
+                    src={HeaderGradient}
+                    alt=""
+                    className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
+                />
+            )}
 
             {/* Content */}
             <div className="relative z-10 p-8 md:p-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
