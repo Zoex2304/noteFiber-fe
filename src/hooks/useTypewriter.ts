@@ -7,8 +7,14 @@ import { useState, useEffect, useRef } from 'react';
  * @param text The full text to display
  * @param speedMs Interval in ms between characters (default 20ms)
  * @param enabled Whether to animate or show immediately
+ * @param onTyping Optional callback fired when typing state changes (for scroll sync)
  */
-export function useTypewriter(text: string, speedMs: number = 10, enabled: boolean = true) {
+export function useTypewriter(
+    text: string,
+    speedMs: number = 10,
+    enabled: boolean = true,
+    onTyping?: (isTyping: boolean) => void
+) {
     const [displayedText, setDisplayedText] = useState(enabled ? "" : text);
     const [isComplete, setIsComplete] = useState(!enabled);
 
@@ -44,8 +50,10 @@ export function useTypewriter(text: string, speedMs: number = 10, enabled: boole
                 // Adjust speed based on lag? For now constant.
                 timeoutRef.current = setTimeout(typeChar, speedMs);
                 setIsComplete(false);
+                onTyping?.(true); // Notify parent we're typing
             } else {
                 setIsComplete(true);
+                onTyping?.(false); // Notify parent typing complete
             }
         };
 

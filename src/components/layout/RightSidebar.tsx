@@ -176,6 +176,7 @@ export function RightSidebar({
             if (!confirmed) return;
         }
         await createSession();
+        setView('chat'); // Auto-switch to chat tab (especially from history)
         setInput("");
     };
 

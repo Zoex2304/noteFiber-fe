@@ -59,6 +59,7 @@ export function ChatInterface({
     const [showScrollButton, setShowScrollButton] = useState(false);
     const [isNearBottom, setIsNearBottom] = useState(true);
     const [mouseNearBottomRight, setMouseNearBottomRight] = useState(false);
+    const [isTyping, setIsTyping] = useState(false);
 
     // Get the last message content for typewriter sync
     const lastMessage = messages[messages.length - 1];
@@ -87,6 +88,28 @@ export function ChatInterface({
             scrollToBottom("smooth");
         }
     }, [lastMessageContent, isLoading, isNearBottom, scrollToBottom]);
+
+    // Scroll during typing animation
+    useEffect(() => {
+        let animationFrameId: number;
+
+        const scrollDuringTyping = () => {
+            if (isTyping && isNearBottom) {
+                messagesEndRef.current?.scrollIntoView({ behavior: "auto", block: "end" });
+                animationFrameId = requestAnimationFrame(scrollDuringTyping);
+            }
+        };
+
+        if (isTyping && isNearBottom) {
+            animationFrameId = requestAnimationFrame(scrollDuringTyping);
+        }
+
+        return () => {
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+        };
+    }, [isTyping, isNearBottom]);
 
     // Initial scroll on new messages
     useEffect(() => {
@@ -149,7 +172,7 @@ export function ChatInterface({
                 {/* Message List - Custom scroll container */}
                 <div
                     ref={scrollContainerRef}
-                    className="flex-1 p-4 w-full overflow-y-auto overflow-x-hidden"
+                    className="flex-1 p-4 w-full overflow-y-auto overflow-x-hidden scroll-smooth"
                     onMouseMove={handleMouseMove}
                     onMouseLeave={handleMouseLeave}
                 >
@@ -161,6 +184,7 @@ export function ChatInterface({
                                 onCitationClick={onCitationClick}
                                 compact
                                 animate={index === messages.length - 1}
+                                onTyping={index === messages.length - 1 ? setIsTyping : undefined}
                             />
                         ))}
 

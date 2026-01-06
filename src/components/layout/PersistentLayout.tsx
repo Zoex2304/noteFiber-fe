@@ -9,6 +9,7 @@ import { useChatStore } from "@/stores/useChatStore";
 import { useSidebarStore } from "@/stores/useSidebarStore";
 import { useEffect, useRef } from "react";
 import { playNotificationSound } from "@/utils/sound";
+import { toaster } from "@/hooks/useToaster";
 
 export function PersistentLayout() {
     const {

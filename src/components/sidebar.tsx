@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { ChevronRight, ChevronDown, Folder, FolderOpen, FileText, Edit2, Trash2, Plus } from "lucide-react"
+import { ChevronRight, ChevronDown, Folder, FolderOpen, FileText, Edit2, Trash2, Plus, MessageSquarePlus } from "lucide-react"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import {
@@ -20,6 +20,8 @@ import type { Notebook } from "../types/notebook"
 import { apiClient } from "@/api/client/axios.client"
 import type { BaseResponse } from "../dto/base-response"
 import type { UpdateNotebookResponse, UpdateNotebookRequest } from "../dto/notebook"
+import { useChatStore } from "@/stores/useChatStore"
+import { useSubscriptionStore } from "@/stores/useSubscriptionStore"
 
 interface SidebarProps {
     notebooks: Notebook[]
@@ -70,6 +72,10 @@ export function Sidebar({
     const [dragOverItem, setDragOverItem] = useState<{ type: "notebook" | "note"; id: string } | null>(null)
     const [isSavingNotebookName, setIsSavingNotebookName] = useState(false)
     const [isSavingNoteName, setIsSavingNoteName] = useState(false)
+
+    // AI Chat integration
+    const setPreloadedReferences = useChatStore(state => state.setPreloadedReferences)
+    const canUseAI = useSubscriptionStore(state => state.checkPermission('ai_chat'))
 
     const toggleNotebook = (notebookId: string) => {
         const newExpanded = new Set(expandedNotebooks)
@@ -424,6 +430,19 @@ export function Sidebar({
                                         </div>
                                     </ContextMenuTrigger>
                                     <ContextMenuContent>
+                                        {/* Ask AI - Only shown if AI features enabled */}
+                                        {canUseAI && (
+                                            <ContextMenuItem
+                                                onClick={() => {
+                                                    setPreloadedReferences([note])
+                                                    window.dispatchEvent(new CustomEvent('open-chat-sidebar'))
+                                                }}
+                                                className="text-purple-600 focus:text-purple-700"
+                                            >
+                                                <MessageSquarePlus className="h-3 w-3 mr-2" />
+                                                Ask AI
+                                            </ContextMenuItem>
+                                        )}
                                         <ContextMenuItem
                                             onClick={() => startEditingNote(note)}
                                             disabled={isSavingNoteName || isProcessingMove || isThisNoteDeleting}

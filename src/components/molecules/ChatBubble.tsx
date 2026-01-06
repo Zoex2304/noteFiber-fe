@@ -20,9 +20,11 @@ export interface ChatBubbleProps {
     compact?: boolean;
     /** Whether to animate the text entry (typewriter effect) */
     animate?: boolean;
+    /** Callback fired when typewriter animation state changes (for scroll sync) */
+    onTyping?: (isTyping: boolean) => void;
 }
 
-export function ChatBubble({ message, onCitationClick, compact, animate = false }: ChatBubbleProps) {
+export function ChatBubble({ message, onCitationClick, compact, animate = false, onTyping }: ChatBubbleProps) {
     const isUser = message.role === "user";
     const isAssistant = message.role === "assistant";
     const hasCitations = isAssistant && message.citations && message.citations.length > 0;
@@ -30,7 +32,7 @@ export function ChatBubble({ message, onCitationClick, compact, animate = false 
 
     // Only animate if requested AND it's the assistant
     const shouldAnimate = animate && isAssistant;
-    const { displayedText } = useTypewriter(message.content, 10, shouldAnimate);
+    const { displayedText } = useTypewriter(message.content, 10, shouldAnimate, onTyping);
 
     // Normalize LaTeX delimiters for react-markdown
     const normalizeLatex = (text: string) => {
