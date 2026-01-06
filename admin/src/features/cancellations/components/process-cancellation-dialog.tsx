@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { format } from 'date-fns'
-import { toast } from 'sonner'
+import { toaster } from '@admin/hooks/useToaster'
 import {
     Dialog,
     DialogContent,
@@ -32,14 +32,14 @@ export function ProcessCancellationDialog() {
                 data: { action, admin_notes: adminNotes || undefined },
             })
 
-            toast.success(
+            toaster.success(
                 action === 'approve'
                     ? 'Cancellation request approved successfully'
                     : 'Cancellation request rejected'
             )
             handleClose()
         } catch (error) {
-            toast.error('Failed to process cancellation request')
+            toaster.error('Failed to process cancellation request')
         }
     }
 

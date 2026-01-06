@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
+import { toaster } from '@admin/hooks/useToaster'
 import {
     adminDashboardApi,
     adminPlansApi,
@@ -80,10 +80,10 @@ export function useCreatePlan() {
         mutationFn: (data: CreatePlanRequest) => adminPlansApi.createPlan(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: adminQueryKeys.plans })
-            toast.success('Subscription plan created successfully')
+            toaster.success('Subscription plan created successfully')
         },
         onError: (error) => {
-            toast.error(`Failed to create plan: ${handleApiError(error)}`)
+            toaster.error(`Failed to create plan: ${handleApiError(error)}`)
         },
     })
 }
@@ -97,10 +97,10 @@ export function useUpdatePlan() {
         onSuccess: (_, variables) => {
             queryClient.invalidateQueries({ queryKey: adminQueryKeys.plans })
             queryClient.invalidateQueries({ queryKey: adminQueryKeys.plan(variables.id) })
-            toast.success('Subscription plan updated successfully')
+            toaster.success('Subscription plan updated successfully')
         },
         onError: (error) => {
-            toast.error(`Failed to update plan: ${handleApiError(error)}`)
+            toaster.error(`Failed to update plan: ${handleApiError(error)}`)
         },
     })
 }
@@ -112,10 +112,10 @@ export function useDeletePlan() {
         mutationFn: (id: string) => adminPlansApi.deletePlan(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: adminQueryKeys.plans })
-            toast.success('Subscription plan deleted successfully')
+            toaster.success('Subscription plan deleted successfully')
         },
         onError: (error) => {
-            toast.error(`Failed to delete plan: ${handleApiError(error)}`)
+            toaster.error(`Failed to delete plan: ${handleApiError(error)}`)
         },
     })
 }
@@ -137,10 +137,10 @@ export function useProcessRefund() {
         mutationFn: (data: RefundRequest) => adminRefundsApi.processRefund(data),
         onSuccess: (response) => {
             queryClient.invalidateQueries({ queryKey: adminQueryKeys.dashboard })
-            toast.success(`Refund processed successfully. Refund ID: ${response.refund_id}`)
+            toaster.success(`Refund processed successfully. Refund ID: ${response.refund_id}`)
         },
         onError: (error) => {
-            toast.error(`Failed to process refund: ${handleApiError(error)}`)
+            toaster.error(`Failed to process refund: ${handleApiError(error)}`)
         },
     })
 }
@@ -153,10 +153,10 @@ export function useUpgradeSubscription() {
         mutationFn: (data: UpgradeSubscriptionRequest) => adminRefundsApi.upgradeSubscription(data),
         onSuccess: (response) => {
             queryClient.invalidateQueries({ queryKey: adminQueryKeys.dashboard })
-            toast.success(`Subscription upgraded. New ID: ${response.new_subscription_id}`)
+            toaster.success(`Subscription upgraded. New ID: ${response.new_subscription_id}`)
         },
         onError: (error) => {
-            toast.error(`Failed to upgrade subscription: ${handleApiError(error)}`)
+            toaster.error(`Failed to upgrade subscription: ${handleApiError(error)}`)
         },
     })
 }
@@ -176,10 +176,10 @@ export function useCreateFeature() {
         mutationFn: (data: CreateFeatureRequest) => adminFeaturesApi.createFeature(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: adminQueryKeys.features })
-            toast.success('Feature created successfully')
+            toaster.success('Feature created successfully')
         },
         onError: (error) => {
-            toast.error(`Failed to create feature: ${handleApiError(error)}`)
+            toaster.error(`Failed to create feature: ${handleApiError(error)}`)
         },
     })
 }
@@ -192,10 +192,10 @@ export function useUpdateFeature() {
             adminFeaturesApi.updateFeature(id, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: adminQueryKeys.features })
-            toast.success('Feature updated successfully')
+            toaster.success('Feature updated successfully')
         },
         onError: (error) => {
-            toast.error(`Failed to update feature: ${handleApiError(error)}`)
+            toaster.error(`Failed to update feature: ${handleApiError(error)}`)
         },
     })
 }
@@ -207,10 +207,10 @@ export function useDeleteFeature() {
         mutationFn: (id: string) => adminFeaturesApi.deleteFeature(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: adminQueryKeys.features })
-            toast.success('Feature deleted successfully')
+            toaster.success('Feature deleted successfully')
         },
         onError: (error) => {
-            toast.error(`Failed to delete feature: ${handleApiError(error)}`)
+            toaster.error(`Failed to delete feature: ${handleApiError(error)}`)
         },
     })
 }
@@ -232,10 +232,10 @@ export function useAssignFeature() {
             adminPlanFeaturesApi.assignFeature(planId, featureKey),
         onSuccess: (_, { planId }) => {
             queryClient.invalidateQueries({ queryKey: adminQueryKeys.planFeatures(planId) })
-            toast.success('Feature assigned successfully')
+            toaster.success('Feature assigned successfully')
         },
         onError: (error) => {
-            toast.error(`Failed to assign feature: ${handleApiError(error)}`)
+            toaster.error(`Failed to assign feature: ${handleApiError(error)}`)
         },
     })
 }
@@ -248,10 +248,10 @@ export function useRemoveFeature() {
             adminPlanFeaturesApi.removeFeature(planId, featureId),
         onSuccess: (_, { planId }) => {
             queryClient.invalidateQueries({ queryKey: adminQueryKeys.planFeatures(planId) })
-            toast.success('Feature removed successfully')
+            toaster.success('Feature removed successfully')
         },
         onError: (error) => {
-            toast.error(`Failed to remove feature: ${handleApiError(error)}`)
+            toaster.error(`Failed to remove feature: ${handleApiError(error)}`)
         },
     })
 }

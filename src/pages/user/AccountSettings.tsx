@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { AlertTriangle, Loader2, MoveLeft, Shield, User, Copy, Eye, EyeOff, Check } from "lucide-react";
-import { toast } from "sonner";
+import { toaster } from "@/hooks/useToaster";
 import { useRouter } from "@tanstack/react-router";
 import { Button } from "@/components/shadui/button";
 import {
@@ -67,7 +67,7 @@ function UserIdDisplay({ id }: { id: string }) {
         e.stopPropagation();
         navigator.clipboard.writeText(id);
         setCopied(true);
-        toast.success("ID copied to clipboard");
+        toaster.success("ID copied to clipboard");
         setTimeout(() => setCopied(false), 2000);
     };
 
@@ -130,10 +130,10 @@ export default function AccountSettings() {
     function onSubmit(data: ProfileFormValues) {
         updateProfile(data, {
             onSuccess: () => {
-                toast.success("Profile updated successfully");
+                toaster.success("Profile updated successfully");
             },
             onError: () => {
-                toast.error("Failed to update profile");
+                toaster.error("Failed to update profile");
             }
         });
     }
@@ -155,10 +155,10 @@ export default function AccountSettings() {
                     updateUser(profileResponse.data);
                 }
             }
-            toast.success("Avatar updated successfully");
+            toaster.success("Avatar updated successfully");
         } catch (error) {
             console.error(error);
-            toast.error("Failed to upload avatar");
+            toaster.error("Failed to upload avatar");
         }
     };
 

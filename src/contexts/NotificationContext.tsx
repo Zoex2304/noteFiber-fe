@@ -8,7 +8,8 @@ import {
     useRef,
     type ReactNode,
 } from 'react';
-import { toast } from 'sonner';
+import { toast as sonnerToast } from 'sonner';
+import { toaster } from '@/hooks/useToaster';
 import { useNavigate } from '@tanstack/react-router';
 import { useAuth } from '@/hooks/auth/useAuth';
 // import { useSubscription } from '@/contexts/SubscriptionContext';
@@ -153,7 +154,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 
             const metadata = message.data.metadata as SocialProofMetadata | undefined;
 
-            toast.custom(
+            sonnerToast.custom(
                 (t) => (
                     <SocialProofToast
                         title={message.data.title}
@@ -161,10 +162,10 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
                         avatarUrl={metadata?.avatar_url}
                         planName={metadata?.plan_name}
                         onUpgradeClick={() => {
-                            toast.dismiss(t);
+                            sonnerToast.dismiss(t);
                             navigate({ to: '/pricing' });
                         }}
-                        onDismiss={() => toast.dismiss(t)}
+                        onDismiss={() => sonnerToast.dismiss(t)}
                     />
                 ),
                 {
@@ -212,7 +213,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 
             // Regular toast notification with action_url support
             const actionUrl = message.data.metadata?.action_url as string | undefined;
-            toast(message.data.title, {
+            toaster.message(message.data.title, {
                 description: message.data.message,
                 duration: 5000,
                 action: actionUrl ? {

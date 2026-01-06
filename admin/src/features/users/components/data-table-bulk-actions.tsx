@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { type Table } from '@tanstack/react-table'
 import { Trash2, UserX, UserCheck, Mail } from 'lucide-react'
-import { toast } from 'sonner'
+import { toaster } from '@admin/hooks/useToaster'
 import { sleep } from '@admin/lib/utils'
 import { Button } from '@admin/components/ui/button'
 import {
@@ -27,7 +27,7 @@ export function DataTableBulkActions<TData>({
 
   const handleBulkStatusChange = (status: 'active' | 'inactive') => {
     const selectedUsers = selectedRows.map((row) => row.original as User)
-    toast.promise(sleep(2000), {
+    toaster.promise(sleep(2000), {
       loading: `${status === 'active' ? 'Activating' : 'Deactivating'} users...`,
       success: () => {
         table.resetRowSelection()
@@ -40,7 +40,7 @@ export function DataTableBulkActions<TData>({
 
   const handleBulkInvite = () => {
     const selectedUsers = selectedRows.map((row) => row.original as User)
-    toast.promise(sleep(2000), {
+    toaster.promise(sleep(2000), {
       loading: 'Inviting users...',
       success: () => {
         table.resetRowSelection()

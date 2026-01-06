@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { toast } from 'sonner';
+import { toaster } from '@/hooks/useToaster';
 import { Loader2 } from 'lucide-react';
 import {
     Dialog,
@@ -57,12 +57,12 @@ export function CancellationRequestModal({
     const handleSubmit = async (data: UserCancellationRequest) => {
         try {
             await requestMutation.mutateAsync(data);
-            toast.success('Cancellation request submitted. We will review it shortly.');
+            toaster.success('Cancellation request submitted. We will review it shortly.');
             onOpenChange(false);
             form.reset();
             onSuccess?.();
         } catch (error) {
-            toast.error('Failed to submit cancellation request');
+            toaster.error('Failed to submit cancellation request');
         }
     };
 

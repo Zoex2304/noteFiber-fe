@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useRouter } from '@tanstack/react-router';
-import { toast } from 'sonner';
+import { toaster } from '@/hooks/useToaster';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useSubscriptionStore } from '@/stores/useSubscriptionStore';
 import { useCancellationHistory } from '@/hooks/user/useCancellations';
@@ -96,7 +96,7 @@ export function useSubscriptionPageLogic() {
 
     const handleRefundClick = useCallback(() => {
         if (hasPendingRefund) {
-            toast.info('Refund pending approval.');
+            toaster.info('Refund pending approval.');
             return;
         }
         setRefundModalOpen(true);

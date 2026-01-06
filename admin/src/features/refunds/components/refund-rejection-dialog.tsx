@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Loader2, AlertTriangle } from 'lucide-react'
-import { toast } from 'sonner'
+import { toaster } from '@admin/hooks/useToaster'
 import {
     Dialog,
     DialogContent,
@@ -34,7 +34,7 @@ export function RefundRejectionDialog({ open, onOpenChange, refund }: RefundReje
             return adminRefundsApi.rejectRefund(refund.id, rejectionReason)
         },
         onSuccess: () => {
-            toast.success('Refund request rejected')
+            toaster.success('Refund request rejected')
             queryClient.invalidateQueries({ queryKey: ['admin', 'refunds'] })
             queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard'] })
             setRejectionReason('')
@@ -42,13 +42,13 @@ export function RefundRejectionDialog({ open, onOpenChange, refund }: RefundReje
         },
         onError: (error: unknown) => {
             const message = error instanceof Error ? error.message : 'Failed to reject refund'
-            toast.error(message)
+            toaster.error(message)
         },
     })
 
     const handleConfirm = () => {
         if (!rejectionReason.trim()) {
-            toast.error('Please provide a reason for rejection')
+            toaster.error('Please provide a reason for rejection')
             return
         }
         rejectMutation.mutate()

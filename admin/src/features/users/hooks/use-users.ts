@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { adminUsersApi } from '@admin/lib/api/admin-api'
 import type { UserListParams, UpdateUserRequest } from '@admin/lib/types/admin-api'
-import { toast } from 'sonner'
+import { toaster } from '@admin/hooks/useToaster'
 
 // Keys
 export const userKeys = {
@@ -43,11 +43,11 @@ export function useUpdateUserStatus() {
             reason?: string
         }) => adminUsersApi.updateUserStatus(id, status, reason),
         onSuccess: () => {
-            toast.success('User status updated successfully')
+            toaster.success('User status updated successfully')
             queryClient.invalidateQueries({ queryKey: userKeys.all })
         },
         onError: (error) => {
-            toast.error('Failed to update user status')
+            toaster.error('Failed to update user status')
             console.error(error)
         },
     })
@@ -60,11 +60,11 @@ export function useUpdateUserProfile() {
         mutationFn: ({ id, data }: { id: string; data: UpdateUserRequest }) =>
             adminUsersApi.updateUserProfile(id, data),
         onSuccess: () => {
-            toast.success('User profile updated successfully')
+            toaster.success('User profile updated successfully')
             queryClient.invalidateQueries({ queryKey: userKeys.all })
         },
         onError: (error) => {
-            toast.error('Failed to update user profile')
+            toaster.error('Failed to update user profile')
             console.error(error)
         },
     })
@@ -76,11 +76,11 @@ export function useDeleteUser() {
     return useMutation({
         mutationFn: (id: string) => adminUsersApi.deleteUser(id),
         onSuccess: () => {
-            toast.success('User deleted successfully')
+            toaster.success('User deleted successfully')
             queryClient.invalidateQueries({ queryKey: userKeys.all })
         },
         onError: (error) => {
-            toast.error('Failed to delete user')
+            toaster.error('Failed to delete user')
             console.error(error)
         },
     })
@@ -94,14 +94,14 @@ export function usePurgeUsers() {
         onSuccess: (data) => {
             const failed = data.failed_users?.length || 0
             if (failed > 0) {
-                toast.warning(`Purged ${data.deleted_count} users with ${failed} errors`)
+                toaster.warning(`Purged ${data.deleted_count} users with ${failed} errors`)
             } else {
-                toast.success(`Successfully purged ${data.deleted_count} users`)
+                toaster.success(`Successfully purged ${data.deleted_count} users`)
             }
             queryClient.invalidateQueries({ queryKey: userKeys.all })
         },
         onError: (error) => {
-            toast.error('Failed to purge users')
+            toaster.error('Failed to purge users')
             console.error(error)
         },
     })

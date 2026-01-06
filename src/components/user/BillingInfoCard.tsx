@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { toast } from 'sonner';
+import { toaster } from '@/hooks/useToaster';
 import { CreditCard, Edit2, MapPin, Loader2, User, Mail, Phone } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/shadui/card';
 import { Button } from '@/components/shadui/button';
@@ -74,10 +74,10 @@ export function BillingInfoCard() {
     const handleSubmit = async (data: UserBillingUpdateRequest) => {
         try {
             await updateMutation.mutateAsync(data);
-            toast.success('Billing information updated');
+            toaster.success('Billing information updated');
             setEditDialogOpen(false);
         } catch {
-            toast.error('Failed to update billing information');
+            toaster.error('Failed to update billing information');
         }
     };
 

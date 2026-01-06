@@ -7,7 +7,7 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { toast } from 'sonner';
+import { toaster } from '@admin/hooks/useToaster';
 import { useNavigate } from '@tanstack/react-router';
 import { WebSocketClient, getWebSocketUrl, type WebSocketMessage } from '@admin/lib/api/websocket-client';
 import { adminNotificationService } from '../services/admin-notification.service';
@@ -155,7 +155,7 @@ export function useAdminNotifications(): UseAdminNotificationsResult {
 
         // Show toast notification with click action
         const actionUrl = message.data.metadata?.action_url as string | undefined;
-        toast(message.data.title, {
+        toaster.message(message.data.title, {
             description: message.data.message,
             duration: 5000,
             action: actionUrl ? {

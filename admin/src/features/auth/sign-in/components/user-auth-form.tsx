@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { Loader2, LogIn } from 'lucide-react'
-import { toast } from 'sonner'
+import { toaster } from '@admin/hooks/useToaster'
 import { IconFacebook, IconGithub } from '@admin/assets/brand-icons'
 import { useAdminAuth } from '@admin/contexts/AdminAuthContext'
 import { cn } from '@admin/lib/utils'
@@ -55,7 +55,7 @@ export function UserAuthForm({
     try {
       await login(data.email, data.password)
 
-      toast.success(`Welcome back, ${data.email}!`)
+      toaster.success(`Welcome back, ${data.email}!`)
 
       // Redirect to the stored location or default to dashboard
       const storedRedirect = localStorage.getItem('admin_redirect')
@@ -74,7 +74,7 @@ export function UserAuthForm({
     } catch (error: unknown) {
       console.error('Login error:', error)
       const err = error as { response?: { data?: { message?: string } } }
-      toast.error(
+      toaster.error(
         err.response?.data?.message ||
         'Invalid email or password. Please try again.'
       )

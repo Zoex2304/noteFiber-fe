@@ -17,7 +17,7 @@ import {
 } from "@admin/components/ui/dropdown-menu";
 import { adminAiNuanceApi } from "@admin/lib/api/admin-api";
 import type { AiNuance } from "@admin/lib/types/admin-api";
-import { toast } from "sonner";
+import { toaster } from '@admin/hooks/useToaster';
 import { MoreHorizontal, Plus } from "lucide-react";
 import { NuanceForm } from "./NuanceForm";
 import {
@@ -40,7 +40,7 @@ export function AiNuanceList() {
             setNuances(data || []);
         } catch (error) {
             console.error("Failed to fetch nuances", error);
-            toast.error("Error", {
+            toaster.error("Error", {
                 description: "Failed to load nuances",
             });
         }
@@ -54,11 +54,11 @@ export function AiNuanceList() {
         if (!confirm("Are you sure you want to delete this nuance?")) return;
         try {
             await adminAiNuanceApi.deleteNuance(id);
-            toast.success("Nuance deleted");
+            toaster.success("Nuance deleted");
             fetchNuances();
         } catch (error) {
             console.error("Failed to delete nuance", error);
-            toast.error("Error", {
+            toaster.error("Error", {
                 description: "Failed to delete nuance",
             });
         }

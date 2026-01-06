@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { adminUsersApi } from '@admin/lib/api/admin-api'
-import { toast } from 'sonner'
+import { toaster } from '@admin/hooks/useToaster'
 
 export function useAdminUserCreate() {
     const queryClient = useQueryClient()
@@ -18,10 +18,10 @@ export function useAdminUserCreate() {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['users'] })
-            toast.success('User created successfully')
+            toaster.success('User created successfully')
         },
         onError: (error: any) => {
-            toast.error(error.message || 'Failed to create user')
+            toaster.error(error.message || 'Failed to create user')
         }
     })
 
@@ -35,14 +35,14 @@ export function useAdminUserCreate() {
             const result = response.data
 
             if (result.failed_count > 0) {
-                toast.warning(`Bulk import: ${result.created_count} created, ${result.failed_count} failed`)
+                toaster.warning(`Bulk import: ${result.created_count} created, ${result.failed_count} failed`)
                 console.error('Bulk import failures:', result.results.filter((r: any) => !r.success))
             } else {
-                toast.success(`Successfully imported ${result.created_count} users`)
+                toaster.success(`Successfully imported ${result.created_count} users`)
             }
         },
         onError: (error: any) => {
-            toast.error(error.message || 'Failed to process bulk upload')
+            toaster.error(error.message || 'Failed to process bulk upload')
         }
     })
 

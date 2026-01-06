@@ -2,7 +2,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
 import { QueryProvider } from '@/contexts/QueryClientProvider';
 import { LogOverlay } from '@/utils/debug/LogOverlay';
-import { Toaster } from 'sonner';
+import { Toaster } from '@/components/ui/Toaster';
 import { UpgradeModal } from '@/components/modals/UpgradeModal';
 import { useState, useEffect } from 'react';
 import { UPGRADE_EVENT } from '@/api/client/axios.client';

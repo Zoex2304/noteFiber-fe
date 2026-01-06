@@ -12,7 +12,7 @@ import { Input } from "@admin/components/ui/input";
 import { Badge } from "@admin/components/ui/badge";
 import { adminAiConfigApi } from "@admin/lib/api/admin-api";
 import type { AiConfiguration } from "@admin/lib/types/admin-api";
-import { toast } from "sonner";
+import { toaster } from '@admin/hooks/useToaster';
 import { Edit2, Save, X } from "lucide-react";
 
 export function AiConfigTable() {
@@ -26,7 +26,7 @@ export function AiConfigTable() {
             setConfigs(data || []);
         } catch (error) {
             console.error("Failed to fetch AI configs", error);
-            toast.error("Error", {
+            toaster.error("Error", {
                 description: "Failed to load configurations",
             });
         }
@@ -49,14 +49,14 @@ export function AiConfigTable() {
     const handleSave = async (key: string) => {
         try {
             await adminAiConfigApi.updateConfig(key, { value: editValue });
-            toast.success("Success", {
+            toaster.success("Success", {
                 description: "Configuration updated",
             });
             setEditingKey(null);
             fetchConfigs();
         } catch (error) {
             console.error("Failed to update config", error);
-            toast.error("Error", {
+            toaster.error("Error", {
                 description: "Failed to update configuration",
             });
         }

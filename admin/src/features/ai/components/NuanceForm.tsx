@@ -16,7 +16,7 @@ import { Switch } from "@admin/components/ui/switch";
 import { Button } from "@admin/components/ui/button";
 import { adminAiNuanceApi } from "@admin/lib/api/admin-api";
 import type { AiNuance } from "@admin/lib/types/admin-api";
-import { toast } from "sonner";
+import { toaster } from '@admin/hooks/useToaster';
 
 const formSchema = z.object({
     key: z.string().min(2, "Key must be at least 2 characters"),
@@ -54,18 +54,18 @@ export function NuanceForm({ nuance, onSuccess }: NuanceFormProps) {
                     ...values,
                     sort_order: typeof values.sort_order === 'number' ? values.sort_order : 0
                 });
-                toast.success("Nuance updated");
+                toaster.success("Nuance updated");
             } else {
                 await adminAiNuanceApi.createNuance({
                     ...values,
                     sort_order: typeof values.sort_order === 'number' ? values.sort_order : 0
                 });
-                toast.success("Nuance created");
+                toaster.success("Nuance created");
             }
             onSuccess();
         } catch (error) {
             console.error("Failed to save nuance", error);
-            toast.error("Error", {
+            toaster.error("Error", {
                 description: "Failed to save nuance",
             });
         }

@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toaster } from '@admin/hooks/useToaster';
 import {
     Dialog,
     DialogContent,
@@ -65,14 +65,14 @@ export function RefundDialog({ open, onOpenChange, transaction }: RefundDialogPr
             return adminRefundsApi.processRefund(refundData);
         },
         onSuccess: (data) => {
-            toast.success(`Refund processed successfully! Refund ID: ${data.refund_id}`);
+            toaster.success(`Refund processed successfully! Refund ID: ${data.refund_id}`);
             queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard'] });
             form.reset();
             setStep('form');
             onOpenChange(false);
         },
         onError: (error: any) => {
-            toast.error(error.response?.data?.message || 'Failed to process refund');
+            toaster.error(error.response?.data?.message || 'Failed to process refund');
         },
     });
 

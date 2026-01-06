@@ -1,6 +1,7 @@
 import { User, Bot, Copy, Check, FileText } from "lucide-react";
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
+import remarkGfm from 'remark-gfm';
 import rehypeKatex from 'rehype-katex';
 import type { Message } from "@/types/ai-chat";
 import { cn } from "@/lib/utils";
@@ -96,16 +97,51 @@ export function ChatBubble({ message, onCitationClick, compact, animate = false 
                     {isAssistant ? (
                         <div className="markdown-content break-words min-w-0">
                             <ReactMarkdown
-                                remarkPlugins={[remarkMath]}
+                                remarkPlugins={[remarkMath, remarkGfm]}
                                 rehypePlugins={[rehypeKatex]}
                                 components={{
                                     p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
                                     ul: ({ children }) => <ul className="list-disc pl-4 mb-2 space-y-1">{children}</ul>,
-                                    ol: ({ children }) => <ol className="list-decimal pl-4 mb-2 space-y-1">{children}</ol>,
-                                    li: ({ children }) => <li className="pl-1">{children}</li>,
+                                    ol: ({ node, children, start, ...props }) => (
+                                        <ol
+                                            className="list-decimal pl-4 mb-2 space-y-1"
+                                            start={start || 1}
+                                            style={{ counterReset: `list-item ${(start || 1) - 1}` }}
+                                            {...props}
+                                        >
+                                            {children}
+                                        </ol>
+                                    ),
+                                    li: ({ children, node, ...props }) => {
+                                        // Check if this is a task list item (GFM checkbox)
+                                        const classNames = node?.properties?.className;
+                                        const isTaskItem = Array.isArray(classNames) && classNames.includes('task-list-item');
+                                        return (
+                                            <li className={cn("pl-1", isTaskItem && "list-none")} {...props}>
+                                                {children}
+                                            </li>
+                                        );
+                                    },
                                     h1: ({ children }) => <h1 className="text-base font-bold mb-2 mt-4 first:mt-0">{children}</h1>,
                                     h2: ({ children }) => <h2 className="text-sm font-bold mb-2 mt-3 first:mt-0">{children}</h2>,
                                     h3: ({ children }) => <h3 className="text-sm font-semibold mb-1 mt-2 first:mt-0">{children}</h3>,
+                                    strong: ({ children }) => <strong className="font-bold">{children}</strong>,
+                                    em: ({ children }) => <em className="italic">{children}</em>,
+                                    del: ({ children }) => <del className="line-through opacity-70">{children}</del>,
+                                    hr: () => <hr className="my-3 border-gray-200" />,
+                                    // Table support for LLM tabular responses
+                                    table: ({ children }) => (
+                                        <div className="overflow-x-auto my-2 rounded-md border border-gray-200">
+                                            <table className="w-full text-xs border-collapse">
+                                                {children}
+                                            </table>
+                                        </div>
+                                    ),
+                                    thead: ({ children }) => <thead className="bg-gray-50">{children}</thead>,
+                                    tbody: ({ children }) => <tbody className="divide-y divide-gray-100">{children}</tbody>,
+                                    tr: ({ children }) => <tr className="hover:bg-gray-50/50">{children}</tr>,
+                                    th: ({ children }) => <th className="px-3 py-2 text-left font-semibold text-gray-700 border-b border-gray-200">{children}</th>,
+                                    td: ({ children }) => <td className="px-3 py-2 text-gray-600">{children}</td>,
                                     code: ({ node, className, children, ...props }) => {
                                         const match = /language-(\w+)/.exec(className || '');
                                         const isInline = !match && !String(children).includes('\n');
@@ -130,6 +166,16 @@ export function ChatBubble({ message, onCitationClick, compact, animate = false 
                                         <blockquote className="border-l-2 border-purple-200 pl-3 italic text-gray-500 my-2">
                                             {children}
                                         </blockquote>
+                                    ),
+                                    a: ({ children, href }) => (
+                                        <a
+                                            href={href}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-purple-600 hover:text-purple-700 underline underline-offset-2"
+                                        >
+                                            {children}
+                                        </a>
                                     ),
                                 }}
                             >

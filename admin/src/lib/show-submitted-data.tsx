@@ -1,4 +1,4 @@
-import { toast } from 'sonner'
+import { toaster } from '@admin/hooks/useToaster'
 
 export function showSubmittedData(
   data: unknown,

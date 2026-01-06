@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from '@tanstack/react-router'
 import { ArrowRight, Loader2 } from 'lucide-react'
-import { toast } from 'sonner'
+import { toaster } from '@admin/hooks/useToaster'
 import { sleep, cn } from '@admin/lib/utils'
 import { Button } from '@admin/components/ui/button'
 import {
@@ -40,7 +40,7 @@ export function ForgotPasswordForm({
     // eslint-disable-next-line no-console
     console.log(data)
 
-    toast.promise(sleep(2000), {
+    toaster.promise(sleep(2000), {
       loading: 'Sending email...',
       success: () => {
         setIsLoading(false)

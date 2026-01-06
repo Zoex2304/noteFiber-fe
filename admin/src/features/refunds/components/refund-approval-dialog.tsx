@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Loader2, AlertTriangle } from 'lucide-react'
-import { toast } from 'sonner'
+import { toaster } from '@admin/hooks/useToaster'
 import {
     Dialog,
     DialogContent,
@@ -41,7 +41,7 @@ export function RefundApprovalDialog({ open, onOpenChange, refund }: RefundAppro
             return adminRefundsApi.approveRefund(refund.id, adminNotes || undefined)
         },
         onSuccess: (data) => {
-            toast.success(`Refund approved! Amount: ${formatCurrency(data.refunded_amount)}`)
+            toaster.success(`Refund approved! Amount: ${formatCurrency(data.refunded_amount)}`)
             queryClient.invalidateQueries({ queryKey: ['admin', 'refunds'] })
             queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard'] })
             setAdminNotes('')
@@ -49,7 +49,7 @@ export function RefundApprovalDialog({ open, onOpenChange, refund }: RefundAppro
         },
         onError: (error: unknown) => {
             const message = error instanceof Error ? error.message : 'Failed to approve refund'
-            toast.error(message)
+            toaster.error(message)
         },
     })
 

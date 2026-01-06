@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { toast } from 'sonner'
+import { toaster } from '@admin/hooks/useToaster'
 import { Plus, Trash2, Edit2, MapPin, Star } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@admin/components/ui/card'
 import { Button } from '@admin/components/ui/button'
@@ -91,15 +91,15 @@ export function UserBillingTab({ userId }: UserBillingTabProps) {
         try {
             if (editingBilling) {
                 await updateMutation.mutateAsync({ id: editingBilling.id, data })
-                toast.success('Billing address updated')
+                toaster.success('Billing address updated')
             } else {
                 await createMutation.mutateAsync(data)
-                toast.success('Billing address created')
+                toaster.success('Billing address created')
             }
             setFormDialogOpen(false)
             form.reset()
         } catch (error) {
-            toast.error('Failed to save billing address')
+            toaster.error('Failed to save billing address')
         }
     }
 
@@ -107,11 +107,11 @@ export function UserBillingTab({ userId }: UserBillingTabProps) {
         if (!deletingId) return
         try {
             await deleteMutation.mutateAsync(deletingId)
-            toast.success('Billing address deleted')
+            toaster.success('Billing address deleted')
             setDeleteDialogOpen(false)
             setDeletingId(null)
         } catch (error) {
-            toast.error('Failed to delete billing address')
+            toaster.error('Failed to delete billing address')
         }
     }
 

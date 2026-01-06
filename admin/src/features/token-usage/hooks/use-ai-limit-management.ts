@@ -7,7 +7,7 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
+import { toaster } from '@admin/hooks/useToaster';
 import { aiLimitService } from '../services/ai-limit.service';
 import type { TokenUsageItem, UpdateAiLimitResponse } from '../types';
 import type { WebSocketMessage } from '@admin/lib/api/websocket-client';
@@ -109,7 +109,7 @@ export function useAiLimitManagement(): UseAiLimitManagementResult {
         mutationFn: ({ userId, usage }: { userId: string; usage: { chat?: number; search?: number } }) =>
             aiLimitService.updateUserUsage(userId, usage),
         onSuccess: (data) => {
-            toast.success(`AI usage updated for ${data.user_email}`);
+            toaster.success(`AI usage updated for ${data.user_email}`);
             // Optimistic update
             updateUserInCache(
                 data.user_id,
@@ -119,14 +119,14 @@ export function useAiLimitManagement(): UseAiLimitManagementResult {
             closeEditDialog();
         },
         onError: () => {
-            toast.error('Failed to update AI usage');
+            toaster.error('Failed to update AI usage');
         },
     });
 
     const resetMutation = useMutation({
         mutationFn: (userId: string) => aiLimitService.resetUserUsage(userId),
         onSuccess: (data) => {
-            toast.success('AI usage reset to 0');
+            toaster.success('AI usage reset to 0');
             // Assuming reset sets both to 0 if 0 is not provided
             // Or response contains strict new values.
             // If new_chat_usage is undefined, it might mean unchanged?
@@ -139,35 +139,35 @@ export function useAiLimitManagement(): UseAiLimitManagementResult {
             );
         },
         onError: () => {
-            toast.error('Failed to reset AI usage');
+            toaster.error('Failed to reset AI usage');
         },
     });
 
     const bulkUpdateMutation = useMutation({
         mutationFn: (usage: { chat?: number; search?: number }) => aiLimitService.bulkUpdateUsage(selectedUsers, usage),
         onSuccess: (data) => {
-            toast.success(`Updated usage for ${data.total_updated} users`);
+            toaster.success(`Updated usage for ${data.total_updated} users`);
             if (data.failed_user_ids.length > 0) {
-                toast.warning(`Failed for ${data.failed_user_ids.length} users`);
+                toaster.warning(`Failed for ${data.failed_user_ids.length} users`);
             }
             queryClient.invalidateQueries({ queryKey: queryKeyPrefix });
             clearSelection();
             closeBulkDialog();
         },
         onError: () => {
-            toast.error('Bulk update failed');
+            toaster.error('Bulk update failed');
         },
     });
 
     const bulkResetMutation = useMutation({
         mutationFn: () => aiLimitService.bulkResetUsage(selectedUsers),
         onSuccess: (data) => {
-            toast.success(`Reset usage for ${data.total_updated} users`);
+            toaster.success(`Reset usage for ${data.total_updated} users`);
             queryClient.invalidateQueries({ queryKey: queryKeyPrefix });
             clearSelection();
         },
         onError: () => {
-            toast.error('Bulk reset failed');
+            toaster.error('Bulk reset failed');
         },
     });
 

@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Loader2, AlertCircle } from 'lucide-react';
-import { toast } from 'sonner';
+import { toaster } from '@/hooks/useToaster';
 import {
     Dialog,
     DialogContent,
@@ -60,7 +60,7 @@ export function RefundRequestModal({
 
     const handleSubmit = async (data: RefundFormValues) => {
         if (!subscriptionId) {
-            toast.error('No active subscription found for refund request.');
+            toaster.error('No active subscription found for refund request.');
             return;
         }
 
@@ -72,17 +72,17 @@ export function RefundRequestModal({
             });
 
             if (response.success) {
-                toast.success(response.data?.message || 'Refund request submitted successfully!');
+                toaster.success(response.data?.message || 'Refund request submitted successfully!');
                 form.reset();
                 onOpenChange(false);
                 onSuccess?.();
             } else {
-                toast.error(response.message || 'Failed to submit refund request.');
+                toaster.error(response.message || 'Failed to submit refund request.');
             }
         } catch (error: unknown) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const errorMessage = (error as any)?.response?.data?.message || (error instanceof Error ? error.message : 'Failed to submit refund request. Please try again.');
-            toast.error(errorMessage);
+            toaster.error(errorMessage);
         } finally {
             setIsSubmitting(false);
         }
