@@ -17,12 +17,15 @@ import { TokenLimitDialog } from "@/components/common/TokenLimitDialog";
 import { NewSessionConfirmationModal } from "@/components/molecules/NewSessionConfirmationModal";
 import { SessionHistoryList } from "@/components/molecules/SessionHistoryList";
 import { ChatInterface } from "@/components/organisms/ChatInterface";
+import { SaveToNotesDialog } from "@/components/molecules/SaveToNotesDialog";
 
 // Hooks
 import { useChatSystem } from "@/hooks/useChatSystem";
 import { useSidebarStore } from "@/stores/useSidebarStore";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useNewSessionConfirmation } from "@/hooks/chat";
+import { useAddToNotes } from "@/hooks/chat/useAddToNotes";
+import { useNoteOrchestratorContext } from "@/contexts/NoteOrchestratorContext";
 
 // -----------------------------------------------------------------------------
 // Types
@@ -92,6 +95,8 @@ export function RightSidebar({
 
     const { refreshSubscription } = useSubscription();
     const newSessionConfirmation = useNewSessionConfirmation();
+    const addToNotes = useAddToNotes();
+    const { noteSystem } = useNoteOrchestratorContext();
 
     // -------------------------------------------------------------------------
     // State
@@ -303,6 +308,7 @@ export function RightSidebar({
                             inputValue={input}
                             onInputChange={setInput}
                             notes={notes}
+                            onSaveToNotes={(content, suggestedTitle) => addToNotes.openDialog({ content, suggestedTitle })}
                         />
                     </div>
                 </div>
@@ -321,6 +327,16 @@ export function RightSidebar({
                 open={showTokenLimitDialog}
                 onOpenChange={setShowTokenLimitDialog}
                 dailyLimit={tokenUsage.chat.limit}
+            />
+
+            <SaveToNotesDialog
+                open={addToNotes.isOpen}
+                onOpenChange={(open) => !open && addToNotes.closeDialog()}
+                suggestedTitle={addToNotes.suggestedTitle}
+                notebooks={noteSystem.notebooks}
+                onSaveToExisting={addToNotes.saveToExistingNotebook}
+                onSaveToNew={addToNotes.saveToNewNotebook}
+                isSaving={addToNotes.isSaving}
             />
         </SidebarLayout>
     );

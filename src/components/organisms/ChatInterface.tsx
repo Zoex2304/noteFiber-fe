@@ -31,6 +31,8 @@ export interface ChatInterfaceProps {
     onInputChange: (value: string) => void;
     /** Available notes for autocomplete */
     notes: Note[];
+    /** Handler for saving AI response to notes */
+    onSaveToNotes?: (content: string, suggestedTitle: string) => void;
 }
 
 /**
@@ -47,7 +49,8 @@ export function ChatInterface({
     onCitationClick,
     inputValue,
     onInputChange,
-    notes
+    notes,
+    onSaveToNotes
 }: ChatInterfaceProps) {
     const currentSession = sessions.find(s => s.id === activeSessionId);
 
@@ -182,9 +185,9 @@ export function ChatInterface({
                                 key={message.id}
                                 message={message}
                                 onCitationClick={onCitationClick}
-                                compact
                                 animate={index === messages.length - 1}
                                 onTyping={index === messages.length - 1 ? setIsTyping : undefined}
+                                onSaveToNotes={message.role === 'assistant' ? onSaveToNotes : undefined}
                             />
                         ))}
 
